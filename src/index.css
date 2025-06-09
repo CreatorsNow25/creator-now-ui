@@ -19,32 +19,32 @@
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 85%;
 
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 90%;
 
     --destructive: 0 0% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
     --ring: 0 0% 0%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 26%;
-    --sidebar-primary: 0 0% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 95%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 91%;
-    --sidebar-ring: 0 0% 59%;
+    --sidebar-background: 0 0% 5%;
+    --sidebar-foreground: 0 0% 90%;
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 0 0% 10%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 0 0% 50%;
   }
 
   .dark {
@@ -96,14 +96,14 @@
   }
 }
 
-/* Custom gradient classes for the brand - now black and white */
+/* Custom gradient classes for the brand - black theme */
 @layer utilities {
   .bg-creators-gradient {
-    background: linear-gradient(135deg, #000000 0%, #404040 100%);
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
   }
   
   .bg-creators-gradient-soft {
-    background: linear-gradient(135deg, #404040 0%, #808080 100%);
+    background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
   }
   
   .text-creators-gradient {
@@ -111,5 +111,15 @@
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+  
+  .bg-black-section {
+    background: #000000;
+    color: #ffffff;
+  }
+  
+  .bg-dark-card {
+    background: #1a1a1a;
+    border: 1px solid #333333;
   }
 }
