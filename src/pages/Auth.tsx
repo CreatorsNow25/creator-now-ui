@@ -91,7 +91,7 @@ const Auth = () => {
                 onClick={() => setUserType('creator')}
                 className={userType === 'creator' 
                   ? 'bg-white text-black hover:bg-white/90' 
-                  : 'border-white text-white hover:bg-white hover:text-black'
+                  : 'bg-white text-black border-white hover:bg-white/90'
                 }
               >
                 <Play className="w-4 h-4 mr-2" />
