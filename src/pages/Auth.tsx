@@ -84,7 +84,7 @@ const Auth = () => {
                 }
               >
                 <User className="w-4 h-4 mr-2" />
-                Join As A Storyteller
+                Storyteller
               </Button>
               <Button
                 variant={userType === 'creator' ? 'default' : 'outline'}
@@ -95,7 +95,7 @@ const Auth = () => {
                 }
               >
                 <Play className="w-4 h-4 mr-2" />
-                Join As An AI Creator
+                AI Creator
               </Button>
             </div>
           </div>
@@ -129,7 +129,7 @@ const Auth = () => {
                           id="email"
                           type="email"
                           placeholder="Enter Your Email"
-                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60"
+                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
                         />
                       </div>
@@ -142,7 +142,7 @@ const Auth = () => {
                           id="password"
                           type="password"
                           placeholder="Enter Your Password"
-                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60"
+                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
                         />
                       </div>
@@ -167,7 +167,7 @@ const Auth = () => {
                           id="name"
                           type="text"
                           placeholder="Enter Your Full Name"
-                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60"
+                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
                         />
                       </div>
@@ -180,7 +180,7 @@ const Auth = () => {
                           id="email-signup"
                           type="email"
                           placeholder="Enter Your Email"
-                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60"
+                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
                         />
                       </div>
@@ -193,7 +193,7 @@ const Auth = () => {
                           id="password-signup"
                           type="password"
                           placeholder="Create A Password"
-                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60"
+                          className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
                         />
                       </div>
