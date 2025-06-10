@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Play } from 'lucide-react';
+import { Play, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
@@ -23,6 +23,7 @@ const Header = () => {
             </Button>
             <Button onClick={() => navigate('/auth')} className="bg-white text-black hover:bg-gray-200">
               Get Started
+              <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </div>
         </div>
