@@ -1,59 +1,65 @@
 
 import React from 'react';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { StepProps } from './types';
-import { DURATIONS } from './constants';
 
 const BudgetTimelineStep: React.FC<StepProps> = ({ formData, setFormData }) => {
+  const handleBudgetChange = (value: string) => {
+    const numValue = parseInt(value) || 0;
+    setFormData({ ...formData, budget: [numValue] as [number] });
+  };
+
+  const handleDeadlineSelect = (date: Date | undefined) => {
+    if (date) {
+      setFormData({ ...formData, deadline: format(date, 'yyyy-MM-dd') });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <Label>Budget Range</Label>
-        <div className="mt-4 space-y-4">
-          <Slider
-            value={formData.budget}
-            onValueChange={(value) => setFormData({ ...formData, budget: value })}
-            max={10000}
-            min={500}
-            step={250}
-            className="w-full"
-          />
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>$500</span>
-            <span className="font-medium text-lg text-gray-900">
-              ${formData.budget[0].toLocaleString()}
-            </span>
-            <span>$10,000+</span>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <Label htmlFor="duration">Expected Duration</Label>
-        <Select value={formData.duration} onValueChange={(value) => setFormData({ ...formData, duration: value })}>
-          <SelectTrigger className="mt-2">
-            <SelectValue placeholder="Select duration" />
-          </SelectTrigger>
-          <SelectContent>
-            {DURATIONS.map((duration) => (
-              <SelectItem key={duration} value={duration}>{duration}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <Label htmlFor="deadline">Deadline</Label>
+        <Label htmlFor="budget">Budget Range ($)</Label>
         <Input
-          id="deadline"
-          type="date"
-          value={formData.deadline}
-          onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+          id="budget"
+          type="number"
+          value={formData.budget[0] || ''}
+          onChange={(e) => handleBudgetChange(e.target.value)}
+          placeholder="Enter your budget"
           className="mt-2"
         />
+      </div>
+
+      <div>
+        <Label>Project Deadline</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full justify-start text-left font-normal mt-2",
+                !formData.deadline && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {formData.deadline ? format(new Date(formData.deadline), 'PPP') : 'Pick a date'}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={formData.deadline ? new Date(formData.deadline) : undefined}
+              onSelect={handleDeadlineSelect}
+              initialFocus
+            />
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );
