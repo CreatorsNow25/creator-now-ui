@@ -176,13 +176,13 @@ const StorytellerDashboard = () => {
             </div>
 
             {/* Create New Project CTA */}
-            <Card className="border-dashed border-2 border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50">
+            <Card className="border-dashed border-2 border-gray-300 bg-gray-50">
               <CardContent className="p-8 text-center">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">Ready to bring your next story to life?</h3>
                 <p className="text-gray-600 mb-6">Connect with top AI creators and transform your vision into stunning trailers</p>
                 <Button 
                   onClick={handleCreateProject}
-                  className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                  className="bg-black text-white hover:bg-gray-800"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Create New Project
@@ -263,7 +263,7 @@ const StorytellerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50">
       <StorytellerHeader />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}
