@@ -79,6 +79,7 @@ const StorytellerDashboard = () => {
   };
 
   const handleViewProject = (project: any) => {
+    console.log('Viewing project:', project);
     setSelectedProject(project);
     if (project.status === 'pending_review') {
       setActiveView('review');
@@ -90,20 +91,27 @@ const StorytellerDashboard = () => {
   };
 
   const handleCreateProject = () => {
+    console.log('Creating new project - switching to create view');
+    setSelectedProject(null);
     setActiveView('create');
   };
 
   const handleProjectSubmitted = () => {
+    console.log('Project submitted - switching to matches view');
     setActiveView('matches');
   };
 
   const handleCreatorSelected = (creator: any) => {
+    console.log('Creator selected:', creator);
     setActiveView('workroom');
   };
 
   const renderActiveView = () => {
+    console.log('Rendering active view:', activeView);
+    
     switch (activeView) {
       case 'create':
+        console.log('Rendering ProjectBriefForm');
         return <ProjectBriefForm onSubmit={handleProjectSubmitted} onCancel={() => setActiveView('dashboard')} />;
       case 'matches':
         return <MatchResults onCreatorSelect={handleCreatorSelected} onBack={() => setActiveView('dashboard')} />;
