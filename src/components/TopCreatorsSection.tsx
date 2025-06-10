@@ -31,14 +31,6 @@ const TopCreatorsSection = () => {
       specialty: "Commercials",
       thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&h=120&fit=crop",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
-    },
-    {
-      name: "Marcus R.",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face",
-      rating: 4.7,
-      specialty: "Brand Commercials",
-      thumbnail: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=200&h=120&fit=crop",
-      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4"
     }
   ];
 
@@ -54,7 +46,7 @@ const TopCreatorsSection = () => {
     <section className="py-20 bg-black-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold text-center text-white mb-16">Top Rated AI Creators</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-3 gap-8">
           {creators.map((creator, index) => (
             <Card key={index} className="bg-dark-card text-white">
               <CardContent className="p-6">
