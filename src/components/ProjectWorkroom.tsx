@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, MessageSquare, Upload, Download, Eye, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Upload, Download, Eye, Clock, CheckCircle, AlertCircle, Shield } from 'lucide-react';
+import ProjectApproval from './ProjectApproval';
 
 interface ProjectWorkroomProps {
   project: any;
@@ -16,6 +16,7 @@ interface ProjectWorkroomProps {
 
 const ProjectWorkroom: React.FC<ProjectWorkroomProps> = ({ project, onPayment, onBack }) => {
   const [newMessage, setNewMessage] = useState('');
+  const [activeView, setActiveView] = useState<'workroom' | 'approval'>('workroom');
 
   const messages = [
     {
@@ -114,6 +115,23 @@ const ProjectWorkroom: React.FC<ProjectWorkroomProps> = ({ project, onPayment, o
       setNewMessage('');
     }
   };
+
+  const handleApproveProject = () => {
+    setActiveView('workroom');
+    // Additional logic for post-approval
+  };
+
+  if (activeView === 'approval') {
+    return (
+      <ProjectApproval
+        project={project}
+        onApprove={handleApproveProject}
+        onReject={() => setActiveView('workroom')}
+        onRequestRevision={() => setActiveView('workroom')}
+        onBack={() => setActiveView('workroom')}
+      />
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -323,27 +341,51 @@ const ProjectWorkroom: React.FC<ProjectWorkroomProps> = ({ project, onPayment, o
 
           <Card>
             <CardHeader>
-              <CardTitle>Payment</CardTitle>
+              <CardTitle>Escrow Payment</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Project Fee</span>
-                <span className="font-medium">$2,500</span>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Shield className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-900">Escrow Protected</span>
+                </div>
+                <p className="text-xs text-green-700">
+                  Your payment is safely held until you approve the final work
+                </p>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Platform Fee (15%)</span>
-                <span className="font-medium">$375</span>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Project Fee</span>
+                  <span className="font-medium">$2,500</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Platform Fee (15%)</span>
+                  <span className="font-medium">$375</span>
+                </div>
+                <div className="border-t pt-2 flex justify-between font-bold">
+                  <span>Total Paid</span>
+                  <span>$2,875</span>
+                </div>
               </div>
-              <div className="border-t pt-2 flex justify-between font-bold">
-                <span>Total</span>
-                <span>$2,875</span>
-              </div>
-              <Button 
-                onClick={onPayment}
-                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
-              >
-                Release Payment
-              </Button>
+              
+              {project?.status === 'pending_review' ? (
+                <Button 
+                  onClick={() => setActiveView('approval')}
+                  className="w-full bg-green-600 hover:bg-green-700"
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Review Final Work
+                </Button>
+              ) : (
+                <Button 
+                  onClick={onPayment}
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                  disabled
+                >
+                  Funds in Escrow
+                </Button>
+              )}
             </CardContent>
           </Card>
 
