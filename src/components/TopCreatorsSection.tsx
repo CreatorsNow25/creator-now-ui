@@ -10,7 +10,7 @@ const TopCreatorsSection = () => {
   const creators = [
     {
       name: "Alex T.",
-      avatar: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?w=80&h=80&fit=crop&crop=face",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
       rating: 4.9,
       specialty: "Animation Trailers",
       thumbnail: "https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?w=200&h=120&fit=crop",
@@ -18,18 +18,18 @@ const TopCreatorsSection = () => {
     },
     {
       name: "Emma C.",
-      avatar: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=80&h=80&fit=crop&crop=face",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=80&h=80&fit=crop&crop=face",
       rating: 4.8,
       specialty: "Fantasy Adventures",
       thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
     },
     {
-      name: "Jordan K.",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
+      name: "Maya R.",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face",
       rating: "New",
-      specialty: "Product Commercials",
-      thumbnail: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=200&h=120&fit=crop",
+      specialty: "Sci-Fi Concepts",
+      thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=200&h=120&fit=crop",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4"
     }
   ];
