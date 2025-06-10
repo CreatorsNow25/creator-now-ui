@@ -293,28 +293,28 @@ const Index = () => {
           <div id="faq" className="mb-12">
             <h3 className="text-2xl font-bold text-white mb-6">FAQ</h3>
             <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="what-is">
+              <AccordionItem value="what-is" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">What Is Creators Now?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   Creators Now is a two-sided marketplace that connects storytellers with experienced AI Creators who specialize in producing trailers, short films, and visual concepts using generative tools.
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="storytellers">
+              <AccordionItem value="storytellers" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">Who Are Storytellers?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   Storytellers are screenwriters, filmmakers, producers, or anyone with a story to tell.
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="ai-creators">
+              <AccordionItem value="ai-creators" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">Who Are AI Creators?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   AI Creators are visual artists and technologists who use tools like Runway, Pika, Sora, Midjourney, ElevenLabs, and others.
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="how-it-works">
+              <AccordionItem value="how-it-works" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">How Does The Platform Work?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   <ul className="list-disc list-inside space-y-1">
@@ -326,7 +326,7 @@ const Index = () => {
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="what-can-be-created">
+              <AccordionItem value="what-can-be-created" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">What Can Be Created?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   <ul className="list-disc list-inside space-y-1">
@@ -339,7 +339,7 @@ const Index = () => {
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="cost">
+              <AccordionItem value="cost" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">How Much Does It Cost?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   <ul className="list-disc list-inside space-y-1">
@@ -350,28 +350,28 @@ const Index = () => {
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="ownership">
+              <AccordionItem value="ownership" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">Who Owns The Final Work?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   Ownership is defined in the proposal and confirmed on project start. Storytellers typically own final deliverables; AI Creators can showcase work unless told otherwise.
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="tools">
+              <AccordionItem value="tools" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">What Tools Do AI Creators Use?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   Common tools: Runway, Pika, Sora, Stable Diffusion, Midjourney, ElevenLabs, Kaiber, etc.
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="international">
+              <AccordionItem value="international" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">Is It International?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   Yes. Payments are handled via Stripe.
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="payments">
+              <AccordionItem value="payments" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">How Do Payments Work?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   <ul className="list-disc list-inside space-y-1">
@@ -383,21 +383,21 @@ const Index = () => {
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="become-creator">
+              <AccordionItem value="become-creator" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">How Do I Become An AI Creator?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   Click "AI Creator," complete onboarding, upload your portfolio.
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="showcase">
+              <AccordionItem value="showcase" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">Can Creators Showcase Their Work?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   Yes, portfolio uploads are encouraged and help with visibility.
                 </AccordionContent>
               </AccordionItem>
               
-              <AccordionItem value="prohibited">
+              <AccordionItem value="prohibited" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">What Content Is Prohibited?</AccordionTrigger>
                 <AccordionContent className="text-gray-300">
                   No illegal, violent, hateful, or explicit non-consensual content. Public NSFW content is not allowed.
@@ -410,7 +410,7 @@ const Index = () => {
           <div id="terms" className="mb-12">
             <h3 className="text-2xl font-bold text-white mb-6">Terms of Service</h3>
             <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="terms-full">
+              <AccordionItem value="terms-full" className="border-gray-600">
                 <AccordionTrigger className="text-white hover:text-gray-300">Terms of Service</AccordionTrigger>
                 <AccordionContent className="text-gray-300 space-y-4">
                   <p className="font-medium">Last Updated: {new Date().getFullYear()}</p>
