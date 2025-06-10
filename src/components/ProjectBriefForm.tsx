@@ -307,7 +307,7 @@ const ProjectBriefForm: React.FC<ProjectBriefFormProps> = ({ onSubmit, onCancel 
             </Button>
             <Button 
               onClick={handleNext}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+              className="bg-black text-white hover:bg-gray-800"
             >
               {currentStep === totalSteps ? 'Submit Project' : 'Next'}
             </Button>
