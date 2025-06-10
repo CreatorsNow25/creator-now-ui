@@ -30,7 +30,7 @@ const TopCreatorsSection = () => {
       rating: "New",
       specialty: "Sci-Fi Concepts",
       thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=200&h=120&fit=crop",
-      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4"
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
     }
   ];
 
