@@ -14,21 +14,21 @@ const Index = () => {
 
   const creators = [
     {
-      name: "Alex Thompson",
+      name: "Alex T.",
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
       rating: 4.9,
       specialty: "Sci-Fi Trailers",
       thumbnail: "https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?w=200&h=120&fit=crop"
     },
     {
-      name: "Maya Patel",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=face",
+      name: "Sarah C.",
+      avatar: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=80&h=80&fit=crop&crop=face",
       rating: 4.8,
       specialty: "Fantasy Adventures",
       thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop"
     },
     {
-      name: "Jordan Kim",
+      name: "Jordan K.",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
       rating: "New",
       specialty: "Drama & Thriller",
@@ -38,13 +38,13 @@ const Index = () => {
 
   const testimonials = [
     {
-      name: "Sarah Chen",
+      name: "Sarah C.",
       role: "Indie Filmmaker",
       content: "Found the perfect creator for my sci-fi short. The AI trailer exceeded all expectations!",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=60&h=60&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=60&h=60&fit=crop&crop=face"
     },
     {
-      name: "Marcus Rodriguez",
+      name: "Marcus R.",
       role: "Content Creator",
       content: "As a creator, this platform helps me showcase my work and find amazing projects.",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face"
@@ -152,7 +152,7 @@ const Index = () => {
                       alt={creator.specialty}
                       className="w-full aspect-video object-cover rounded-lg"
                     />
-                    <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
                       <Play className="w-12 h-12 text-white" />
                     </div>
                   </div>
@@ -286,7 +286,7 @@ const Index = () => {
               <h4 className="font-bold text-white mb-4">Support</h4>
               <ul className="space-y-2 text-gray-300">
                 <li><a href="#faq" className="hover:text-white">FAQ</a></li>
-                <li><a href="#terms" className="hover:text-white">TOS (Terms Of Service)</a></li>
+                <li><a href="#terms" className="hover:text-white">Terms of Service</a></li>
                 <li><button onClick={() => setShowContactForm(true)} className="hover:text-white text-left">Contact Us</button></li>
               </ul>
             </div>
@@ -411,10 +411,10 @@ const Index = () => {
 
           {/* TOS Section */}
           <div id="terms" className="mb-12">
-            <h3 className="text-2xl font-bold text-white mb-6">TOS (Terms Of Service)</h3>
+            <h3 className="text-2xl font-bold text-white mb-6">Terms of Service</h3>
             <Accordion type="single" collapsible className="w-full">
               <AccordionItem value="terms-full">
-                <AccordionTrigger className="text-white hover:text-gray-300">TOS (Terms Of Service)</AccordionTrigger>
+                <AccordionTrigger className="text-white hover:text-gray-300">Terms of Service</AccordionTrigger>
                 <AccordionContent className="text-gray-300 space-y-4">
                   <p className="font-medium">Last Updated: {new Date().getFullYear()}</p>
                   <p>By accessing or using Creators Now, you agree to these Terms. If you do not agree, do not use the platform.</p>
