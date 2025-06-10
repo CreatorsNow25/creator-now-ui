@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,14 +21,14 @@ const Index = () => {
     },
     {
       name: "Sarah C.",
-      avatar: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=80&h=80&fit=crop&crop=face",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=80&h=80&fit=crop&crop=face",
       rating: 4.8,
       specialty: "Fantasy Adventures",
       thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop"
     },
     {
       name: "Jordan K.",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
       rating: "New",
       specialty: "Drama & Thriller",
       thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&h=120&fit=crop"
@@ -38,10 +37,10 @@ const Index = () => {
 
   const testimonials = [
     {
-      name: "Sarah C.",
+      name: "Emily R.",
       role: "Indie Filmmaker",
       content: "Found the perfect creator for my sci-fi short. The AI trailer exceeded all expectations!",
-      avatar: "https://images.unsplash.com/photo-1506277886164-e25aa3f4ef7f?w=60&h=60&fit=crop&crop=face"
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face"
     },
     {
       name: "Marcus R.",
@@ -98,9 +97,8 @@ const Index = () => {
             </Button>
             <Button 
               size="lg" 
-              variant="outline"
               onClick={() => navigate('/auth')}
-              className="text-white border-white hover:bg-white hover:text-black text-lg px-8 py-3"
+              className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-3"
             >
               AI Creator
             </Button>
@@ -247,9 +245,8 @@ const Index = () => {
             </Button>
             <Button 
               size="lg" 
-              variant="outline"
               onClick={() => navigate('/auth')}
-              className="text-black border-black hover:bg-black hover:text-white text-lg px-8 py-3"
+              className="bg-black text-white hover:bg-gray-800 text-lg px-8 py-3"
             >
               AI Creator
             </Button>
