@@ -34,6 +34,7 @@ const HeroSection = () => {
             className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-3"
           >
             AI Creator
+            <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
       </div>
