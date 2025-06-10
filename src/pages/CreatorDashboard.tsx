@@ -113,7 +113,7 @@ const CreatorDashboard = () => {
           <div className="space-y-8">
             {/* Profile Completion Banner */}
             {!profileComplete && (
-              <Card className="border-amber-300 bg-gradient-to-r from-amber-50 to-orange-50">
+              <Card className="border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -126,7 +126,7 @@ const CreatorDashboard = () => {
                     </div>
                     <Button 
                       onClick={() => setActiveView('profile')}
-                      className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                      className="bg-black text-white hover:bg-gray-800"
                     >
                       Complete Profile
                     </Button>
@@ -136,17 +136,17 @@ const CreatorDashboard = () => {
             )}
 
             {profileComplete && (
-              <Card className="border-green-300 bg-gradient-to-r from-green-50 to-emerald-50">
+              <Card className="border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100">
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                      <User className="w-6 h-6 text-green-600" />
+                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                      <User className="w-6 h-6 text-gray-600" />
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900">Profile Complete!</h3>
                       <p className="text-gray-600">You're now eligible for premium project invites</p>
                     </div>
-                    <Badge className="bg-green-100 text-green-800 ml-auto">Premium Creator</Badge>
+                    <Badge className="bg-gray-100 text-gray-800 ml-auto">Premium Creator</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -161,8 +161,8 @@ const CreatorDashboard = () => {
                       <p className="text-sm font-medium text-gray-600">Active Projects</p>
                       <p className="text-2xl font-bold text-gray-900">{stats.activeProjects}</p>
                     </div>
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Play className="w-6 h-6 text-blue-600" />
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Play className="w-6 h-6 text-gray-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -175,8 +175,8 @@ const CreatorDashboard = () => {
                       <p className="text-sm font-medium text-gray-600">Total Earnings</p>
                       <p className="text-2xl font-bold text-gray-900">${stats.totalEarnings.toLocaleString()}</p>
                     </div>
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <DollarSign className="w-6 h-6 text-green-600" />
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <DollarSign className="w-6 h-6 text-gray-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -189,8 +189,8 @@ const CreatorDashboard = () => {
                       <p className="text-sm font-medium text-gray-600">Rating</p>
                       <p className="text-2xl font-bold text-gray-900">{stats.averageRating}</p>
                     </div>
-                    <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                      <Star className="w-6 h-6 text-yellow-600" />
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Star className="w-6 h-6 text-gray-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -203,8 +203,8 @@ const CreatorDashboard = () => {
                       <p className="text-sm font-medium text-gray-600">Completed</p>
                       <p className="text-2xl font-bold text-gray-900">{stats.completedProjects}</p>
                     </div>
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Eye className="w-6 h-6 text-purple-600" />
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Eye className="w-6 h-6 text-gray-600" />
                     </div>
                   </div>
                 </CardContent>
@@ -213,39 +213,39 @@ const CreatorDashboard = () => {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+              <Card className="border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
                 <CardContent className="p-6 text-center">
                   <h3 className="font-bold text-gray-900 mb-2">Browse Projects</h3>
                   <p className="text-gray-600 mb-4 text-sm">Find new opportunities that match your skills</p>
                   <Button 
                     onClick={() => setActiveView('inbox')}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-gray-800 hover:bg-gray-900 text-white"
                   >
                     View Inbox
                   </Button>
                 </CardContent>
               </Card>
               
-              <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+              <Card className="border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
                 <CardContent className="p-6 text-center">
                   <h3 className="font-bold text-gray-900 mb-2">Setup Payouts</h3>
                   <p className="text-gray-600 mb-4 text-sm">Connect your payment method to receive earnings</p>
                   <Button 
                     onClick={() => setActiveView('payout')}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-gray-800 hover:bg-gray-900 text-white"
                   >
                     Setup Payments
                   </Button>
                 </CardContent>
               </Card>
               
-              <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50">
+              <Card className="border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100">
                 <CardContent className="p-6 text-center">
                   <h3 className="font-bold text-gray-900 mb-2">Profile Settings</h3>
                   <p className="text-gray-600 mb-4 text-sm">Update your portfolio and pricing</p>
                   <Button 
                     onClick={() => setActiveView('profile')}
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-gray-800 hover:bg-gray-900 text-white"
                   >
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Profile
@@ -305,6 +305,7 @@ const CreatorDashboard = () => {
                           onClick={() => handleViewProject(project)}
                           variant="default" 
                           size="sm"
+                          className="bg-gray-900 hover:bg-gray-800 text-white"
                         >
                           View Project
                         </Button>
@@ -320,7 +321,7 @@ const CreatorDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <CreatorHeader />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}
