@@ -12,56 +12,9 @@ interface ProjectInboxProps {
 }
 
 const ProjectInbox: React.FC<ProjectInboxProps> = ({ onProjectSelect, onBack }) => {
-  const [selectedTab, setSelectedTab] = useState('new');
+  const [selectedTab, setSelectedTab] = useState('invited');
 
   const projects = {
-    new: [
-      {
-        id: 1,
-        title: "Epic Space Opera Trailer",
-        client: "Michael Chen",
-        clientAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-        budget: 3500,
-        deadline: "2024-01-25",
-        description: "Looking for a creator to bring my sci-fi novel to life with an epic space battle trailer. Need someone experienced with VFX and space environments.",
-        genre: "Sci-Fi",
-        duration: "90 seconds",
-        postedTime: "2 hours ago",
-        applicants: 8,
-        clientRating: 4.7,
-        tags: ["VFX", "Space", "Action", "Cinematic"]
-      },
-      {
-        id: 2,
-        title: "Dark Fantasy Horror Teaser",
-        client: "Emma Rodriguez",
-        clientAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=40&h=40&fit=crop&crop=face",
-        budget: 2200,
-        deadline: "2024-01-30",
-        description: "Creating a dark fantasy book trailer with gothic horror elements. Looking for someone who can create atmospheric, moody visuals.",
-        genre: "Horror/Fantasy",
-        duration: "60 seconds",
-        postedTime: "5 hours ago",
-        applicants: 12,
-        clientRating: 4.9,
-        tags: ["Horror", "Gothic", "Atmosphere", "Dark"]
-      },
-      {
-        id: 3,
-        title: "Romantic Comedy Book Trailer",
-        client: "Sarah Wilson",
-        clientAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
-        budget: 1800,
-        deadline: "2024-02-05",
-        description: "Fun, light-hearted trailer for a romantic comedy novel. Need bright, colorful visuals with comedic timing.",
-        genre: "Romance/Comedy",
-        duration: "45 seconds",
-        postedTime: "1 day ago",
-        applicants: 15,
-        clientRating: 4.6,
-        tags: ["Romance", "Comedy", "Bright", "Fun"]
-      }
-    ],
     invited: [
       {
         id: 4,
@@ -79,6 +32,23 @@ const ProjectInbox: React.FC<ProjectInboxProps> = ({ onProjectSelect, onBack }) 
         tags: ["Historical", "Medieval", "Drama", "Period"],
         invited: true,
         inviteReason: "Your fantasy work portfolio matches this project perfectly!"
+      },
+      {
+        id: 6,
+        title: "Epic Space Opera Trailer",
+        client: "Michael Chen",
+        clientAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
+        budget: 3500,
+        deadline: "2024-01-25",
+        description: "Looking for a creator to bring my sci-fi novel to life with an epic space battle trailer. Need someone experienced with VFX and space environments.",
+        genre: "Sci-Fi",
+        duration: "90 seconds",
+        postedTime: "5 hours ago",
+        applicants: 3,
+        clientRating: 4.7,
+        tags: ["VFX", "Space", "Action", "Cinematic"],
+        invited: true,
+        inviteReason: "Your VFX expertise and space-themed work caught our attention!"
       }
     ],
     active: [
@@ -214,44 +184,64 @@ const ProjectInbox: React.FC<ProjectInboxProps> = ({ onProjectSelect, onBack }) 
           Back to Dashboard
         </Button>
         
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Opportunities</h1>
-        <p className="text-gray-600">Find projects that match your skills and interests</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Invitations</h1>
+        <p className="text-gray-600">Projects you've been personally invited to work on</p>
       </div>
 
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="new" className="relative">
-            New Projects
-            <Badge className="ml-2 bg-blue-100 text-blue-800 text-xs">
-              {projects.new.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="invited" className="relative">
-            Invitations
-            <Badge className="ml-2 bg-purple-100 text-purple-800 text-xs">
-              {projects.invited.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="active">
-            Active Projects
-            <Badge className="ml-2 bg-green-100 text-green-800 text-xs">
-              {projects.active.length}
-            </Badge>
-          </TabsTrigger>
-        </TabsList>
+      {projects.invited.length === 0 && projects.active.length === 0 ? (
+        <Card className="text-center p-8">
+          <CardContent>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No project invitations yet</h3>
+            <p className="text-gray-600 mb-4">
+              You'll see projects here when storytellers invite you directly to work on their projects.
+            </p>
+            <p className="text-sm text-gray-500">
+              Storytellers can discover your work and send you direct invitations based on your portfolio and expertise.
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="invited" className="relative">
+              New Invitations
+              <Badge className="ml-2 bg-purple-100 text-purple-800 text-xs">
+                {projects.invited.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="active">
+              Active Projects
+              <Badge className="ml-2 bg-green-100 text-green-800 text-xs">
+                {projects.active.length}
+              </Badge>
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="new" className="space-y-4">
-          {projects.new.map((project) => renderProjectCard(project, 'new'))}
-        </TabsContent>
+          <TabsContent value="invited" className="space-y-4">
+            {projects.invited.length === 0 ? (
+              <Card className="text-center p-6">
+                <CardContent>
+                  <p className="text-gray-600">No new invitations at the moment.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              projects.invited.map((project) => renderProjectCard(project, 'invited'))
+            )}
+          </TabsContent>
 
-        <TabsContent value="invited" className="space-y-4">
-          {projects.invited.map((project) => renderProjectCard(project, 'invited'))}
-        </TabsContent>
-
-        <TabsContent value="active" className="space-y-4">
-          {projects.active.map((project) => renderProjectCard(project, 'active'))}
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="active" className="space-y-4">
+            {projects.active.length === 0 ? (
+              <Card className="text-center p-6">
+                <CardContent>
+                  <p className="text-gray-600">No active projects at the moment.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              projects.active.map((project) => renderProjectCard(project, 'active'))
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 };
