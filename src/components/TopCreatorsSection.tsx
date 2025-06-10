@@ -99,7 +99,12 @@ const TopCreatorsSection = () => {
                   <span className="font-medium text-white">
                     {creator.rating === "New" ? "New" : creator.rating}
                   </span>
-                  <Badge variant="secondary" className="bg-gray-700 text-white">Pro</Badge>
+                  {creator.rating !== "New" && (
+                    <Badge variant="secondary" className="bg-gray-700 text-white">Pro</Badge>
+                  )}
+                  {creator.rating === "New" && (
+                    <Badge variant="secondary" className="bg-blue-600 text-white">New</Badge>
+                  )}
                 </div>
               </CardContent>
             </Card>
