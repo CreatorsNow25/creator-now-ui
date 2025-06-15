@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,6 +12,8 @@ interface StorytellerHeaderProps {
   onHelpClick?: () => void;
   onLogout?: () => void;
   onBrowseCreators?: () => void;
+  onDashboardClick?: () => void;
+  onProjectsClick?: () => void;
 }
 
 const StorytellerHeader = ({ 
@@ -20,7 +21,9 @@ const StorytellerHeader = ({
   onSettingsClick, 
   onHelpClick, 
   onLogout,
-  onBrowseCreators 
+  onBrowseCreators,
+  onDashboardClick,
+  onProjectsClick,
 }: StorytellerHeaderProps) => {
   const navigate = useNavigate();
 
@@ -56,8 +59,20 @@ const StorytellerHeader = ({
     }
   };
 
-  const handleNavDashboard = () => navigate('/storyteller-dashboard');
-  const handleNavProjects = () => navigate('/storyteller-dashboard');
+  const handleNavDashboard = () => {
+    if (onDashboardClick) {
+      onDashboardClick();
+    } else {
+      navigate('/storyteller-dashboard');
+    }
+  };
+  const handleNavProjects = () => {
+    if (onProjectsClick) {
+      onProjectsClick();
+    } else {
+      navigate('/storyteller-dashboard');
+    }
+  };
 
   const currentUser = {
     fullName: "Sarah Chen",

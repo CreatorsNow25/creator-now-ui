@@ -118,6 +118,11 @@ const StorytellerDashboard = () => {
     navigate('/');
   };
 
+  const handleMessageCreator = (creatorName: string) => {
+    console.log(`Messaging ${getDisplayName(creatorName)}`);
+    alert(`Starting a conversation with ${getDisplayName(creatorName)}. (This is a placeholder action)`);
+  };
+
   const renderActiveView = () => {
     console.log('Rendering active view:', activeView);
     
@@ -260,7 +265,7 @@ const StorytellerDashboard = () => {
                       
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm">
+                          <Button variant="outline" size="sm" onClick={() => handleMessageCreator(project.creator.name)}>
                             <MessageSquare className="w-4 h-4 mr-2" />
                             Message
                           </Button>
@@ -291,6 +296,8 @@ const StorytellerDashboard = () => {
         onHelpClick={() => setShowHelp(true)}
         onLogout={handleLogout}
         onBrowseCreators={() => setActiveView('browse-creators')}
+        onDashboardClick={() => setActiveView('dashboard')}
+        onProjectsClick={() => setActiveView('dashboard')}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}
