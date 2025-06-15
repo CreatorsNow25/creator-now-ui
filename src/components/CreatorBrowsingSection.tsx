@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,11 +8,15 @@ import { getDisplayName } from '@/hooks/useCreatorDashboard';
 interface CreatorBrowsingSectionProps {
   onViewMatches: () => void;
   onCreateProject: () => void;
+  onContactCreator?: (creatorName: string) => void;
+  onViewCreatorProfile?: (creatorName: string) => void;
 }
 
 const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({ 
   onViewMatches, 
-  onCreateProject 
+  onCreateProject,
+  onContactCreator,
+  onViewCreatorProfile 
 }) => {
   const featuredCreators = [
     {
@@ -53,12 +56,16 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
 
   const handleContactCreator = (creator: any) => {
     console.log('Contacting creator:', creator.name);
-    // TODO: Open contact modal or navigate to messaging
+    if (onContactCreator) {
+      onContactCreator(creator.name);
+    }
   };
 
   const handleViewCreatorProfile = (creator: any) => {
     console.log('Viewing creator profile:', creator.name);
-    // TODO: Navigate to creator profile view
+    if (onViewCreatorProfile) {
+      onViewCreatorProfile(creator.name);
+    }
   };
 
   return (

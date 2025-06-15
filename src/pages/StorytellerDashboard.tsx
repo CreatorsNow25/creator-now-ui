@@ -12,6 +12,7 @@ const StorytellerDashboard = () => {
     activeView,
     setActiveView,
     selectedProject,
+    selectedCreator,
     showProfile,
     setShowProfile,
     showSettings,
@@ -29,6 +30,7 @@ const StorytellerDashboard = () => {
     handleCreatorSelected,
     handleLogout,
     handleMessageCreator,
+    handleViewCreatorProfile,
     handleDashboardClick,
     handleProjectsClick,
   } = useStorytellerDashboard();
@@ -72,10 +74,12 @@ const StorytellerDashboard = () => {
         <ActiveViewRenderer
           activeView={activeView}
           selectedProject={selectedProject}
+          selectedCreator={selectedCreator}
           projects={projects}
           onCreateProject={handleCreateProject}
           onViewProject={handleViewProject}
           onMessageCreator={handleMessageCreator}
+          onViewCreatorProfile={handleViewCreatorProfile}
           onProjectSubmitted={handleProjectSubmitted}
           onCreatorSelected={handleCreatorSelected}
           setActiveView={setActiveView}
