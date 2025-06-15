@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,11 @@ const ReviewSubmitStep: React.FC<StepProps> = ({ formData, setFormData }) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        alert("File size cannot exceed 10MB.");
+        e.target.value = ''; // Clear the input
+        return;
+      }
       setFormData({ ...formData, scriptFile: file });
     }
   };
@@ -20,17 +24,22 @@ const ReviewSubmitStep: React.FC<StepProps> = ({ formData, setFormData }) => {
   return (
     <div className="space-y-6">
       <div>
-        <Label>Script or Treatment (Optional)</Label>
+        <Label>Script or Reference Materials (Optional)</Label>
         <div className="mt-2">
           {!formData.scriptFile ? (
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-amber-400 transition-colors">
               <Upload className="w-8 h-8 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-600 mb-2">Upload your script, treatment, or reference materials</p>
-              <p className="text-sm text-gray-500 mb-4">PDF, DOC, TXT files up to 10MB</p>
+              <p className="text-gray-600 mb-2">Upload your script, treatment, or visual references</p>
+              <div className="text-sm text-gray-500 mb-4 space-y-1 text-left w-fit mx-auto">
+                <p><span className="font-semibold">Scripts & Documents:</span> PDF, DOC, TXT</p>
+                <p><span className="font-semibold">Images & Moodboards:</span> JPG, PNG, GIF, SVG</p>
+                <p><span className="font-semibold">Other Materials:</span> ZIP</p>
+                <p className="mt-2 font-medium text-center">Max file size: 10MB</p>
+              </div>
               <input
                 type="file"
                 onChange={handleFileUpload}
-                accept=".pdf,.doc,.docx,.txt"
+                accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.svg,.zip"
                 className="hidden"
                 id="script-upload"
               />
