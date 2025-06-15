@@ -138,9 +138,9 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
                     </Badge>
                   </div>
 
-                  <div className="flex flex-wrap gap-1 mb-4 h-[3rem] overflow-hidden">
+                  <div className="flex flex-wrap gap-2 mb-4 h-[3rem] overflow-hidden">
                     {creator.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
+                      <Badge key={tag} variant="secondary" className="bg-gray-100 text-gray-700">
                         {tag}
                       </Badge>
                     ))}
