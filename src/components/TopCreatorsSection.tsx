@@ -3,13 +3,14 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Play, Star, Pause } from 'lucide-react';
+import { getDisplayName } from '@/hooks/useCreatorDashboard';
 
 const TopCreatorsSection = () => {
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
 
   const creators = [
     {
-      name: "Alex T.",
+      name: "Alex Thompson",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
       rating: 4.9,
       specialty: "Animation Trailers",
@@ -17,7 +18,7 @@ const TopCreatorsSection = () => {
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
     },
     {
-      name: "Emma C.",
+      name: "Emma Collins",
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=80&h=80&fit=crop&crop=face",
       rating: 4.8,
       specialty: "Fantasy Adventures",
@@ -25,7 +26,7 @@ const TopCreatorsSection = () => {
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
     },
     {
-      name: "Jordan K.",
+      name: "Jordan Kim",
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
       rating: "New",
       specialty: "Sci-Fi Concepts",
@@ -86,11 +87,11 @@ const TopCreatorsSection = () => {
                 <div className="flex items-center space-x-3 mb-3">
                   <img 
                     src={creator.avatar}
-                    alt={creator.name}
+                    alt={getDisplayName(creator.name)}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                   <div>
-                    <h3 className="font-bold text-white">{creator.name}</h3>
+                    <h3 className="font-bold text-white">{getDisplayName(creator.name)}</h3>
                     <p className="text-sm text-gray-300">{creator.specialty}</p>
                   </div>
                 </div>
