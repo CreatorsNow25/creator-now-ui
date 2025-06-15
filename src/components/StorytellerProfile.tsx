@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, MapPin, Edit } from 'lucide-react';
 import EditProfileModal from './EditProfileModal';
 import { getDisplayName } from "@/hooks/useCreatorDashboard";
+import { useUser } from '@/contexts/UserContext';
 
 interface StorytellerProfileProps {
   isOpen: boolean;
@@ -53,12 +55,16 @@ const initialUserProfile = {
 };
 
 const StorytellerProfile = ({ isOpen, onClose }: StorytellerProfileProps) => {
+  const { user, setUser } = useUser();
   const [userProfile, setUserProfile] = useState(initialUserProfile);
   const [showEdit, setShowEdit] = useState(false);
 
   const handleEditProfile = () => setShowEdit(true);
 
   const handleSaveProfile = (updated: { name: string; city: string; bio: string; avatar: string }) => {
+    console.log('Saving profile:', updated);
+    
+    // Update local profile state
     setUserProfile((prev) => ({
       ...prev,
       name: updated.name,
@@ -67,8 +73,22 @@ const StorytellerProfile = ({ isOpen, onClose }: StorytellerProfileProps) => {
       avatar: updated.avatar,
       fullName: updated.name,
     }));
+
+    // Update user context to reflect the name change throughout the app
+    if (user) {
+      setUser({
+        ...user,
+        full_name: updated.name,
+        avatar_url: updated.avatar
+      });
+    }
+    
     setShowEdit(false);
   };
+
+  // Use the current user's name if available, otherwise fall back to profile name
+  const displayName = user?.full_name || userProfile.name;
+  const displayAvatar = user?.avatar_url || userProfile.avatar;
 
   return (
     <>
@@ -81,14 +101,14 @@ const StorytellerProfile = ({ isOpen, onClose }: StorytellerProfileProps) => {
             {/* Profile Header */}
             <div className="flex items-start space-x-4">
               <Avatar className="w-20 h-20">
-                <AvatarImage src={userProfile.avatar} alt={userProfile.name} />
-                <AvatarFallback>{getDisplayName(userProfile.name).replace(' ', '')}</AvatarFallback>
+                <AvatarImage src={displayAvatar} alt={displayName} />
+                <AvatarFallback>{getDisplayName(displayName).replace(' ', '')}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-2xl font-bold text-gray-900">{getDisplayName(userProfile.name)}</h3>
-                    <p className="text-gray-600">{userProfile.email}</p>
+                    <h3 className="text-2xl font-bold text-gray-900">{getDisplayName(displayName)}</h3>
+                    <p className="text-gray-600">{user?.email || userProfile.email}</p>
                     <div className="flex items-center text-gray-600 mt-1">
                       <MapPin className="w-4 h-4 mr-1" />
                       <span>{userProfile.city}</span>
@@ -148,7 +168,6 @@ const StorytellerProfile = ({ isOpen, onClose }: StorytellerProfileProps) => {
                     <div key={review.id} className="border-l-4 border-gray-200 pl-4">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          {/* Format creator name as well */}
                           <p className="font-medium text-gray-900">{getDisplayName(review.creatorName)}</p>
                           <p className="text-sm text-gray-600">{review.projectTitle}</p>
                         </div>
@@ -178,10 +197,10 @@ const StorytellerProfile = ({ isOpen, onClose }: StorytellerProfileProps) => {
         open={showEdit}
         onClose={() => setShowEdit(false)}
         initialProfile={{
-          name: userProfile.name,
+          name: displayName,
           city: userProfile.city,
           bio: userProfile.bio,
-          avatar: userProfile.avatar,
+          avatar: displayAvatar,
         }}
         onSave={handleSaveProfile}
       />

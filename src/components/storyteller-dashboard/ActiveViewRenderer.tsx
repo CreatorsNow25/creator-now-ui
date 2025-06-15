@@ -53,7 +53,7 @@ const ActiveViewRenderer = ({
           projects={projects}
           onCreateProject={onCreateProject}
           onViewProject={onViewProject}
-          onMessageCreator={(creatorName) => onMessageCreator(creatorName, projects.find(p => p.creator.name === creatorName)?.title)}
+          onMessageCreator={onMessageCreator}
         />
       );
   }

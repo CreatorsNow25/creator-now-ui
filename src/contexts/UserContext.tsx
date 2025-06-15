@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -24,12 +24,20 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user: authUser, loading: authLoading, signOut: authSignOut } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
     console.log('UserContext: Auth state changed', { authUser: authUser?.id, authLoading });
     
     const fetchUserProfile = async (userId: string) => {
+      if (fetchingRef.current) {
+        console.log('UserContext: Already fetching, skipping');
+        return;
+      }
+      
+      fetchingRef.current = true;
       console.log('UserContext: Fetching profile for user:', userId);
+      
       try {
         const { data: profile, error } = await supabase
           .from('profiles')
@@ -67,31 +75,39 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         console.error('UserContext: Error in fetchUserProfile:', error);
       } finally {
         setLoading(false);
+        fetchingRef.current = false;
       }
     };
 
-    if (authUser && !user) {
+    if (authUser && !user && !fetchingRef.current) {
       console.log('UserContext: Auth user exists, fetching profile');
       fetchUserProfile(authUser.id);
     } else if (!authUser) {
       console.log('UserContext: No auth user, clearing user state');
       setUser(null);
       setLoading(authLoading);
+      fetchingRef.current = false;
     } else {
       setLoading(authLoading);
     }
-  }, [authUser, authLoading]);
+  }, [authUser, authLoading, user]);
+
+  const handleSetUser = (userData: User | null) => {
+    console.log('UserContext: Manual user update:', userData);
+    setUser(userData);
+  };
 
   const handleSignOut = async () => {
     console.log('UserContext: Signing out');
     setUser(null);
+    fetchingRef.current = false;
     await authSignOut();
   };
 
   console.log('UserContext: Current state:', { user: user?.id, loading, authUser: authUser?.id });
 
   return (
-    <UserContext.Provider value={{ user, loading, setUser, signOut: handleSignOut }}>
+    <UserContext.Provider value={{ user, loading, setUser: handleSetUser, signOut: handleSignOut }}>
       {children}
     </UserContext.Provider>
   );
