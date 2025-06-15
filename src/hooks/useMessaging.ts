@@ -32,6 +32,12 @@ export interface Conversation {
     role: string;
     is_online: boolean;
   };
+  storyteller_profile?: {
+    full_name: string;
+    avatar_url?: string;
+    role: string;
+    is_online: boolean;
+  };
   last_message?: string;
   unread_count: number;
 }
@@ -42,32 +48,24 @@ export const useMessaging = () => {
   const [messages, setMessages] = useState<{ [conversationId: string]: Message[] }>({});
   const [loading, setLoading] = useState(false);
 
-  // Fetch conversations for the current user
+  // Fetch conversations for the current user using Edge Function
   const fetchConversations = async () => {
     if (!user?.id) return;
 
     setLoading(true);
     try {
-      // Use supabase.rpc or direct query with type assertion
-      const { data, error } = await supabase
-        .rpc('get_user_conversations', { user_id: user.id })
-        .then(result => {
-          // If RPC doesn't exist, fall back to direct query
-          if (result.error?.code === '42883') {
-            return supabase
-              .from('conversations' as any)
-              .select(`
-                *,
-                participant_profile:profiles!conversations_creator_id_fkey(full_name, avatar_url, role, is_online),
-                storyteller_profile:profiles!conversations_storyteller_id_fkey(full_name, avatar_url, role, is_online)
-              `)
-              .or(`storyteller_id.eq.${user.id},creator_id.eq.${user.id}`)
-              .order('updated_at', { ascending: false });
-          }
-          return result;
-        });
+      console.log('Fetching conversations for user:', user.id);
+      
+      const { data, error } = await supabase.functions.invoke('get-user-conversations', {
+        body: { user_id: user.id }
+      });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error calling edge function:', error);
+        throw error;
+      }
+
+      console.log('Raw conversation data:', data);
 
       // Transform data to include the other participant's profile
       const transformedConversations = (data || []).map((conv: any) => {
@@ -82,6 +80,7 @@ export const useMessaging = () => {
         };
       });
 
+      console.log('Transformed conversations:', transformedConversations);
       setConversations(transformedConversations);
 
       // Fetch last message for each conversation
@@ -98,6 +97,9 @@ export const useMessaging = () => {
   // Fetch messages for a specific conversation
   const fetchMessages = async (conversationId: string) => {
     try {
+      console.log('Fetching messages for conversation:', conversationId);
+      
+      // Use raw query with type casting
       const { data, error } = await supabase
         .from('messages' as any)
         .select(`
@@ -107,8 +109,12 @@ export const useMessaging = () => {
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching messages:', error);
+        throw error;
+      }
 
+      console.log('Messages data:', data);
       setMessages(prev => ({
         ...prev,
         [conversationId]: data || []
@@ -129,7 +135,10 @@ export const useMessaging = () => {
         .limit(1)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching last message:', error);
+        return;
+      }
 
       if (data) {
         setConversations(prev => 
@@ -150,6 +159,8 @@ export const useMessaging = () => {
     if (!user?.id || !content.trim()) return;
 
     try {
+      console.log('Sending message:', { conversationId, content, sender: user.id });
+      
       const { error } = await supabase
         .from('messages' as any)
         .insert({
@@ -159,8 +170,12 @@ export const useMessaging = () => {
           message_type: 'text'
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error sending message:', error);
+        throw error;
+      }
 
+      console.log('Message sent successfully');
       // Refresh messages for this conversation
       await fetchMessages(conversationId);
       await fetchLastMessage(conversationId);
@@ -174,6 +189,8 @@ export const useMessaging = () => {
     if (!user?.id) return null;
 
     try {
+      console.log('Creating/finding conversation with:', otherUserId);
+      
       // First, try to find existing conversation
       const { data: existing, error: findError } = await supabase
         .from('conversations' as any)
@@ -182,9 +199,13 @@ export const useMessaging = () => {
         .limit(1)
         .maybeSingle();
 
-      if (findError) throw findError;
+      if (findError) {
+        console.error('Error finding conversation:', findError);
+        throw findError;
+      }
 
       if (existing) {
+        console.log('Found existing conversation:', existing.id);
         return existing.id;
       }
 
@@ -200,8 +221,12 @@ export const useMessaging = () => {
         .select('id')
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating conversation:', error);
+        throw error;
+      }
 
+      console.log('Created new conversation:', data?.id);
       await fetchConversations();
       return data?.id || null;
     } catch (error) {
@@ -212,6 +237,7 @@ export const useMessaging = () => {
 
   useEffect(() => {
     if (user?.id) {
+      console.log('User ID changed, fetching conversations for:', user.id);
       fetchConversations();
     }
   }, [user?.id]);
@@ -220,6 +246,8 @@ export const useMessaging = () => {
   useEffect(() => {
     if (!user?.id) return;
 
+    console.log('Setting up real-time subscriptions');
+    
     const messageSubscription = supabase
       .channel('messages')
       .on('postgres_changes', {
@@ -227,6 +255,7 @@ export const useMessaging = () => {
         schema: 'public',
         table: 'messages'
       }, async (payload) => {
+        console.log('New message received:', payload);
         const newMessage = payload.new as Message;
         
         // Only update if this message is in one of our conversations
@@ -239,6 +268,7 @@ export const useMessaging = () => {
       .subscribe();
 
     return () => {
+      console.log('Cleaning up real-time subscriptions');
       supabase.removeChannel(messageSubscription);
     };
   }, [user?.id, conversations]);
