@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -150,7 +149,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             rows={3}
             required
           />
-          {/* Delete button moved below all fields */}
+          {error && <div className="text-destructive text-sm">{error}</div>}
           <Button
             type="button"
             variant="outline"
@@ -159,9 +158,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             onClick={handleDeleteAvatar}
             disabled={!avatarPreview}
           >
-            Delete Photo
+            Delete Profile
           </Button>
-          {error && <div className="text-destructive text-sm">{error}</div>}
           <div className="flex space-x-2 justify-end">
             <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
               Cancel
