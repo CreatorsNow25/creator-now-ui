@@ -1,13 +1,25 @@
+
 import { useState, useEffect } from 'react';
 
 export type ActiveView = 'dashboard' | 'projects' | 'portfolio' | 'earnings' | 'profile' | 'inbox' | 'proposal' | 'workroom' | 'payout';
 
 export function getDisplayName(fullName: string): string {
-  if (!fullName) return '';
+  console.log('getDisplayName called with:', fullName);
+  
+  if (!fullName) {
+    console.log('getDisplayName: empty name, returning empty string');
+    return '';
+  }
+  
   const parts = fullName.trim().split(' ');
+  console.log('getDisplayName: name parts:', parts);
+  
   const first = parts[0];
   const last = parts.length > 1 ? parts[parts.length - 1][0].toUpperCase() + '.' : '';
-  return `${first} ${last}`;
+  const result = `${first} ${last}`;
+  
+  console.log('getDisplayName: result:', result);
+  return result;
 }
 
 export const useCreatorDashboard = () => {

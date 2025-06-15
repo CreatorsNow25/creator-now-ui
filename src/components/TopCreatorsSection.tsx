@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -35,6 +34,8 @@ const TopCreatorsSection = () => {
     }
   ];
 
+  console.log('TopCreatorsSection: creators array:', creators);
+
   const toggleVideo = (index: number) => {
     if (playingVideo === index) {
       setPlayingVideo(null);
@@ -48,68 +49,74 @@ const TopCreatorsSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold text-center text-white mb-16">Top Rated AI Creators</h2>
         <div className="grid md:grid-cols-3 gap-8">
-          {creators.map((creator, index) => (
-            <Card key={index} className="bg-dark-card text-white">
-              <CardContent className="p-6">
-                <div className="relative mb-4">
-                  {playingVideo === index ? (
-                    <div className="relative">
-                      <video 
-                        src={creator.videoUrl}
-                        className="w-full aspect-video object-cover rounded-lg"
-                        controls
-                        autoPlay
-                        onEnded={() => setPlayingVideo(null)}
-                      />
-                      <button
-                        onClick={() => toggleVideo(index)}
-                        className="absolute top-2 right-2 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
-                      >
-                        <Pause className="w-4 h-4 text-white" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="relative">
-                      <img 
-                        src={creator.thumbnail}
-                        alt={creator.specialty}
-                        className="w-full aspect-video object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={() => toggleVideo(index)}
-                        className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center hover:bg-black/60 transition-colors group"
-                      >
-                        <Play className="w-12 h-12 text-white group-hover:scale-110 transition-transform" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center space-x-3 mb-3">
-                  <img 
-                    src={creator.avatar}
-                    alt={getDisplayName(creator.name)}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="font-bold text-white">{getDisplayName(creator.name)}</h3>
-                    <p className="text-sm text-gray-300">{creator.specialty}</p>
+          {creators.map((creator, index) => {
+            console.log(`TopCreatorsSection: Processing creator ${index}:`, creator.name);
+            const displayName = getDisplayName(creator.name);
+            console.log(`TopCreatorsSection: Display name for ${creator.name} is:`, displayName);
+            
+            return (
+              <Card key={index} className="bg-dark-card text-white">
+                <CardContent className="p-6">
+                  <div className="relative mb-4">
+                    {playingVideo === index ? (
+                      <div className="relative">
+                        <video 
+                          src={creator.videoUrl}
+                          className="w-full aspect-video object-cover rounded-lg"
+                          controls
+                          autoPlay
+                          onEnded={() => setPlayingVideo(null)}
+                        />
+                        <button
+                          onClick={() => toggleVideo(index)}
+                          className="absolute top-2 right-2 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
+                        >
+                          <Pause className="w-4 h-4 text-white" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <img 
+                          src={creator.thumbnail}
+                          alt={creator.specialty}
+                          className="w-full aspect-video object-cover rounded-lg"
+                        />
+                        <button
+                          onClick={() => toggleVideo(index)}
+                          className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center hover:bg-black/60 transition-colors group"
+                        >
+                          <Play className="w-12 h-12 text-white group-hover:scale-110 transition-transform" />
+                        </button>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Star className="w-4 h-4 fill-white text-white" />
-                  <span className="font-medium text-white">
-                    {creator.rating === "New" ? "New" : creator.rating}
-                  </span>
-                  {creator.rating !== "New" && (
-                    <Badge variant="secondary" className="bg-gray-700 text-white">Pro</Badge>
-                  )}
-                  {creator.rating === "New" && (
-                    <Badge variant="secondary" className="bg-blue-600 text-white">New</Badge>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="flex items-center space-x-3 mb-3">
+                    <img 
+                      src={creator.avatar}
+                      alt={displayName}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div>
+                      <h3 className="font-bold text-white">{displayName}</h3>
+                      <p className="text-sm text-gray-300">{creator.specialty}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Star className="w-4 h-4 fill-white text-white" />
+                    <span className="font-medium text-white">
+                      {creator.rating === "New" ? "New" : creator.rating}
+                    </span>
+                    {creator.rating !== "New" && (
+                      <Badge variant="secondary" className="bg-gray-700 text-white">Pro</Badge>
+                    )}
+                    {creator.rating === "New" && (
+                      <Badge variant="secondary" className="bg-blue-600 text-white">New</Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </section>
