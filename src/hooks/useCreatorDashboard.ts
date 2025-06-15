@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export type ActiveView = 'dashboard' | 'projects' | 'portfolio' | 'earnings' | 'profile' | 'inbox' | 'proposal' | 'workroom' | 'payout';
 
@@ -55,6 +55,8 @@ export const useCreatorDashboard = () => {
   };
 
   const handleProfileComplete = () => {
+    // Save profile completion to localStorage
+    localStorage.setItem('creatorProfileComplete', 'true');
     setProfileComplete(true);
     setActiveView('dashboard');
   };
@@ -67,6 +69,12 @@ export const useCreatorDashboard = () => {
   const handleProposalSubmit = () => {
     setActiveView('workroom');
   };
+
+  // Check profile completion on mount
+  useEffect(() => {
+    const isComplete = localStorage.getItem('creatorProfileComplete') === 'true';
+    setProfileComplete(isComplete);
+  }, []);
 
   return {
     activeView,

@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Upload, X, Star, DollarSign, Plus } from 'lucide-react';
+import { ArrowLeft, Upload, X, Star, DollarSign, Plus, AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProfileWizardProps {
   onComplete: () => void;
@@ -15,9 +16,12 @@ interface ProfileWizardProps {
 }
 
 const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) => {
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [profileData, setProfileData] = useState({
     bio: '',
+    photo: null as File | null,
+    photoPreview: '',
     specialties: [] as string[],
     portfolio: [] as any[],
     packages: [
@@ -48,6 +52,52 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
     'Color Grading'
   ];
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setProfileData({
+        ...profileData,
+        photo: file,
+        photoPreview: URL.createObjectURL(file)
+      });
+    }
+  };
+
+  const validateStep = () => {
+    switch (currentStep) {
+      case 1:
+        if (!profileData.bio.trim()) {
+          toast({
+            variant: "destructive",
+            title: "Bio Required",
+            description: "Please write a professional bio to continue."
+          });
+          return false;
+        }
+        if (!profileData.photo) {
+          toast({
+            variant: "destructive",
+            title: "Photo Required",
+            description: "Please upload a professional headshot to continue."
+          });
+          return false;
+        }
+        return true;
+      case 2:
+        if (profileData.specialties.length === 0) {
+          toast({
+            variant: "destructive",
+            title: "Specialties Required",
+            description: "Please select at least one specialty to continue."
+          });
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
+
   const handleSpecialtyToggle = (specialty: string) => {
     const current = profileData.specialties;
     if (current.includes(specialty)) {
@@ -64,9 +114,16 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
   };
 
   const handleNext = () => {
+    if (!validateStep()) return;
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
+      // Complete profile
+      toast({
+        title: "Profile Complete!",
+        description: "Your creator profile has been successfully set up."
+      });
       onComplete();
     }
   };
@@ -82,14 +139,24 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
       case 1:
         return (
           <div className="space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="w-5 h-5 text-blue-600" />
+                <p className="text-sm text-blue-700 font-medium">
+                  Both a professional bio and headshot are required to proceed
+                </p>
+              </div>
+            </div>
+
             <div>
-              <Label htmlFor="bio">Professional Bio</Label>
+              <Label htmlFor="bio">Professional Bio *</Label>
               <Textarea
                 id="bio"
                 placeholder="Tell potential clients about your experience, style, and what makes you unique..."
                 value={profileData.bio}
                 onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
                 className="mt-2 min-h-[120px]"
+                required
               />
               <p className="text-sm text-gray-600 mt-2">
                 A compelling bio increases your chances of being hired by 3x
@@ -97,11 +164,47 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
             </div>
 
             <div>
-              <Label>Profile Photo</Label>
-              <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 mb-2">Upload a professional headshot</p>
-                <Button variant="outline" size="sm">Choose Photo</Button>
+              <Label>Professional Headshot *</Label>
+              <div className="mt-2">
+                {!profileData.photoPreview ? (
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-gray-600 mb-2">Upload a professional headshot</p>
+                    <p className="text-xs text-gray-500 mb-3">JPG, PNG up to 10MB</p>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      id="photo-upload"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('photo-upload')?.click()}
+                      type="button"
+                    >
+                      Choose Photo
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="relative inline-block">
+                    <img
+                      src={profileData.photoPreview}
+                      alt="Profile preview"
+                      className="w-32 h-32 object-cover rounded-lg border"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setProfileData({ ...profileData, photo: null, photoPreview: '' })}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0"
+                      type="button"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -111,8 +214,8 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
         return (
           <div className="space-y-6">
             <div>
-              <Label>Your Specialties</Label>
-              <p className="text-sm text-gray-600 mb-4">Select all genres and skills that apply to you</p>
+              <Label>Your Specialties *</Label>
+              <p className="text-sm text-gray-600 mb-4">Select all genres and skills that apply to you (at least one required)</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {specialtyOptions.map((specialty) => (
                   <Button
@@ -122,14 +225,20 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
                     onClick={() => handleSpecialtyToggle(specialty)}
                     className={`text-left justify-start ${
                       profileData.specialties.includes(specialty)
-                        ? 'bg-amber-500 hover:bg-amber-600'
+                        ? 'bg-black hover:bg-gray-800'
                         : ''
                     }`}
+                    type="button"
                   >
                     {specialty}
                   </Button>
                 ))}
               </div>
+              {profileData.specialties.length > 0 && (
+                <p className="text-sm text-green-600 mt-2">
+                  ✓ {profileData.specialties.length} specialt{profileData.specialties.length === 1 ? 'y' : 'ies'} selected
+                </p>
+              )}
             </div>
           </div>
         );
@@ -146,7 +255,7 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
                   <div key={i} className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                     <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
                     <p className="text-sm text-gray-600 mb-2">Upload Video {i}</p>
-                    <Button variant="outline" size="sm">Choose File</Button>
+                    <Button variant="outline" size="sm" type="button">Choose File</Button>
                   </div>
                 ))}
               </div>
@@ -248,6 +357,17 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
     }
   };
 
+  const isStepComplete = () => {
+    switch (currentStep) {
+      case 1:
+        return profileData.bio.trim() && profileData.photo;
+      case 2:
+        return profileData.specialties.length > 0;
+      default:
+        return true;
+    }
+  };
+
   return (
     <div className="max-w-2xl mx-auto">
       <div className="mb-8">
@@ -277,12 +397,15 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
               variant="outline" 
               onClick={handlePrevious}
               disabled={currentStep === 1}
+              type="button"
             >
               Previous
             </Button>
             <Button 
               onClick={handleNext}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+              className="bg-black hover:bg-gray-800 text-white"
+              disabled={currentStep <= 2 && !isStepComplete()}
+              type="button"
             >
               {currentStep === totalSteps ? 'Complete Profile' : 'Next'}
             </Button>
