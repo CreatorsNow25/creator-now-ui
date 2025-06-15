@@ -25,10 +25,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const fetchingRef = useRef(false);
+  const lastAuthUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
-    console.log('UserContext: Auth state changed', { authUser: authUser?.id, authLoading });
+    console.log('UserContext: Auth state changed', { 
+      authUserId: authUser?.id, 
+      authLoading, 
+      lastAuthUserId: lastAuthUserIdRef.current 
+    });
     
+    // Prevent unnecessary fetches for the same user
+    if (authUser?.id === lastAuthUserIdRef.current && !authLoading) {
+      setLoading(false);
+      return;
+    }
+
     const fetchUserProfile = async (userId: string) => {
       if (fetchingRef.current) {
         console.log('UserContext: Already fetching, skipping');
@@ -67,9 +78,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           };
           console.log('UserContext: Setting user data:', userData);
           setUser(userData);
+          lastAuthUserIdRef.current = userId;
         } else {
           console.log('UserContext: No profile found, user needs to complete profile');
           setUser(null);
+          lastAuthUserIdRef.current = null;
         }
       } catch (error) {
         console.error('UserContext: Error in fetchUserProfile:', error);
@@ -79,32 +92,44 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    if (authUser && !user && !fetchingRef.current) {
+    if (authUser && !authLoading) {
       console.log('UserContext: Auth user exists, fetching profile');
       fetchUserProfile(authUser.id);
-    } else if (!authUser) {
+    } else if (!authUser && !authLoading) {
       console.log('UserContext: No auth user, clearing user state');
       setUser(null);
-      setLoading(authLoading);
+      setLoading(false);
       fetchingRef.current = false;
+      lastAuthUserIdRef.current = null;
     } else {
       setLoading(authLoading);
     }
-  }, [authUser, authLoading, user]);
+  }, [authUser, authLoading]);
 
   const handleSetUser = (userData: User | null) => {
     console.log('UserContext: Manual user update:', userData);
     setUser(userData);
+    if (userData) {
+      lastAuthUserIdRef.current = userData.id;
+    } else {
+      lastAuthUserIdRef.current = null;
+    }
   };
 
   const handleSignOut = async () => {
     console.log('UserContext: Signing out');
     setUser(null);
     fetchingRef.current = false;
+    lastAuthUserIdRef.current = null;
     await authSignOut();
   };
 
-  console.log('UserContext: Current state:', { user: user?.id, loading, authUser: authUser?.id });
+  console.log('UserContext: Current state:', { 
+    user: user?.id, 
+    loading, 
+    authUser: authUser?.id,
+    authLoading
+  });
 
   return (
     <UserContext.Provider value={{ user, loading, setUser: handleSetUser, signOut: handleSignOut }}>
