@@ -122,7 +122,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             required
           />
 
-          {/* Upload photo button with minimal spacing */}
+          {/* Bio textarea immediately under city */}
+          <textarea
+            name="bio"
+            placeholder="Bio"
+            value={form.bio}
+            onChange={handleInputChange}
+            className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+            rows={3}
+            required
+          />
+
+          {/* Upload photo section under bio */}
           <div className="flex flex-col items-center gap-2 py-1">
             <input
               type="file"
@@ -149,17 +160,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               )}
             </Avatar>
           </div>
-
-          {/* Bio textarea with minimal top spacing */}
-          <textarea
-            name="bio"
-            placeholder="Bio"
-            value={form.bio}
-            onChange={handleInputChange}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
-            rows={3}
-            required
-          />
 
           {error && <div className="text-destructive text-sm">{error}</div>}
 
