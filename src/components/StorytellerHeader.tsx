@@ -76,7 +76,7 @@ const StorytellerHeader = ({
               className="flex items-center space-x-2 cursor-pointer"
               onClick={() => navigate('/')}
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
                 <Play className="w-4 h-4 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">Creators Now</span>
