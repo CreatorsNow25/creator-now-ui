@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,32 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Send, ArrowLeft, MoreVertical, Phone, Video } from 'lucide-react';
-import { getDisplayName } from '@/hooks/useCreatorDashboard';
-
-interface Message {
-  id: string;
-  senderId: string;
-  senderName: string;
-  content: string;
-  timestamp: string;
-  type: 'text' | 'file' | 'system';
-  fileUrl?: string;
-  fileName?: string;
-}
-
-interface Conversation {
-  id: string;
-  participantId: string;
-  participantName: string;
-  participantAvatar: string;
-  participantRole: 'creator' | 'storyteller';
-  lastMessage: string;
-  lastMessageTime: string;
-  unreadCount: number;
-  projectTitle?: string;
-  isOnline: boolean;
-  messages: Message[];
-}
+import { useMessaging } from '@/hooks/useMessaging';
+import { useUser } from '@/contexts/UserContext';
 
 interface MessagingModalProps {
   isOpen: boolean;
@@ -42,88 +18,28 @@ interface MessagingModalProps {
 }
 
 const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: MessagingModalProps) => {
+  const { user } = useUser();
+  const { conversations, messages, loading, fetchMessages, sendMessage, createOrFindConversation } = useMessaging();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Mock conversations data
-  const [conversations] = useState<Conversation[]>([
-    {
-      id: '1',
-      participantId: 'alex-thompson',
-      participantName: 'Alex Thompson',
-      participantAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face',
-      participantRole: 'creator',
-      lastMessage: 'I\'ve uploaded the latest version for your review',
-      lastMessageTime: '2 hours ago',
-      unreadCount: 2,
-      projectTitle: 'Epic Fantasy Adventure Trailer',
-      isOnline: true,
-      messages: [
-        {
-          id: 'm1',
-          senderId: 'alex-thompson',
-          senderName: 'Alex Thompson',
-          content: 'Hi! Thanks for choosing me for your project. I\'m excited to work on the Epic Fantasy Adventure Trailer.',
-          timestamp: '2 days ago',
-          type: 'text'
-        },
-        {
-          id: 'm2',
-          senderId: 'current-user',
-          senderName: 'You',
-          content: 'Great! I\'m looking forward to seeing what you create. The key scenes I want to highlight are the dragon battle and the final confrontation.',
-          timestamp: '2 days ago',
-          type: 'text'
-        },
-        {
-          id: 'm3',
-          senderId: 'alex-thompson',
-          senderName: 'Alex Thompson',
-          content: 'Perfect! I\'ve started working on the initial concepts. I\'ll have the first draft ready by tomorrow.',
-          timestamp: '1 day ago',
-          type: 'text'
-        },
-        {
-          id: 'm4',
-          senderId: 'alex-thompson',
-          senderName: 'Alex Thompson',
-          content: 'I\'ve uploaded the latest version for your review',
-          timestamp: '2 hours ago',
-          type: 'text'
-        }
-      ]
-    },
-    {
-      id: '2',
-      participantId: 'maya-patel',
-      participantName: 'Maya Patel',
-      participantAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=64&h=64&fit=crop&crop=face',
-      participantRole: 'creator',
-      lastMessage: 'The final video is ready for approval',
-      lastMessageTime: '1 day ago',
-      unreadCount: 0,
-      projectTitle: 'Sci-Fi Thriller Teaser',
-      isOnline: false,
-      messages: [
-        {
-          id: 'm5',
-          senderId: 'maya-patel',
-          senderName: 'Maya Patel',
-          content: 'Hello! I\'ve completed your Sci-Fi Thriller Teaser. The final video is ready for approval.',
-          timestamp: '1 day ago',
-          type: 'text'
-        }
-      ]
+  // Handle initial creator selection
+  useEffect(() => {
+    if (isOpen && initialCreatorName && conversations.length > 0) {
+      const conversation = conversations.find(conv => 
+        conv.participant_profile?.full_name === initialCreatorName
+      );
+      if (conversation) {
+        setSelectedConversation(conversation.id);
+        fetchMessages(conversation.id);
+      }
     }
-  ]);
+  }, [isOpen, initialCreatorName, conversations]);
 
-  const currentConversation = conversations.find(conv => conv.id === selectedConversation);
-
-  const handleSendMessage = () => {
-    if (newMessage.trim() && currentConversation) {
-      // In a real app, this would send the message to a backend
-      console.log('Sending message:', newMessage);
+  const handleSendMessage = async () => {
+    if (newMessage.trim() && selectedConversation) {
+      await sendMessage(selectedConversation, newMessage);
       setNewMessage('');
     }
   };
@@ -135,10 +51,54 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
     }
   };
 
+  const handleConversationSelect = async (conversationId: string) => {
+    setSelectedConversation(conversationId);
+    await fetchMessages(conversationId);
+  };
+
   const filteredConversations = conversations.filter(conv =>
-    conv.participantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    conv.projectTitle?.toLowerCase().includes(searchTerm.toLowerCase())
+    conv.participant_profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    conv.project_title?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const currentConversation = conversations.find(conv => conv.id === selectedConversation);
+  const currentMessages = selectedConversation ? messages[selectedConversation] || [] : [];
+
+  const getDisplayName = (name: string) => {
+    if (!name) return 'Unknown User';
+    const parts = name.split(' ');
+    return parts.length > 1 ? `${parts[0]} ${parts[1][0]}.` : name;
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays <= 7) {
+      return `${diffDays} days ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
+
+  if (loading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-6xl h-[80vh] p-0">
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading conversations...</p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -158,57 +118,69 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
             
             <ScrollArea className="flex-1">
               <div className="space-y-1 p-2">
-                {filteredConversations.map((conversation) => (
-                  <div
-                    key={conversation.id}
-                    onClick={() => setSelectedConversation(conversation.id)}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedConversation === conversation.id
-                        ? 'bg-amber-100 border border-amber-200'
-                        : 'hover:bg-white border border-transparent'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="relative">
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={conversation.participantAvatar} />
-                          <AvatarFallback>
-                            {getDisplayName(conversation.participantName).split(' ').map(n => n[0]).join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                        {conversation.isOnline && (
-                          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                        )}
-                      </div>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-medium text-sm text-gray-900 truncate">
-                            {getDisplayName(conversation.participantName)}
-                          </h4>
-                          <span className="text-xs text-gray-500">{conversation.lastMessageTime}</span>
+                {filteredConversations.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No conversations yet</p>
+                    <p className="text-sm">Start messaging creators from your projects</p>
+                  </div>
+                ) : (
+                  filteredConversations.map((conversation) => (
+                    <div
+                      key={conversation.id}
+                      onClick={() => handleConversationSelect(conversation.id)}
+                      className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                        selectedConversation === conversation.id
+                          ? 'bg-amber-100 border border-amber-200'
+                          : 'hover:bg-white border border-transparent'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="relative">
+                          <Avatar className="w-10 h-10">
+                            <AvatarImage src={conversation.participant_profile?.avatar_url} />
+                            <AvatarFallback>
+                              {conversation.participant_profile?.full_name
+                                ?.split(' ')
+                                .map(n => n[0])
+                                .join('') || 'UN'}
+                            </AvatarFallback>
+                          </Avatar>
+                          {conversation.participant_profile?.is_online && (
+                            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                          )}
                         </div>
                         
-                        {conversation.projectTitle && (
-                          <p className="text-xs text-amber-600 font-medium mb-1">
-                            {conversation.projectTitle}
-                          </p>
-                        )}
-                        
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm text-gray-600 truncate">
-                            {conversation.lastMessage}
-                          </p>
-                          {conversation.unreadCount > 0 && (
-                            <Badge className="bg-amber-500 text-white text-xs px-1.5 py-0.5 min-w-[18px] h-5 flex items-center justify-center">
-                              {conversation.unreadCount}
-                            </Badge>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium text-sm text-gray-900 truncate">
+                              {getDisplayName(conversation.participant_profile?.full_name || '')}
+                            </h4>
+                            <span className="text-xs text-gray-500">
+                              {formatTimestamp(conversation.updated_at)}
+                            </span>
+                          </div>
+                          
+                          {conversation.project_title && (
+                            <p className="text-xs text-amber-600 font-medium mb-1">
+                              {conversation.project_title}
+                            </p>
                           )}
+                          
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm text-gray-600 truncate">
+                              {conversation.last_message || 'No messages yet'}
+                            </p>
+                            {conversation.unread_count > 0 && (
+                              <Badge className="bg-amber-500 text-white text-xs px-1.5 py-0.5 min-w-[18px] h-5 flex items-center justify-center">
+                                {conversation.unread_count}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </ScrollArea>
           </div>
@@ -230,28 +202,31 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
                     </Button>
                     
                     <Avatar className="w-10 h-10">
-                      <AvatarImage src={currentConversation.participantAvatar} />
+                      <AvatarImage src={currentConversation.participant_profile?.avatar_url} />
                       <AvatarFallback>
-                        {getDisplayName(currentConversation.participantName).split(' ').map(n => n[0]).join('')}
+                        {currentConversation.participant_profile?.full_name
+                          ?.split(' ')
+                          .map(n => n[0])
+                          .join('') || 'UN'}
                       </AvatarFallback>
                     </Avatar>
                     
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {getDisplayName(currentConversation.participantName)}
+                        {getDisplayName(currentConversation.participant_profile?.full_name || '')}
                       </h3>
                       <div className="flex items-center space-x-2">
                         <span className={`w-2 h-2 rounded-full ${
-                          currentConversation.isOnline ? 'bg-green-500' : 'bg-gray-400'
+                          currentConversation.participant_profile?.is_online ? 'bg-green-500' : 'bg-gray-400'
                         }`}></span>
                         <span className="text-sm text-gray-600">
-                          {currentConversation.isOnline ? 'Online' : 'Offline'}
+                          {currentConversation.participant_profile?.is_online ? 'Online' : 'Offline'}
                         </span>
-                        {currentConversation.projectTitle && (
+                        {currentConversation.project_title && (
                           <>
                             <span className="text-gray-400">•</span>
                             <span className="text-sm text-amber-600 font-medium">
-                              {currentConversation.projectTitle}
+                              {currentConversation.project_title}
                             </span>
                           </>
                         )}
@@ -275,25 +250,32 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
                 {/* Messages */}
                 <ScrollArea className="flex-1 p-4">
                   <div className="space-y-4">
-                    {currentConversation.messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${message.senderId === 'current-user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          message.senderId === 'current-user'
-                            ? 'bg-amber-500 text-white'
-                            : 'bg-gray-100 text-gray-900'
-                        }`}>
-                          <p className="text-sm">{message.content}</p>
-                          <p className={`text-xs mt-1 ${
-                            message.senderId === 'current-user' ? 'text-amber-100' : 'text-gray-500'
-                          }`}>
-                            {message.timestamp}
-                          </p>
-                        </div>
+                    {currentMessages.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        <p>No messages yet</p>
+                        <p className="text-sm">Start the conversation!</p>
                       </div>
-                    ))}
+                    ) : (
+                      currentMessages.map((message) => (
+                        <div
+                          key={message.id}
+                          className={`flex ${message.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
+                        >
+                          <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                            message.sender_id === user?.id
+                              ? 'bg-amber-500 text-white'
+                              : 'bg-gray-100 text-gray-900'
+                          }`}>
+                            <p className="text-sm">{message.content}</p>
+                            <p className={`text-xs mt-1 ${
+                              message.sender_id === user?.id ? 'text-amber-100' : 'text-gray-500'
+                            }`}>
+                              {formatTimestamp(message.created_at)}
+                            </p>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </ScrollArea>
 

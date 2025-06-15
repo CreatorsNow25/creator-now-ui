@@ -13,9 +13,11 @@ import CreatorBrowsingSection from '@/components/CreatorBrowsingSection';
 import DashboardView from '@/components/storyteller-dashboard/DashboardView';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
 import MessagingModal from '@/components/messaging/MessagingModal';
+import { useMessaging } from '@/hooks/useMessaging';
 
 const StorytellerDashboard = () => {
   const navigate = useNavigate();
+  const { createOrFindConversation } = useMessaging();
   const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'matches' | 'workroom' | 'payment' | 'review' | 'browse-creators'>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
@@ -100,7 +102,7 @@ const StorytellerDashboard = () => {
     navigate('/');
   };
 
-  const handleMessageCreator = (creatorName: string, projectTitle?: string) => {
+  const handleMessageCreator = async (creatorName: string, projectTitle?: string) => {
     console.log(`Opening messaging with ${getDisplayName(creatorName)}`);
     setMessagingCreator(creatorName);
     setMessagingProject(projectTitle || '');
