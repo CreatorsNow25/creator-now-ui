@@ -99,19 +99,32 @@ export const useMessaging = () => {
     try {
       console.log('Fetching messages for conversation:', conversationId);
       
-      // Use raw query with type casting
+      // Use direct query with proper error handling
       const { data, error } = await supabase
-        .from('messages' as any)
-        .select(`
-          *,
-          sender_profile:profiles(full_name, avatar_url)
-        `)
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
+        .rpc('get_conversation_messages', { conversation_id: conversationId });
 
       if (error) {
         console.error('Error fetching messages:', error);
-        throw error;
+        // Fallback to direct query if RPC doesn't exist
+        const fallbackQuery = await supabase
+          .from('messages')
+          .select(`
+            *,
+            sender_profile:profiles(full_name, avatar_url)
+          `)
+          .eq('conversation_id', conversationId)
+          .order('created_at', { ascending: true });
+        
+        if (fallbackQuery.error) {
+          console.error('Fallback query also failed:', fallbackQuery.error);
+          return;
+        }
+        
+        setMessages(prev => ({
+          ...prev,
+          [conversationId]: fallbackQuery.data || []
+        }));
+        return;
       }
 
       console.log('Messages data:', data);
@@ -128,7 +141,7 @@ export const useMessaging = () => {
   const fetchLastMessage = async (conversationId: string) => {
     try {
       const { data, error } = await supabase
-        .from('messages' as any)
+        .from('messages')
         .select('content, created_at')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: false })
@@ -140,7 +153,7 @@ export const useMessaging = () => {
         return;
       }
 
-      if (data) {
+      if (data?.content) {
         setConversations(prev => 
           prev.map(conv => 
             conv.id === conversationId 
@@ -162,7 +175,7 @@ export const useMessaging = () => {
       console.log('Sending message:', { conversationId, content, sender: user.id });
       
       const { error } = await supabase
-        .from('messages' as any)
+        .from('messages')
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
@@ -193,7 +206,7 @@ export const useMessaging = () => {
       
       // First, try to find existing conversation
       const { data: existing, error: findError } = await supabase
-        .from('conversations' as any)
+        .from('conversations')
         .select('id')
         .or(`and(storyteller_id.eq.${user.id},creator_id.eq.${otherUserId}),and(storyteller_id.eq.${otherUserId},creator_id.eq.${user.id})`)
         .limit(1)
@@ -204,7 +217,7 @@ export const useMessaging = () => {
         throw findError;
       }
 
-      if (existing) {
+      if (existing?.id) {
         console.log('Found existing conversation:', existing.id);
         return existing.id;
       }
@@ -212,7 +225,7 @@ export const useMessaging = () => {
       // Create new conversation
       const isStoryteller = user.role === 'storyteller';
       const { data, error } = await supabase
-        .from('conversations' as any)
+        .from('conversations')
         .insert({
           storyteller_id: isStoryteller ? user.id : otherUserId,
           creator_id: isStoryteller ? otherUserId : user.id,
