@@ -106,7 +106,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             name="name"
             placeholder="Name"
@@ -122,7 +122,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             required
           />
 
-          {/* Bio textarea immediately under city */}
+          {/* Bio textarea under city */}
           <textarea
             name="bio"
             placeholder="Bio"
@@ -133,8 +133,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             required
           />
 
-          {/* Upload photo section under bio */}
-          <div className="flex flex-col items-center gap-2 py-1">
+          {/* Upload photo section under bio with consistent spacing */}
+          <div className="flex flex-col items-center gap-2">
             <input
               type="file"
               accept="image/*"
@@ -163,8 +163,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
           {error && <div className="text-destructive text-sm">{error}</div>}
 
-          {/* Action buttons with minimal spacing */}
-          <div className="space-y-2 pt-1">
+          {/* All action buttons grouped together with consistent spacing */}
+          <div className="space-y-2">
             <Button
               type="button"
               variant="outline"
