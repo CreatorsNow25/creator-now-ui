@@ -13,6 +13,10 @@ interface CreatorHeaderProps {
   onSettingsClick?: () => void;
   onHelpClick?: () => void;
   onLogout?: () => void;
+  onDashboardClick?: () => void;
+  onProjectsClick?: () => void;
+  onPortfolioClick?: () => void;
+  currentView?: string;
 }
 
 const CreatorHeader = ({
@@ -21,6 +25,10 @@ const CreatorHeader = ({
   onSettingsClick,
   onHelpClick,
   onLogout,
+  onDashboardClick,
+  onProjectsClick,
+  onPortfolioClick,
+  currentView = 'dashboard',
 }: CreatorHeaderProps) => {
   const navigate = useNavigate();
 
@@ -56,7 +64,30 @@ const CreatorHeader = ({
     }
   };
 
-  // Navigation for logo and nav links could be added if required
+  const handleDashboard = () => {
+    if (onDashboardClick) {
+      onDashboardClick();
+    }
+  };
+
+  const handleProjects = () => {
+    if (onProjectsClick) {
+      onProjectsClick();
+    }
+  };
+
+  const handlePortfolio = () => {
+    if (onPortfolioClick) {
+      onPortfolioClick();
+    }
+  };
+
+  const getNavItemClasses = (viewName: string) => {
+    return currentView === viewName 
+      ? "text-gray-900 font-semibold border-b-2 border-amber-500 pb-1" 
+      : "text-gray-700 hover:text-gray-900 font-medium";
+  };
+
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,18 +103,30 @@ const CreatorHeader = ({
               <span className="text-xl font-bold text-gray-900">Creators Now</span>
             </div>
             <nav className="hidden md:flex space-x-6">
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+              <button 
+                onClick={handleDashboard}
+                className={getNavItemClasses('dashboard')}
+              >
                 Dashboard
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+              </button>
+              <button 
+                onClick={handleProjects}
+                className={getNavItemClasses('projects')}
+              >
                 Projects
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+              </button>
+              <button 
+                onClick={handlePortfolio}
+                className={getNavItemClasses('portfolio')}
+              >
                 Portfolio
-              </a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+              </button>
+              <button 
+                onClick={handleEarnings}
+                className={getNavItemClasses('earnings')}
+              >
                 Earnings
-              </a>
+              </button>
             </nav>
           </div>
 
@@ -151,4 +194,3 @@ const CreatorHeader = ({
 };
 
 export default CreatorHeader;
-

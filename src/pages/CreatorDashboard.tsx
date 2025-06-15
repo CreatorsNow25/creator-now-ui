@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,7 +20,7 @@ import RecentProjects from '@/components/creator-dashboard/RecentProjects';
 
 const CreatorDashboard = () => {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState<'dashboard' | 'profile' | 'inbox' | 'proposal' | 'workroom' | 'payout'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'projects' | 'portfolio' | 'earnings' | 'profile' | 'inbox' | 'proposal' | 'workroom' | 'payout'>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [profileComplete, setProfileComplete] = useState(false);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
@@ -134,6 +135,122 @@ const CreatorDashboard = () => {
         return <CreatorWorkroom project={selectedProject} onBack={() => setActiveView('dashboard')} />;
       case 'payout':
         return <PayoutSetup onComplete={() => setActiveView('dashboard')} onCancel={() => setActiveView('dashboard')} />;
+      case 'projects':
+        return (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
+              <Button 
+                onClick={() => setActiveView('inbox')}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+              >
+                Browse New Projects
+              </Button>
+            </div>
+            <RecentProjects
+              projects={recentProjects}
+              onViewProject={handleViewProject}
+            />
+          </div>
+        );
+      case 'portfolio':
+        return (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-gray-900">Portfolio</h1>
+              <Button 
+                onClick={() => setActiveView('profile')}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+              >
+                Edit Portfolio
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((item) => (
+                <Card key={item} className="overflow-hidden">
+                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    <Play className="w-12 h-12 text-gray-400" />
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2">Portfolio Item {item}</h3>
+                    <p className="text-sm text-gray-600 mb-3">Sample description of the creative work showcased here.</p>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="secondary">Action/Adventure</Badge>
+                      <div className="flex items-center space-x-1 text-yellow-500">
+                        <Star className="w-4 h-4 fill-current" />
+                        <span className="text-sm">4.9</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        );
+      case 'earnings':
+        return (
+          <div className="space-y-8">
+            <div className="flex items-center justify-between">
+              <h1 className="text-3xl font-bold text-gray-900">Earnings</h1>
+              <Button 
+                onClick={() => setActiveView('payout')}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+              >
+                Setup Payouts
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Earnings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">$12,450</div>
+                  <p className="text-sm text-gray-600">+15% from last month</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-600">$2,850</div>
+                  <p className="text-sm text-gray-600">5 projects in review</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm font-medium text-gray-600">Available</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-600">$1,200</div>
+                  <p className="text-sm text-gray-600">Ready for withdrawal</p>
+                </CardContent>
+              </Card>
+            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Transactions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentProjects.map((project) => (
+                    <div key={project.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0">
+                      <div>
+                        <h4 className="font-medium text-gray-900">{project.title}</h4>
+                        <p className="text-sm text-gray-600">{project.client}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-green-600">+${project.budget.toLocaleString()}</div>
+                        <div className="text-sm text-gray-600">{project.lastUpdate}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
       default:
         return (
           <div className="space-y-8">
@@ -159,11 +276,15 @@ const CreatorDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <CreatorHeader
-        onProfileClick={handleHeaderProfileClick}
-        onEarningsClick={handleHeaderEarningsClick}
-        onSettingsClick={handleHeaderSettingsClick}
-        onHelpClick={handleHeaderHelpClick}
-        onLogout={handleHeaderLogout}
+        currentView={activeView}
+        onDashboardClick={() => setActiveView('dashboard')}
+        onProjectsClick={() => setActiveView('projects')}
+        onPortfolioClick={() => setActiveView('portfolio')}
+        onEarningsClick={() => setActiveView('earnings')}
+        onProfileClick={() => setActiveView('profile')}
+        onSettingsClick={() => setActiveView('profile')}
+        onHelpClick={() => setShowHelpCenter(true)}
+        onLogout={() => navigate('/')}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}
