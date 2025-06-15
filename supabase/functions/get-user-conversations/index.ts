@@ -8,7 +8,6 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -21,22 +20,63 @@ serve(async (req) => {
 
     const { user_id } = await req.json()
 
-    const { data, error } = await supabaseClient
+    if (!user_id) {
+      return new Response(
+        JSON.stringify({ error: 'User ID is required' }),
+        { 
+          status: 400,
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json' 
+          } 
+        }
+      )
+    }
+
+    console.log('Fetching conversations for user:', user_id)
+
+    // Get conversations where user is either storyteller or creator
+    const { data: conversations, error } = await supabaseClient
       .from('conversations')
       .select(`
         *,
-        participant_profile:profiles!conversations_creator_id_fkey(full_name, avatar_url, role, is_online),
-        storyteller_profile:profiles!conversations_storyteller_id_fkey(full_name, avatar_url, role, is_online)
+        storyteller_profile:storyteller_id(full_name, avatar_url, role, is_online),
+        creator_profile:creator_id(full_name, avatar_url, role, is_online)
       `)
       .or(`storyteller_id.eq.${user_id},creator_id.eq.${user_id}`)
       .order('updated_at', { ascending: false })
 
     if (error) {
-      throw error
+      console.error('Error fetching conversations:', error)
+      return new Response(
+        JSON.stringify({ error: error.message }),
+        { 
+          status: 500,
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json' 
+          } 
+        }
+      )
     }
 
+    // Transform the data to include participant_profile for easier frontend handling
+    const transformedConversations = conversations?.map(conv => {
+      const isStoryteller = conv.storyteller_id === user_id
+      const participantProfile = isStoryteller ? conv.creator_profile : conv.storyteller_profile
+      
+      return {
+        ...conv,
+        participant_profile: participantProfile,
+        storyteller_profile: conv.storyteller_profile,
+        creator_profile: conv.creator_profile
+      }
+    }) || []
+
+    console.log('Returning conversations:', transformedConversations)
+
     return new Response(
-      JSON.stringify(data),
+      JSON.stringify(transformedConversations),
       { 
         headers: { 
           ...corsHeaders, 
@@ -45,10 +85,11 @@ serve(async (req) => {
       }
     )
   } catch (error) {
+    console.error('Function error:', error)
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
-        status: 400,
+        status: 500,
         headers: { 
           ...corsHeaders, 
           'Content-Type': 'application/json' 
