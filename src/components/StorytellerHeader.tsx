@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Play, Bell, Settings, LogOut, User, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getDisplayName } from '@/hooks/useCreatorDashboard';
 
 interface StorytellerHeaderProps {
   onProfileClick?: () => void;
@@ -47,6 +48,15 @@ const StorytellerHeader = ({ onProfileClick, onSettingsClick, onHelpClick, onLog
   const handleNavDashboard = () => navigate('/storyteller-dashboard');
   const handleNavProjects = () => navigate('/storyteller-dashboard');
   const handleNavBrowseCreators = () => navigate('/creator-dashboard');
+
+  // Mock user data - in real app this would come from auth context
+  const currentUser = {
+    fullName: "Sarah Chen",
+    email: "sarah.chen@email.com",
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=64&h=64&fit=crop&crop=face"
+  };
+
+  const displayName = getDisplayName(currentUser.fullName);
 
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
@@ -97,17 +107,17 @@ const StorytellerHeader = ({ onProfileClick, onSettingsClick, onHelpClick, onLog
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=64&h=64&fit=crop&crop=face" alt="Sarah Chen" />
-                    <AvatarFallback>SC</AvatarFallback>
+                    <AvatarImage src={currentUser.avatar} alt={displayName} />
+                    <AvatarFallback>{displayName.replace(' ', '')}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
-                    <p className="font-medium">Sarah Chen</p>
+                    <p className="font-medium">{displayName}</p>
                     <p className="w-[200px] truncate text-sm text-muted-foreground">
-                      sarah.chen@email.com
+                      {currentUser.email}
                     </p>
                   </div>
                 </div>

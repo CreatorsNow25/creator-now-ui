@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Play, ArrowLeft, Eye, MessageSquare, DollarSign } from 'lucide-react';
+import { getDisplayName } from '@/hooks/useCreatorDashboard';
 
 interface MatchResultsProps {
   onCreatorSelect: (creator: any) => void;
@@ -103,12 +104,12 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
                     <div className="flex items-center space-x-4">
                       <img 
                         src={creator.avatar}
-                        alt={creator.name}
+                        alt={getDisplayName(creator.name)}
                         className="w-16 h-16 rounded-full object-cover"
                       />
                       <div>
                         <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="text-xl font-bold text-gray-900">{creator.name}</h3>
+                          <h3 className="text-xl font-bold text-gray-900">{getDisplayName(creator.name)}</h3>
                           <Badge className="bg-amber-100 text-amber-800">
                             {creator.matchScore}% Match
                           </Badge>
