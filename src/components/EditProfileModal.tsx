@@ -114,7 +114,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             onChange={handleInputChange}
             required
           />
-          {/* Avatar upload section */}
           <div className="flex flex-col items-center space-y-2">
             <Avatar className="w-20 h-20">
               {avatarPreview ? (
@@ -123,9 +122,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 <AvatarFallback>?</AvatarFallback>
               )}
             </Avatar>
-            {/* Change the label from 'Choose file' to 'Upload photo' */}
             <label className="w-full">
-              <span className="block text-sm font-medium text-gray-700 mb-1 text-center">Upload photo</span>
+              <span className="block text-sm font-medium text-gray-700 mb-1 text-center">
+                Upload photo
+              </span>
               <Input
                 type="file"
                 accept="image/*"
@@ -135,18 +135,10 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 required={!avatarPreview}
               />
             </label>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="mt-1 w-full"
-              onClick={handleDeleteAvatar}
-              disabled={!avatarPreview}
-            >
-              Delete
-            </Button>
             {!avatarPreview && (
-              <div className="text-xs text-destructive">You must upload a profile photo.</div>
+              <div className="text-xs text-destructive">
+                You must upload a profile photo.
+              </div>
             )}
           </div>
           <textarea
@@ -158,6 +150,17 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             rows={3}
             required
           />
+          {/* Delete button moved below all fields */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="w-full"
+            onClick={handleDeleteAvatar}
+            disabled={!avatarPreview}
+          >
+            Delete Photo
+          </Button>
           {error && <div className="text-destructive text-sm">{error}</div>}
           <div className="flex space-x-2 justify-end">
             <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
