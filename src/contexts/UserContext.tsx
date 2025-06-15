@@ -24,6 +24,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user: authUser, loading: authLoading, signOut: authSignOut } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileFetched, setProfileFetched] = useState(false);
 
   useEffect(() => {
     console.log('UserContext: Auth state changed', { authUser: authUser?.id, authLoading });
@@ -63,28 +64,30 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           console.log('UserContext: No profile found, user needs to complete profile');
           setUser(null);
         }
+        setProfileFetched(true);
       } catch (error) {
         console.error('UserContext: Error in fetchUserProfile:', error);
+        setProfileFetched(true);
       }
     };
 
-    if (authUser) {
+    if (authUser && !profileFetched) {
       console.log('UserContext: Auth user exists, fetching profile');
-      setTimeout(() => {
-        fetchUserProfile(authUser.id);
-      }, 0);
-    } else {
+      fetchUserProfile(authUser.id);
+    } else if (!authUser) {
       console.log('UserContext: No auth user, clearing user state');
       setUser(null);
+      setProfileFetched(false);
     }
     
     setLoading(authLoading);
-  }, [authUser, authLoading]);
+  }, [authUser, authLoading, profileFetched]);
 
   const handleSignOut = async () => {
     console.log('UserContext: Signing out');
-    await authSignOut();
     setUser(null);
+    setProfileFetched(false);
+    await authSignOut();
   };
 
   console.log('UserContext: Current state:', { user: user?.id, loading, authUser: authUser?.id });
