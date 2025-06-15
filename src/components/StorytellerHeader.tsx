@@ -43,6 +43,11 @@ const StorytellerHeader = ({ onProfileClick, onSettingsClick, onHelpClick, onLog
     }
   };
 
+  // New navigation handlers for header links
+  const handleNavDashboard = () => navigate('/storyteller-dashboard');
+  const handleNavProjects = () => navigate('/storyteller-dashboard');
+  const handleNavBrowseCreators = () => navigate('/creator-dashboard');
+
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -58,9 +63,27 @@ const StorytellerHeader = ({ onProfileClick, onSettingsClick, onHelpClick, onLog
               <span className="text-xl font-bold text-gray-900">Creators Now</span>
             </div>
             <nav className="hidden md:flex space-x-6">
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">Dashboard</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">Projects</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">Browse Creators</a>
+              <button
+                className="text-gray-700 hover:text-gray-900 font-medium bg-transparent border-none outline-none cursor-pointer"
+                onClick={handleNavDashboard}
+                type="button"
+              >
+                Dashboard
+              </button>
+              <button
+                className="text-gray-700 hover:text-gray-900 font-medium bg-transparent border-none outline-none cursor-pointer"
+                onClick={handleNavProjects}
+                type="button"
+              >
+                Projects
+              </button>
+              <button
+                className="text-gray-700 hover:text-gray-900 font-medium bg-transparent border-none outline-none cursor-pointer"
+                onClick={handleNavBrowseCreators}
+                type="button"
+              >
+                Browse Creators
+              </button>
             </nav>
           </div>
           
