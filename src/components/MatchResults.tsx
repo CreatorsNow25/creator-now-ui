@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,119 +93,120 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
       </div>
 
       <div className="space-y-6">
-        {matchedCreators.map((creator) => (
-          <Card key={creator.id} className="overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-amber-400">
-            <CardContent className="p-6">
-              <div className="flex flex-col lg:flex-row lg:items-start lg:space-x-6">
-                {/* Creator Info */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-4">
-                      <img 
-                        src={creator.avatar}
-                        alt={getDisplayName(creator.name)}
-                        className="w-16 h-16 rounded-full object-cover"
-                      />
-                      <div>
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="text-xl font-bold text-gray-900">{getDisplayName(creator.name)}</h3>
-                          <Badge className="bg-amber-100 text-amber-800">
-                            {creator.matchScore}% Match
-                          </Badge>
-                        </div>
-                        <p className="text-gray-600 font-medium">{creator.specialty}</p>
-                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
-                          <div className="flex items-center space-x-1">
-                            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                            <span>{creator.rating}</span>
-                            <span>({creator.reviewCount} reviews)</span>
+        {matchedCreators.map((creator) => {
+          const displayName = getDisplayName(creator.name);
+          console.log(`MatchResults: Processing creator ${creator.name}, display name: ${displayName}`);
+          
+          return (
+            <Card key={creator.id} className="overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-amber-400">
+              <CardContent className="p-6">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:space-x-6">
+                  {/* Creator Info */}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-4">
+                        <img 
+                          src={creator.avatar}
+                          alt={displayName}
+                          className="w-16 h-16 rounded-full object-cover"
+                        />
+                        <div>
+                          <div className="flex items-center space-x-2 mb-1">
+                            <h3 className="text-xl font-bold text-gray-900">{displayName}</h3>
+                            <Badge className="bg-amber-100 text-amber-800">
+                              {creator.matchScore}% Match
+                            </Badge>
                           </div>
-                          <span>•</span>
-                          <span>{creator.completedProjects} projects</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900 mb-1">
-                        ${creator.rate.toLocaleString()}
-                      </div>
-                      <p className="text-sm text-gray-600">Starting at</p>
-                      <Badge className={getAvailabilityColor(creator.availability)}>
-                        {creator.availability}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <p className="text-gray-700 mb-4">{creator.bio}</p>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {creator.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="bg-gray-100 text-gray-700">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Portfolio Preview */}
-                  <div className="mb-4">
-                    <h4 className="font-medium text-gray-900 mb-2">Recent Work</h4>
-                    <div className="grid grid-cols-3 gap-2">
-                      {creator.portfolio.map((image, index) => (
-                        <div key={index} className="relative group">
-                          <img 
-                            src={image}
-                            alt={`Portfolio ${index + 1}`}
-                            className="w-full aspect-video object-cover rounded-lg"
-                          />
-                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
-                            <Play className="w-6 h-6 text-white" />
+                          <p className="text-gray-600 font-medium">{creator.specialty}</p>
+                          <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                            <div className="flex items-center space-x-1">
+                              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                              <span>{creator.rating}</span>
+                              <span>({creator.reviewCount} reviews)</span>
+                            </div>
+                            <span>•</span>
+                            <span>{creator.completedProjects} projects</span>
                           </div>
                         </div>
+                      </div>
+                      
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-gray-900 mb-1">
+                          ${creator.rate.toLocaleString()}
+                        </div>
+                        <p className="text-sm text-gray-600">Starting at</p>
+                        <Badge className={getAvailabilityColor(creator.availability)}>
+                          {creator.availability}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <p className="text-gray-700 mb-4">{creator.bio}</p>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {creator.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary" className="bg-gray-100 text-gray-700">
+                          {tag}
+                        </Badge>
                       ))}
                     </div>
-                  </div>
 
-                  {/* Quick Stats */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
-                    <div>
-                      <p className="text-gray-600">Response Time</p>
-                      <p className="font-medium">{creator.responseTime}</p>
+                    <div className="mb-4">
+                      <h4 className="font-medium text-gray-900 mb-2">Recent Work</h4>
+                      <div className="grid grid-cols-3 gap-2">
+                        {creator.portfolio.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img 
+                              src={image}
+                              alt={`Portfolio ${index + 1}`}
+                              className="w-full aspect-video object-cover rounded-lg"
+                            />
+                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                              <Play className="w-6 h-6 text-white" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-gray-600">Delivery</p>
-                      <p className="font-medium">5-7 days</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Revisions</p>
-                      <p className="font-medium">3 included</p>
-                    </div>
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button 
-                      onClick={() => onCreatorSelect(creator)}
-                      className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 flex-1"
-                    >
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Invite to Bid
-                    </Button>
-                    <Button variant="outline" className="flex-1">
-                      <Eye className="w-4 h-4 mr-2" />
-                      View Full Profile
-                    </Button>
-                    <Button variant="outline">
-                      <Play className="w-4 h-4 mr-2" />
-                      View Reel
-                    </Button>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 text-sm">
+                      <div>
+                        <p className="text-gray-600">Response Time</p>
+                        <p className="font-medium">{creator.responseTime}</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Delivery</p>
+                        <p className="font-medium">5-7 days</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-600">Revisions</p>
+                        <p className="font-medium">3 included</p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button 
+                        onClick={() => onCreatorSelect(creator)}
+                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 flex-1"
+                      >
+                        <MessageSquare className="w-4 h-4 mr-2" />
+                        Invite to Bid
+                      </Button>
+                      <Button variant="outline" className="flex-1">
+                        <Eye className="w-4 h-4 mr-2" />
+                        View Full Profile
+                      </Button>
+                      <Button variant="outline">
+                        <Play className="w-4 h-4 mr-2" />
+                        View Reel
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <div className="mt-8 text-center">
