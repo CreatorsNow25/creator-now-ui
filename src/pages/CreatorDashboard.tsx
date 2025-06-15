@@ -142,7 +142,7 @@ const CreatorDashboard = () => {
               <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
               <Button 
                 onClick={() => setActiveView('inbox')}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                className="bg-black hover:bg-gray-800 text-white"
               >
                 Browse New Projects
               </Button>
@@ -160,7 +160,7 @@ const CreatorDashboard = () => {
               <h1 className="text-3xl font-bold text-gray-900">Portfolio</h1>
               <Button 
                 onClick={() => setActiveView('profile')}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                className="bg-black hover:bg-gray-800 text-white"
               >
                 Edit Portfolio
               </Button>
@@ -194,7 +194,7 @@ const CreatorDashboard = () => {
               <h1 className="text-3xl font-bold text-gray-900">Earnings</h1>
               <Button 
                 onClick={() => setActiveView('payout')}
-                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+                className="bg-black hover:bg-gray-800 text-white"
               >
                 Setup Payouts
               </Button>
