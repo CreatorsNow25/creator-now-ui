@@ -21,7 +21,7 @@ const Header = () => {
             <Button variant="ghost" onClick={() => navigate('/auth')} className="text-white hover:text-black">
               Sign In
             </Button>
-            <Button onClick={() => navigate('/auth')} className="bg-white text-black hover:bg-gray-200">
+            <Button onClick={() => navigate('/auth')} className="bg-black text-white hover:bg-gray-800 border border-white">
               Get Started
               <ArrowRight className="ml-2 w-4 h-4" />
             </Button>

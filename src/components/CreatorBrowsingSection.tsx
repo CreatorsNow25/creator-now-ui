@@ -51,6 +51,16 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
     }
   ];
 
+  const handleContactCreator = (creator: any) => {
+    console.log('Contacting creator:', creator.name);
+    // TODO: Open contact modal or navigate to messaging
+  };
+
+  const handleViewCreatorProfile = (creator: any) => {
+    console.log('Viewing creator profile:', creator.name);
+    // TODO: Navigate to creator profile view
+  };
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -60,7 +70,7 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
         <div className="flex justify-center space-x-4">
           <Button 
             onClick={onCreateProject}
-            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+            className="bg-black hover:bg-gray-800 text-white"
           >
             <Play className="w-4 h-4 mr-2" />
             Start New Project
@@ -118,11 +128,19 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
                 </div>
 
                 <div className="flex space-x-2">
-                  <Button size="sm" className="flex-1">
+                  <Button 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => handleContactCreator(creator)}
+                  >
                     <MessageSquare className="w-4 h-4 mr-1" />
                     Contact
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleViewCreatorProfile(creator)}
+                  >
                     <Eye className="w-4 h-4" />
                   </Button>
                 </div>
