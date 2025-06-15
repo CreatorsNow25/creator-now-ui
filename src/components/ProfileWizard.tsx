@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Upload, X, Star, DollarSign, Plus, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getDisplayName } from "@/hooks/useCreatorDashboard";
 
 interface ProfileWizardProps {
   onComplete: () => void;
@@ -386,7 +387,9 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
 
       <Card>
         <CardHeader>
-          <CardTitle>{getStepTitle()}</CardTitle>
+          <CardTitle>
+            {getStepTitle()}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {renderStepContent()}
