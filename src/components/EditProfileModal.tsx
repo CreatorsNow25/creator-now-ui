@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
+import { useUser } from "@/contexts/UserContext";
 
 interface ProfileData {
   name: string;
@@ -26,6 +27,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   initialProfile,
   onSave,
 }) => {
+  const { user, setUser } = useUser();
   const [form, setForm] = useState<ProfileData>(initialProfile);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(initialProfile.avatar);
@@ -74,30 +76,59 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
     setIsSaving(true);
 
-    let avatarUrl = form.avatar;
+    try {
+      let avatarUrl = form.avatar;
 
-    if (avatarFile) {
-      const fileExt = avatarFile.name.split('.').pop();
-      const filePath = `avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-      const { data, error: uploadError } = await supabase.storage
-        .from("profile-photos")
-        .upload(filePath, avatarFile, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: avatarFile.type || "image/png",
-        });
-      if (uploadError) {
-        setIsSaving(false);
-        setError("Failed to upload image.");
-        return;
+      if (avatarFile) {
+        const fileExt = avatarFile.name.split('.').pop();
+        const filePath = `avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const { data, error: uploadError } = await supabase.storage
+          .from("profile-photos")
+          .upload(filePath, avatarFile, {
+            cacheControl: "3600",
+            upsert: false,
+            contentType: avatarFile.type || "image/png",
+          });
+        if (uploadError) {
+          setError("Failed to upload image.");
+          return;
+        }
+        const { data: urlData } = supabase.storage.from("profile-photos").getPublicUrl(filePath);
+        avatarUrl = urlData.publicUrl;
       }
-      const { data: urlData } = supabase.storage.from("profile-photos").getPublicUrl(filePath);
-      avatarUrl = urlData.publicUrl;
-    }
 
-    onSave({ ...form, avatar: avatarUrl });
-    setIsSaving(false);
-    onClose();
+      // Update Supabase profile
+      if (user) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: form.name,
+            avatar_url: avatarUrl
+          })
+          .eq('id', user.id);
+
+        if (updateError) {
+          console.error('Error updating profile:', updateError);
+          setError("Failed to update profile.");
+          return;
+        }
+
+        // Update user context immediately
+        setUser({
+          ...user,
+          full_name: form.name,
+          avatar_url: avatarUrl
+        });
+      }
+
+      onSave({ ...form, avatar: avatarUrl });
+      onClose();
+    } catch (error) {
+      console.error('Profile update error:', error);
+      setError("Failed to update profile.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (

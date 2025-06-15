@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Play, Bell, Settings, LogOut, User, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
+import { useUser } from '@/contexts/UserContext';
 
 interface StorytellerHeaderProps {
   onProfileClick?: () => void;
@@ -27,6 +28,7 @@ const StorytellerHeader = ({
   onProjectsClick,
 }: StorytellerHeaderProps) => {
   const navigate = useNavigate();
+  const { user } = useUser();
 
   const handleLogout = () => {
     if (onLogout) {
@@ -78,13 +80,10 @@ const StorytellerHeader = ({
     }
   };
 
-  const currentUser = {
-    fullName: "Sarah Chen",
-    email: "sarah.chen@email.com",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=64&h=64&fit=crop&crop=face"
-  };
-
-  const displayName = getDisplayName(currentUser.fullName);
+  // Use actual user data or fallback to defaults
+  const displayName = user?.full_name ? getDisplayName(user.full_name) : "User";
+  const userEmail = user?.email || "user@email.com";
+  const userAvatar = user?.avatar_url || "https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=64&h=64&fit=crop&crop=face";
 
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
@@ -135,7 +134,7 @@ const StorytellerHeader = ({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={currentUser.avatar} alt={displayName} />
+                    <AvatarImage src={userAvatar} alt={displayName} />
                     <AvatarFallback>{displayName.replace(' ', '')}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -145,7 +144,7 @@ const StorytellerHeader = ({
                   <div className="flex flex-col space-y-1 leading-none">
                     <p className="font-medium">{displayName}</p>
                     <p className="w-[200px] truncate text-sm text-muted-foreground">
-                      {currentUser.email}
+                      {userEmail}
                     </p>
                   </div>
                 </div>

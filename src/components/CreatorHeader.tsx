@@ -7,6 +7,7 @@ import { Play, Bell, Settings, LogOut, User, HelpCircle, DollarSign } from 'luci
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
+import { useUser } from '@/contexts/UserContext';
 
 interface CreatorHeaderProps {
   onProfileClick?: () => void;
@@ -32,6 +33,7 @@ const CreatorHeader = ({
   currentView = 'dashboard',
 }: CreatorHeaderProps) => {
   const navigate = useNavigate();
+  const { user } = useUser();
 
   const handleLogout = () => {
     if (onLogout) {
@@ -89,14 +91,10 @@ const CreatorHeader = ({
       : "text-gray-700 hover:text-gray-900 font-medium";
   };
 
-  // Mock user data - in real app this would come from auth context
-  const currentUser = {
-    fullName: "Alex Thompson",
-    email: "alex.thompson@email.com",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face"
-  };
-
-  const displayName = getDisplayName(currentUser.fullName);
+  // Use actual user data or fallback to defaults
+  const displayName = user?.full_name ? getDisplayName(user.full_name) : "Creator";
+  const userEmail = user?.email || "creator@email.com";
+  const userAvatar = user?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face";
 
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
@@ -155,7 +153,7 @@ const CreatorHeader = ({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={currentUser.avatar} alt={displayName} />
+                    <AvatarImage src={userAvatar} alt={displayName} />
                     <AvatarFallback>{displayName.replace(' ', '')}</AvatarFallback>
                   </Avatar>
                 </Button>
@@ -168,7 +166,7 @@ const CreatorHeader = ({
                       <Badge className="bg-amber-100 text-amber-800 text-xs">Pro</Badge>
                     </div>
                     <p className="w-[200px] truncate text-sm text-muted-foreground">
-                      {currentUser.email}
+                      {userEmail}
                     </p>
                   </div>
                 </div>
