@@ -11,12 +11,14 @@ import ProjectInbox from '@/components/ProjectInbox';
 import ProposalModal from '@/components/ProposalModal';
 import CreatorWorkroom from '@/components/CreatorWorkroom';
 import PayoutSetup from '@/components/PayoutSetup';
+import HelpCenter from '@/components/HelpCenter';
 
 const CreatorDashboard = () => {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState<'dashboard' | 'profile' | 'inbox' | 'proposal' | 'workroom' | 'payout'>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [profileComplete, setProfileComplete] = useState(false);
+  const [showHelpCenter, setShowHelpCenter] = useState(false);
 
   const stats = {
     activeProjects: 5,
@@ -109,8 +111,7 @@ const CreatorDashboard = () => {
   };
 
   const handleHeaderHelpClick = () => {
-    // Could open help center or navigate to help page
-    console.log('Help clicked');
+    setShowHelpCenter(true); // Show the HelpCenter modal
   };
 
   const handleHeaderLogout = () => {
@@ -353,6 +354,7 @@ const CreatorDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}
       </div>
+      <HelpCenter isOpen={showHelpCenter} onClose={() => setShowHelpCenter(false)} />
     </div>
   );
 };
