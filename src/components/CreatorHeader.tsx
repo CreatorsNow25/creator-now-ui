@@ -3,9 +3,9 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import { Play, Bell, Settings, LogOut, User, HelpCircle, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 
 interface CreatorHeaderProps {
   onProfileClick?: () => void;
@@ -15,14 +15,19 @@ interface CreatorHeaderProps {
   onLogout?: () => void;
 }
 
-const CreatorHeader = ({ onProfileClick, onEarningsClick, onSettingsClick, onHelpClick, onLogout }: CreatorHeaderProps) => {
+const CreatorHeader = ({
+  onProfileClick,
+  onEarningsClick,
+  onSettingsClick,
+  onHelpClick,
+  onLogout,
+}: CreatorHeaderProps) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     if (onLogout) {
       onLogout();
     } else {
-      // Default logout behavior - redirect to home
       navigate('/');
     }
   };
@@ -51,12 +56,13 @@ const CreatorHeader = ({ onProfileClick, onEarningsClick, onSettingsClick, onHel
     }
   };
 
+  // Navigation for logo and nav links could be added if required
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <div 
+            <div
               className="flex items-center space-x-2 cursor-pointer"
               onClick={() => navigate('/')}
             >
@@ -66,24 +72,32 @@ const CreatorHeader = ({ onProfileClick, onEarningsClick, onSettingsClick, onHel
               <span className="text-xl font-bold text-gray-900">Creators Now</span>
             </div>
             <nav className="hidden md:flex space-x-6">
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">Dashboard</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">Projects</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">Portfolio</a>
-              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">Earnings</a>
+              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+                Dashboard
+              </a>
+              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+                Projects
+              </a>
+              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+                Portfolio
+              </a>
+              <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+                Earnings
+              </a>
             </nav>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-2 bg-green-100 px-3 py-1 rounded-full">
               <DollarSign className="w-4 h-4 text-green-600" />
               <span className="text-sm font-medium text-green-800">$12,450</span>
             </div>
-            
+
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </Button>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -137,3 +151,4 @@ const CreatorHeader = ({ onProfileClick, onEarningsClick, onSettingsClick, onHel
 };
 
 export default CreatorHeader;
+
