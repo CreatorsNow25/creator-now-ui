@@ -1,24 +1,39 @@
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type UserRole = 'storyteller' | 'creator';
-
-export interface User {
+interface User {
   id: string;
-  fullName: string;
   email: string;
-  avatar: string;
-  role: UserRole;
+  full_name: string;
+  role: 'storyteller' | 'creator';
+  avatar_url?: string;
 }
 
 interface UserContextType {
   user: User | null;
+  loading: boolean;
   setUser: (user: User | null) => void;
-  isStoryteller: boolean;
-  isCreator: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
+
+export const UserProvider = ({ children }: { children: ReactNode }) => {
+  // Using a proper UUID format instead of "1"
+  const [user, setUser] = useState<User | null>({
+    id: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
+    email: 'test@example.com',
+    full_name: 'Test User',
+    role: 'storyteller',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face&auto=format'
+  });
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <UserContext.Provider value={{ user, loading, setUser }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
 
 export const useUser = () => {
   const context = useContext(UserContext);
@@ -26,27 +41,4 @@ export const useUser = () => {
     throw new Error('useUser must be used within a UserProvider');
   }
   return context;
-};
-
-interface UserProviderProps {
-  children: ReactNode;
-}
-
-export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>({
-    id: '1',
-    fullName: 'Sarah Chen',
-    email: 'sarah.chen@email.com',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b47c?w=64&h=64&fit=crop&crop=face',
-    role: 'storyteller'
-  });
-
-  const isStoryteller = user?.role === 'storyteller';
-  const isCreator = user?.role === 'creator';
-
-  return (
-    <UserContext.Provider value={{ user, setUser, isStoryteller, isCreator }}>
-      {children}
-    </UserContext.Provider>
-  );
 };
