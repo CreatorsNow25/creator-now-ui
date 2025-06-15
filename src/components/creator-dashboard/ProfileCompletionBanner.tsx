@@ -1,6 +1,9 @@
 
 import React from 'react';
-import { Card, CardContent, Badge, Progress, Button } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { User } from 'lucide-react';
 
 interface ProfileCompletionBannerProps {

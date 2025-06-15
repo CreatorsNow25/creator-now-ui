@@ -1,6 +1,9 @@
 
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardContent, Button, Badge, Progress } from '@/components/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { DollarSign, Clock, MessageSquare } from 'lucide-react';
 
 interface RecentProject {
