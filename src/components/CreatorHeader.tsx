@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Play, Bell, Settings, LogOut, User, HelpCircle, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { getDisplayName } from '@/hooks/useCreatorDashboard';
 
 interface CreatorHeaderProps {
   onProfileClick?: () => void;
@@ -88,6 +89,15 @@ const CreatorHeader = ({
       : "text-gray-700 hover:text-gray-900 font-medium";
   };
 
+  // Mock user data - in real app this would come from auth context
+  const currentUser = {
+    fullName: "Alex Thompson",
+    email: "alex.thompson@email.com",
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face"
+  };
+
+  const displayName = getDisplayName(currentUser.fullName);
+
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -145,8 +155,8 @@ const CreatorHeader = ({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face" alt="Alex Thompson" />
-                    <AvatarFallback>AT</AvatarFallback>
+                    <AvatarImage src={currentUser.avatar} alt={displayName} />
+                    <AvatarFallback>{displayName.replace(' ', '')}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -154,11 +164,11 @@ const CreatorHeader = ({
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
                     <div className="flex items-center space-x-2">
-                      <p className="font-medium">Alex Thompson</p>
+                      <p className="font-medium">{displayName}</p>
                       <Badge className="bg-amber-100 text-amber-800 text-xs">Pro</Badge>
                     </div>
                     <p className="w-[200px] truncate text-sm text-muted-foreground">
-                      alex.thompson@email.com
+                      {currentUser.email}
                     </p>
                   </div>
                 </div>

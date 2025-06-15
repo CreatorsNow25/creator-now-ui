@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +15,7 @@ import MatchResults from '@/components/MatchResults';
 import ProjectWorkroom from '@/components/ProjectWorkroom';
 import PaymentModal from '@/components/PaymentModal';
 import ReviewForm from '@/components/ReviewForm';
+import { getDisplayName } from '@/hooks/useCreatorDashboard';
 
 const StorytellerDashboard = () => {
   const navigate = useNavigate();
@@ -237,11 +239,11 @@ const StorytellerDashboard = () => {
                         <div className="flex items-center space-x-3">
                           <img 
                             src={project.creator.avatar}
-                            alt={project.creator.name}
+                            alt={getDisplayName(project.creator.name)}
                             className="w-10 h-10 rounded-full"
                           />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">{project.creator.name}</p>
+                            <p className="text-sm font-medium text-gray-900">{getDisplayName(project.creator.name)}</p>
                             <p className="text-xs text-gray-600">Updated {project.lastUpdate}</p>
                           </div>
                         </div>
