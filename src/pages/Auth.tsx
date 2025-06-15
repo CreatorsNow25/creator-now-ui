@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Play, Mail, Lock, User, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -31,16 +31,19 @@ const Auth = () => {
     }, 1500);
   };
 
-  const handleOAuthLogin = (provider: string) => {
-    console.log(`Login with ${provider}`);
-    // Simulate OAuth login
-    setTimeout(() => {
-      if (userType === 'storyteller') {
-        navigate('/storyteller-dashboard');
-      } else {
-        navigate('/creator-dashboard');
-      }
-    }, 1000);
+  const handleOAuthLogin = async (provider: "google" | "apple") => {
+    // Initiate OAuth sign-in with Supabase
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin + "/",
+      },
+    });
+    if (error) {
+      alert(`Unable to authenticate with ${provider.charAt(0).toUpperCase() + provider.slice(1)}: ${error.message}`);
+      return;
+    }
+    // The redirect will occur automatically on successful auth.
   };
 
   return (
@@ -222,7 +225,7 @@ const Auth = () => {
                 <div className="mt-6 grid grid-cols-2 gap-3">
                   <Button
                     variant="outline"
-                    onClick={() => handleOAuthLogin('Google')}
+                    onClick={() => handleOAuthLogin('google')}
                     className="w-full bg-white text-black border-white/20 hover:bg-white/90"
                   >
                     <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
@@ -235,7 +238,7 @@ const Auth = () => {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => handleOAuthLogin('Apple')}
+                    onClick={() => handleOAuthLogin('apple')}
                     className="w-full bg-white text-black border-white/20 hover:bg-white/90"
                   >
                     <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
