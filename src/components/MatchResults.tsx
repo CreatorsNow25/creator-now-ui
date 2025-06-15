@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -108,7 +109,7 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
           console.log(`MatchResults: Processing creator ${creator.name}, display name: ${displayName}`);
           
           return (
-            <Card key={creator.id} className="overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-amber-400">
+            <Card key={creator.id} className="overflow-hidden hover:shadow-lg transition-shadow border-l-4 border-l-black">
               <CardContent className="p-6">
                 <div className="flex flex-col lg:flex-row lg:items-start lg:space-x-6">
                   {/* Creator Info */}
@@ -123,14 +124,14 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
                         <div>
                           <div className="flex items-center space-x-2 mb-1">
                             <h3 className="text-xl font-bold text-gray-900">{displayName}</h3>
-                            <Badge className="bg-amber-100 text-amber-800">
+                            <Badge className="bg-black text-white">
                               {creator.matchScore}% Match
                             </Badge>
                           </div>
                           <p className="text-gray-600 font-medium">{creator.specialty}</p>
                           <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
                             <div className="flex items-center space-x-1">
-                              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                              <Star className="w-4 h-4 fill-black text-black" />
                               <span>{creator.rating}</span>
                               <span>({creator.reviewCount} reviews)</span>
                             </div>
