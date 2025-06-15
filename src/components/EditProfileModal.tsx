@@ -48,7 +48,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
   const handleDeleteAvatar = () => {
     setAvatarFile(null);
-    setAvatarPreview(""); // force user to upload a replacement
+    setAvatarPreview("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,7 +69,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
     let avatarUrl = form.avatar;
 
-    // If new avatar selected, upload to supabase storage
     if (avatarFile) {
       const fileExt = avatarFile.name.split('.').pop();
       const filePath = `avatars/${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
@@ -114,37 +114,37 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             onChange={handleInputChange}
             required
           />
+          {/* Avatar upload section */}
           <div className="flex flex-col items-center space-y-2">
-            <div className="relative">
-              <Avatar className="w-20 h-20">
-                {avatarPreview ? (
-                  <AvatarImage src={avatarPreview} alt={form.name} />
-                ) : (
-                  <AvatarFallback>?</AvatarFallback>
-                )}
-              </Avatar>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="absolute top-0 right-0"
-                onClick={() => {
-                  if (avatarPreview) handleDeleteAvatar();
-                  if (fileInputRef.current) fileInputRef.current.value = "";
-                }}
-                disabled={!avatarPreview}
-              >
-                Delete
-              </Button>
-            </div>
-            <Input
-              type="file"
-              accept="image/*"
-              className="mt-2"
-              ref={fileInputRef}
-              onChange={handleAvatarChange}
-              required={!avatarPreview}
-            />
+            <Avatar className="w-20 h-20">
+              {avatarPreview ? (
+                <AvatarImage src={avatarPreview} alt={form.name} />
+              ) : (
+                <AvatarFallback>?</AvatarFallback>
+              )}
+            </Avatar>
+            {/* Change the label from 'Choose file' to 'Upload photo' */}
+            <label className="w-full">
+              <span className="block text-sm font-medium text-gray-700 mb-1 text-center">Upload photo</span>
+              <Input
+                type="file"
+                accept="image/*"
+                className="mt-0"
+                ref={fileInputRef}
+                onChange={handleAvatarChange}
+                required={!avatarPreview}
+              />
+            </label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-1 w-full"
+              onClick={handleDeleteAvatar}
+              disabled={!avatarPreview}
+            >
+              Delete
+            </Button>
             {!avatarPreview && (
               <div className="text-xs text-destructive">You must upload a profile photo.</div>
             )}
