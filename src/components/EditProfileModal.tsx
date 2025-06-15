@@ -122,8 +122,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             required
           />
 
-          {/* Upload photo button below city field */}
-          <div className="flex flex-col items-center space-y-2">
+          {/* Upload photo button just below city field, reduce space */}
+          <div className="flex flex-col items-center gap-2 mt-2 mb-0">
             <input
               type="file"
               accept="image/*"
@@ -135,7 +135,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             />
             <Button
               type="button"
-              className="mb-1"
+              className="mb-0"
               onClick={handleUploadClick}
               variant="outline"
             >
@@ -150,27 +150,33 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             </Avatar>
           </div>
 
-          <textarea
-            name="bio"
-            placeholder="Bio"
-            value={form.bio}
-            onChange={handleInputChange}
-            className="w-full rounded border border-gray-300 px-3 py-2"
-            rows={3}
-            required
-          />
-          {error && <div className="text-destructive text-sm">{error}</div>}
+          {/* Reduce margin between avatar section and bio */}
+          <div className="mt-1">
+            <textarea
+              name="bio"
+              placeholder="Bio"
+              value={form.bio}
+              onChange={handleInputChange}
+              className="w-full rounded border border-gray-300 px-3 py-2"
+              rows={3}
+              required
+            />
+          </div>
+
+          {error && <div className="text-destructive text-sm -mt-2">{error}</div>}
+
+          {/* Tighten spacing for buttons */}
           <Button
             type="button"
             variant="outline"
             size="sm"
-            className="w-full"
+            className="w-full mt-2"
             onClick={handleDeleteAvatar}
             disabled={!avatarPreview}
           >
             Delete Profile
           </Button>
-          <div className="flex space-x-2 justify-end">
+          <div className="flex space-x-2 justify-end mt-2">
             <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
               Cancel
             </Button>
