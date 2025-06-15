@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, MessageSquare, Upload, Download, Eye, Clock, CheckCircle, AlertCircle, Shield } from 'lucide-react';
 import ProjectApproval from './ProjectApproval';
+import MessagingModal from './messaging/MessagingModal';
 
 interface ProjectWorkroomProps {
   project: any;
@@ -17,6 +18,7 @@ interface ProjectWorkroomProps {
 const ProjectWorkroom: React.FC<ProjectWorkroomProps> = ({ project, onPayment, onBack }) => {
   const [newMessage, setNewMessage] = useState('');
   const [activeView, setActiveView] = useState<'workroom' | 'approval'>('workroom');
+  const [showMessaging, setShowMessaging] = useState(false);
 
   const messages = [
     {
@@ -119,6 +121,10 @@ const ProjectWorkroom: React.FC<ProjectWorkroomProps> = ({ project, onPayment, o
   const handleApproveProject = () => {
     setActiveView('workroom');
     // Additional logic for post-approval
+  };
+
+  const handleOpenMessaging = () => {
+    setShowMessaging(true);
   };
 
   if (activeView === 'approval') {
@@ -332,7 +338,7 @@ const ProjectWorkroom: React.FC<ProjectWorkroomProps> = ({ project, onPayment, o
                   <p className="text-sm text-gray-600">Sci-Fi Specialist</p>
                 </div>
               </div>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={handleOpenMessaging}>
                 <MessageSquare className="w-4 h-4 mr-2" />
                 Message Creator
               </Button>
@@ -414,6 +420,13 @@ const ProjectWorkroom: React.FC<ProjectWorkroomProps> = ({ project, onPayment, o
           </Card>
         </div>
       </div>
+
+      <MessagingModal 
+        isOpen={showMessaging} 
+        onClose={() => setShowMessaging(false)}
+        initialCreatorName="Alex Thompson"
+        projectTitle={project?.title || 'Epic Fantasy Adventure Trailer'}
+      />
     </div>
   );
 };

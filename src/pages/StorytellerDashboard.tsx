@@ -12,6 +12,7 @@ import ReviewForm from '@/components/ReviewForm';
 import CreatorBrowsingSection from '@/components/CreatorBrowsingSection';
 import DashboardView from '@/components/storyteller-dashboard/DashboardView';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
+import MessagingModal from '@/components/messaging/MessagingModal';
 
 const StorytellerDashboard = () => {
   const navigate = useNavigate();
@@ -20,6 +21,9 @@ const StorytellerDashboard = () => {
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showMessaging, setShowMessaging] = useState(false);
+  const [messagingCreator, setMessagingCreator] = useState<string>('');
+  const [messagingProject, setMessagingProject] = useState<string>('');
 
   const projects = [
     {
@@ -96,9 +100,11 @@ const StorytellerDashboard = () => {
     navigate('/');
   };
 
-  const handleMessageCreator = (creatorName: string) => {
-    console.log(`Messaging ${getDisplayName(creatorName)}`);
-    alert(`Starting a conversation with ${getDisplayName(creatorName)}. (This is a placeholder action)`);
+  const handleMessageCreator = (creatorName: string, projectTitle?: string) => {
+    console.log(`Opening messaging with ${getDisplayName(creatorName)}`);
+    setMessagingCreator(creatorName);
+    setMessagingProject(projectTitle || '');
+    setShowMessaging(true);
   };
 
   const handleDashboardClick = () => {
@@ -133,7 +139,7 @@ const StorytellerDashboard = () => {
             projects={projects}
             onCreateProject={handleCreateProject}
             onViewProject={handleViewProject}
-            onMessageCreator={handleMessageCreator}
+            onMessageCreator={(creatorName) => handleMessageCreator(creatorName, projects.find(p => p.creator.name === creatorName)?.title)}
           />
         );
     }
@@ -158,6 +164,12 @@ const StorytellerDashboard = () => {
       <StorytellerProfile isOpen={showProfile} onClose={() => setShowProfile(false)} />
       <StorytellerSettings isOpen={showSettings} onClose={() => setShowSettings(false)} />
       <HelpCenter isOpen={showHelp} onClose={() => setShowHelp(false)} />
+      <MessagingModal 
+        isOpen={showMessaging} 
+        onClose={() => setShowMessaging(false)}
+        initialCreatorName={messagingCreator}
+        projectTitle={messagingProject}
+      />
     </div>
   );
 };
