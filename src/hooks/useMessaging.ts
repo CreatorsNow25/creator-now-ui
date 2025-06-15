@@ -48,20 +48,29 @@ export const useMessaging = () => {
 
     setLoading(true);
     try {
+      // Use supabase.rpc or direct query with type assertion
       const { data, error } = await supabase
-        .from('conversations')
-        .select(`
-          *,
-          participant_profile:profiles!conversations_creator_id_fkey(full_name, avatar_url, role, is_online),
-          storyteller_profile:profiles!conversations_storyteller_id_fkey(full_name, avatar_url, role, is_online)
-        `)
-        .or(`storyteller_id.eq.${user.id},creator_id.eq.${user.id}`)
-        .order('updated_at', { ascending: false });
+        .rpc('get_user_conversations', { user_id: user.id })
+        .then(result => {
+          // If RPC doesn't exist, fall back to direct query
+          if (result.error?.code === '42883') {
+            return supabase
+              .from('conversations' as any)
+              .select(`
+                *,
+                participant_profile:profiles!conversations_creator_id_fkey(full_name, avatar_url, role, is_online),
+                storyteller_profile:profiles!conversations_storyteller_id_fkey(full_name, avatar_url, role, is_online)
+              `)
+              .or(`storyteller_id.eq.${user.id},creator_id.eq.${user.id}`)
+              .order('updated_at', { ascending: false });
+          }
+          return result;
+        });
 
       if (error) throw error;
 
       // Transform data to include the other participant's profile
-      const transformedConversations = data?.map(conv => {
+      const transformedConversations = (data || []).map((conv: any) => {
         const isStoryteller = conv.storyteller_id === user.id;
         const participantProfile = isStoryteller ? conv.participant_profile : conv.storyteller_profile;
         
@@ -71,7 +80,7 @@ export const useMessaging = () => {
           last_message: '',
           unread_count: 0
         };
-      }) || [];
+      });
 
       setConversations(transformedConversations);
 
@@ -90,7 +99,7 @@ export const useMessaging = () => {
   const fetchMessages = async (conversationId: string) => {
     try {
       const { data, error } = await supabase
-        .from('messages')
+        .from('messages' as any)
         .select(`
           *,
           sender_profile:profiles(full_name, avatar_url)
@@ -113,14 +122,14 @@ export const useMessaging = () => {
   const fetchLastMessage = async (conversationId: string) => {
     try {
       const { data, error } = await supabase
-        .from('messages')
+        .from('messages' as any)
         .select('content, created_at')
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
 
       if (data) {
         setConversations(prev => 
@@ -142,7 +151,7 @@ export const useMessaging = () => {
 
     try {
       const { error } = await supabase
-        .from('messages')
+        .from('messages' as any)
         .insert({
           conversation_id: conversationId,
           sender_id: user.id,
@@ -167,13 +176,13 @@ export const useMessaging = () => {
     try {
       // First, try to find existing conversation
       const { data: existing, error: findError } = await supabase
-        .from('conversations')
+        .from('conversations' as any)
         .select('id')
         .or(`and(storyteller_id.eq.${user.id},creator_id.eq.${otherUserId}),and(storyteller_id.eq.${otherUserId},creator_id.eq.${user.id})`)
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (findError && findError.code !== 'PGRST116') throw findError;
+      if (findError) throw findError;
 
       if (existing) {
         return existing.id;
@@ -182,7 +191,7 @@ export const useMessaging = () => {
       // Create new conversation
       const isStoryteller = user.role === 'storyteller';
       const { data, error } = await supabase
-        .from('conversations')
+        .from('conversations' as any)
         .insert({
           storyteller_id: isStoryteller ? user.id : otherUserId,
           creator_id: isStoryteller ? otherUserId : user.id,
@@ -194,7 +203,7 @@ export const useMessaging = () => {
       if (error) throw error;
 
       await fetchConversations();
-      return data.id;
+      return data?.id || null;
     } catch (error) {
       console.error('Error creating conversation:', error);
       return null;
