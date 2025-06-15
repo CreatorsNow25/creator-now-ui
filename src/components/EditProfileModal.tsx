@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,13 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       const file = e.target.files[0];
       setAvatarFile(file);
       setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleUploadClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -113,7 +121,26 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             onChange={handleInputChange}
             required
           />
+
+          {/* Upload photo button below city field */}
           <div className="flex flex-col items-center space-y-2">
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleAvatarChange}
+              required={!avatarPreview}
+              id="avatar-upload"
+            />
+            <Button
+              type="button"
+              className="mb-1"
+              onClick={handleUploadClick}
+              variant="outline"
+            >
+              Upload photo
+            </Button>
             <Avatar className="w-20 h-20">
               {avatarPreview ? (
                 <AvatarImage src={avatarPreview} alt={form.name} />
@@ -121,25 +148,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 <AvatarFallback>?</AvatarFallback>
               )}
             </Avatar>
-            <label className="w-full">
-              <span className="block text-sm font-medium text-gray-700 mb-1 text-center">
-                Upload photo
-              </span>
-              <Input
-                type="file"
-                accept="image/*"
-                className="mt-0"
-                ref={fileInputRef}
-                onChange={handleAvatarChange}
-                required={!avatarPreview}
-              />
-            </label>
-            {!avatarPreview && (
-              <div className="text-xs text-destructive">
-                You must upload a profile photo.
-              </div>
-            )}
           </div>
+
           <textarea
             name="bio"
             placeholder="Bio"
