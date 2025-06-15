@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,6 +93,28 @@ const CreatorDashboard = () => {
 
   const handleProposalSubmit = () => {
     setActiveView('workroom');
+  };
+
+  const handleHeaderProfileClick = () => {
+    setActiveView('profile');
+  };
+
+  const handleHeaderEarningsClick = () => {
+    // Could navigate to earnings view or show earnings modal
+    console.log('Earnings clicked');
+  };
+
+  const handleHeaderSettingsClick = () => {
+    setActiveView('profile'); // or create a separate settings view
+  };
+
+  const handleHeaderHelpClick = () => {
+    // Could open help center or navigate to help page
+    console.log('Help clicked');
+  };
+
+  const handleHeaderLogout = () => {
+    navigate('/');
   };
 
   const renderActiveView = () => {
@@ -322,7 +343,13 @@ const CreatorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <CreatorHeader />
+      <CreatorHeader 
+        onProfileClick={handleHeaderProfileClick}
+        onEarningsClick={handleHeaderEarningsClick}
+        onSettingsClick={handleHeaderSettingsClick}
+        onHelpClick={handleHeaderHelpClick}
+        onLogout={handleHeaderLogout}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}
       </div>
