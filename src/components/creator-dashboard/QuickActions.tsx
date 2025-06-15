@@ -18,7 +18,7 @@ const QuickActions = ({ onInbox, onPayout, onProfile }: QuickActionsProps) => (
         <p className="text-gray-600 mb-4 text-sm">Find new opportunities that match your skills</p>
         <Button 
           onClick={onInbox}
-          className="bg-gray-800 hover:bg-gray-900 text-white"
+          className="bg-black hover:bg-gray-800 text-white"
         >
           View Inbox
         </Button>
@@ -30,7 +30,7 @@ const QuickActions = ({ onInbox, onPayout, onProfile }: QuickActionsProps) => (
         <p className="text-gray-600 mb-4 text-sm">Connect your payment method to receive earnings</p>
         <Button
           onClick={onPayout}
-          className="bg-gray-800 hover:bg-gray-900 text-white"
+          className="bg-black hover:bg-gray-800 text-white"
         >
           Setup Payments
         </Button>
@@ -42,7 +42,7 @@ const QuickActions = ({ onInbox, onPayout, onProfile }: QuickActionsProps) => (
         <p className="text-gray-600 mb-4 text-sm">Update your portfolio and pricing</p>
         <Button
           onClick={onProfile}
-          className="bg-gray-800 hover:bg-gray-900 text-white"
+          className="bg-black hover:bg-gray-800 text-white"
         >
           <Settings className="w-4 h-4 mr-2" />
           Edit Profile
