@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
@@ -157,6 +156,8 @@ export const useStorytellerDashboard = () => {
     if (creator) {
       setSelectedCreator(creator);
       setActiveView('creator-profile');
+    } else {
+      console.error('Creator not found:', creatorName);
     }
   };
 

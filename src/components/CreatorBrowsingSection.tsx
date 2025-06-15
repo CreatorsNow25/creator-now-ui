@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Play, ArrowRight, Eye, MessageSquare, Users } from 'lucide-react';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
+import ContactCreatorModal from '@/components/ContactCreatorModal';
 
 interface CreatorBrowsingSectionProps {
   onViewMatches: () => void;
@@ -18,6 +19,9 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
   onContactCreator,
   onViewCreatorProfile 
 }) => {
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [selectedCreatorForContact, setSelectedCreatorForContact] = useState<any>(null);
+
   const featuredCreators = [
     {
       id: 1,
@@ -55,9 +59,16 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
   ];
 
   const handleContactCreator = (creator: any) => {
-    console.log('Contacting creator:', creator.name);
-    if (onContactCreator) {
-      onContactCreator(creator.name);
+    console.log('Opening contact modal for creator:', creator.name);
+    setSelectedCreatorForContact(creator);
+    setShowContactModal(true);
+  };
+
+  const handleSendMessage = async (subject: string, message: string) => {
+    console.log('Sending message:', { subject, message, creator: selectedCreatorForContact?.name });
+    // Here you would integrate with your messaging system
+    if (onContactCreator && selectedCreatorForContact) {
+      onContactCreator(selectedCreatorForContact.name);
     }
   };
 
@@ -69,94 +80,103 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
   };
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Browse Top AI Creators</h2>
-        <p className="text-gray-600 text-lg mb-8">Find the perfect creator for your next project</p>
-        
-        <div className="flex justify-center space-x-4">
-          <Button 
-            onClick={onCreateProject}
-            className="bg-black hover:bg-gray-800 text-white"
-          >
-            <Play className="w-4 h-4 mr-2" />
-            Start New Project
-          </Button>
-          <Button 
-            onClick={onViewMatches}
-            variant="outline"
-          >
-            <Users className="w-4 h-4 mr-2" />
-            View All Creators
-          </Button>
+    <>
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Browse Top AI Creators</h2>
+          <p className="text-gray-600 text-lg mb-8">Find the perfect creator for your next project</p>
+          
+          <div className="flex justify-center space-x-4">
+            <Button 
+              onClick={onCreateProject}
+              className="bg-black hover:bg-gray-800 text-white"
+            >
+              <Play className="w-4 h-4 mr-2" />
+              Start New Project
+            </Button>
+            <Button 
+              onClick={onViewMatches}
+              variant="outline"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              View All Creators
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {featuredCreators.map((creator) => {
+            const displayName = getDisplayName(creator.name);
+            
+            return (
+              <Card key={creator.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <img 
+                      src={creator.avatar}
+                      alt={displayName}
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-bold text-gray-900">{displayName}</h3>
+                      <p className="text-sm text-gray-600">{creator.specialty}</p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        <span className="text-sm font-medium">{creator.rating}</span>
+                        <span className="text-sm text-gray-500">({creator.reviewCount})</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-gray-600">Starting at</span>
+                      <span className="font-bold text-lg">${creator.rate.toLocaleString()}</span>
+                    </div>
+                    <Badge className="bg-green-100 text-green-800 text-xs">
+                      {creator.availability}
+                    </Badge>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {creator.tags.map((tag) => (
+                      <Badge key={tag} variant="secondary" className="text-xs">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+
+                  <div className="flex space-x-2">
+                    <Button 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => handleContactCreator(creator)}
+                    >
+                      <MessageSquare className="w-4 h-4 mr-1" />
+                      Contact
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleViewCreatorProfile(creator)}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {featuredCreators.map((creator) => {
-          const displayName = getDisplayName(creator.name);
-          
-          return (
-            <Card key={creator.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-4 mb-4">
-                  <img 
-                    src={creator.avatar}
-                    alt={displayName}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900">{displayName}</h3>
-                    <p className="text-sm text-gray-600">{creator.specialty}</p>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                      <span className="text-sm font-medium">{creator.rating}</span>
-                      <span className="text-sm text-gray-500">({creator.reviewCount})</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">Starting at</span>
-                    <span className="font-bold text-lg">${creator.rate.toLocaleString()}</span>
-                  </div>
-                  <Badge className="bg-green-100 text-green-800 text-xs">
-                    {creator.availability}
-                  </Badge>
-                </div>
-
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {creator.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-
-                <div className="flex space-x-2">
-                  <Button 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => handleContactCreator(creator)}
-                  >
-                    <MessageSquare className="w-4 h-4 mr-1" />
-                    Contact
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => handleViewCreatorProfile(creator)}
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
+      <ContactCreatorModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        creatorName={getDisplayName(selectedCreatorForContact?.name || '')}
+        onSendMessage={handleSendMessage}
+      />
+    </>
   );
 };
 
