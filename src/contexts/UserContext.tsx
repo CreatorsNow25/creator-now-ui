@@ -45,11 +45,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         }
 
         if (profile) {
-          const userData = {
+          // Properly type the role with fallback
+          const userRole = (profile.role === 'storyteller' || profile.role === 'creator') 
+            ? profile.role as 'storyteller' | 'creator'
+            : 'storyteller' as const;
+            
+          const userData: User = {
             id: profile.id,
             email: authUser?.email || '',
             full_name: profile.full_name || '',
-            role: (profile.role === 'storyteller' || profile.role === 'creator') ? profile.role : 'storyteller',
+            role: userRole,
             avatar_url: profile.avatar_url
           };
           console.log('UserContext: Setting user data:', userData);

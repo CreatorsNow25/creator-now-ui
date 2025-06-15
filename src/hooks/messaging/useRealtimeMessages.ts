@@ -16,8 +16,11 @@ export const useRealtimeMessages = (
 
     console.log('Setting up real-time subscriptions');
     
+    // Create a unique channel name to avoid conflicts
+    const channelName = `messages-${user.id}-${Date.now()}`;
+    
     const messageSubscription = supabase
-      .channel('messages')
+      .channel(channelName)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',

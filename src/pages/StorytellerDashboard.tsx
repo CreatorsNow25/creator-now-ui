@@ -14,10 +14,16 @@ import DashboardView from '@/components/storyteller-dashboard/DashboardView';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
 import MessagingModal from '@/components/messaging/MessagingModal';
 import { useMessaging } from '@/hooks/useMessaging';
+import { useUser } from '@/contexts/UserContext';
 
 const StorytellerDashboard = () => {
   const navigate = useNavigate();
-  const { createOrFindConversation } = useMessaging();
+  const { user } = useUser(); // Ensure we have user context first
+  
+  // Only use messaging if user is available
+  const messagingHook = user ? useMessaging() : null;
+  const { createOrFindConversation } = messagingHook || { createOrFindConversation: null };
+  
   const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'matches' | 'workroom' | 'payment' | 'review' | 'browse-creators'>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
@@ -146,6 +152,18 @@ const StorytellerDashboard = () => {
         );
     }
   };
+
+  // Don't render if user is not available yet
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50">
