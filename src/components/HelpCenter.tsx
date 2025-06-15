@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
-import { Search, MessageCircle, Book, Phone, Mail } from 'lucide-react';
+import { Search, MessageCircle, Book, Mail } from 'lucide-react';
 
 interface HelpCenterProps {
   isOpen: boolean;
@@ -66,7 +66,7 @@ const HelpCenter = ({ isOpen, onClose }: HelpCenterProps) => {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setShowContactForm(true)}>
               <CardContent className="p-4 text-center">
                 <MessageCircle className="w-8 h-8 mx-auto mb-2 text-blue-600" />
@@ -80,14 +80,6 @@ const HelpCenter = ({ isOpen, onClose }: HelpCenterProps) => {
                 <Book className="w-8 h-8 mx-auto mb-2 text-green-600" />
                 <h3 className="font-medium">User Guide</h3>
                 <p className="text-sm text-gray-600">Learn how to use the platform</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-4 text-center">
-                <Phone className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-                <h3 className="font-medium">Schedule Call</h3>
-                <p className="text-sm text-gray-600">Talk to our experts</p>
               </CardContent>
             </Card>
           </div>
@@ -144,21 +136,13 @@ const HelpCenter = ({ isOpen, onClose }: HelpCenterProps) => {
                   <CardTitle>Get in Touch</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                     <div className="flex items-center space-x-3">
                       <Mail className="w-5 h-5 text-gray-600" />
                       <div>
                         <p className="font-medium">Email Support</p>
                         <p className="text-sm text-gray-600">support@creators.now</p>
                         <Badge variant="secondary" className="mt-1">24-48h response</Badge>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Phone className="w-5 h-5 text-gray-600" />
-                      <div>
-                        <p className="font-medium">Phone Support</p>
-                        <p className="text-sm text-gray-600">1-800-CREATORS</p>
-                        <Badge variant="secondary" className="mt-1">Mon-Fri 9am-6pm PST</Badge>
                       </div>
                     </div>
                   </div>
@@ -173,3 +157,4 @@ const HelpCenter = ({ isOpen, onClose }: HelpCenterProps) => {
 };
 
 export default HelpCenter;
+
