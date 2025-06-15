@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -92,9 +91,19 @@ const CreatorHeader = ({
   };
 
   // Use actual user data or fallback to defaults
-  const displayName = user?.full_name ? getDisplayName(user.full_name) : "Creator";
+  const displayName = user?.full_name || "Creator";
   const userEmail = user?.email || "creator@email.com";
-  const userAvatar = user?.avatar_url || "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face";
+  const userAvatar = user?.avatar_url;
+
+  // Generate proper initials for fallback
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
@@ -154,7 +163,7 @@ const CreatorHeader = ({
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={userAvatar} alt={displayName} />
-                    <AvatarFallback>{displayName.replace(' ', '')}</AvatarFallback>
+                    <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -162,7 +171,7 @@ const CreatorHeader = ({
                 <div className="flex items-center justify-start gap-2 p-2">
                   <div className="flex flex-col space-y-1 leading-none">
                     <div className="flex items-center space-x-2">
-                      <p className="font-medium">{displayName}</p>
+                      <p className="font-medium">{getDisplayName(displayName)}</p>
                       <Badge className="bg-amber-100 text-amber-800 text-xs">Pro</Badge>
                     </div>
                     <p className="w-[200px] truncate text-sm text-muted-foreground">
