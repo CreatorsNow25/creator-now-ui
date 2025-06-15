@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -109,8 +110,8 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
             const displayName = getDisplayName(creator.name);
             
             return (
-              <Card key={creator.id} className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
+              <Card key={creator.id} className="hover:shadow-lg transition-shadow h-full flex flex-col">
+                <CardContent className="p-6 flex-1 flex flex-col">
                   <div className="flex items-center space-x-4 mb-4">
                     <img 
                       src={creator.avatar}
@@ -138,7 +139,7 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
                     </Badge>
                   </div>
 
-                  <div className="flex flex-wrap gap-1 mb-4">
+                  <div className="flex flex-wrap gap-1 mb-4 flex-1">
                     {creator.tags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
                         {tag}
@@ -146,7 +147,7 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
                     ))}
                   </div>
 
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2 mt-auto">
                     <Button 
                       size="sm" 
                       className="flex-1"

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, X } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface ContactCreatorModalProps {
   isOpen: boolean;
@@ -39,18 +39,10 @@ const ContactCreatorModal = ({ isOpen, onClose, creatorName, onSendMessage }: Co
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
-        <DialogHeader className="flex flex-row items-center justify-between">
+        <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             Contact {creatorName}
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="h-6 w-6"
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
