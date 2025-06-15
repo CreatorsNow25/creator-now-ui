@@ -26,7 +26,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('UserContext: Auth state changed', { authUser: authUser?.id, authLoading });
+    
     const fetchUserProfile = async (userId: string) => {
+      console.log('UserContext: Fetching profile for user:', userId);
       try {
         const { data: profile, error } = await supabase
           .from('profiles')
@@ -34,30 +37,39 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           .eq('id', userId)
           .single();
 
+        console.log('UserContext: Profile query result:', { profile, error });
+
         if (error && error.code !== 'PGRST116') {
-          console.error('Error fetching profile:', error);
+          console.error('UserContext: Error fetching profile:', error);
           return;
         }
 
         if (profile) {
-          setUser({
+          const userData = {
             id: profile.id,
             email: authUser?.email || '',
             full_name: profile.full_name || '',
             role: (profile.role === 'storyteller' || profile.role === 'creator') ? profile.role : 'storyteller',
             avatar_url: profile.avatar_url
-          });
+          };
+          console.log('UserContext: Setting user data:', userData);
+          setUser(userData);
+        } else {
+          console.log('UserContext: No profile found, user needs to complete profile');
+          setUser(null);
         }
       } catch (error) {
-        console.error('Error in fetchUserProfile:', error);
+        console.error('UserContext: Error in fetchUserProfile:', error);
       }
     };
 
     if (authUser) {
+      console.log('UserContext: Auth user exists, fetching profile');
       setTimeout(() => {
         fetchUserProfile(authUser.id);
       }, 0);
     } else {
+      console.log('UserContext: No auth user, clearing user state');
       setUser(null);
     }
     
@@ -65,9 +77,12 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, [authUser, authLoading]);
 
   const handleSignOut = async () => {
+    console.log('UserContext: Signing out');
     await authSignOut();
     setUser(null);
   };
+
+  console.log('UserContext: Current state:', { user: user?.id, loading, authUser: authUser?.id });
 
   return (
     <UserContext.Provider value={{ user, loading, setUser, signOut: handleSignOut }}>
