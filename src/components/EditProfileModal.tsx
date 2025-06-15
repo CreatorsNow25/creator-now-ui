@@ -106,7 +106,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         <DialogHeader>
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <Input
             name="name"
             placeholder="Name"
@@ -122,8 +122,8 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             required
           />
 
-          {/* Upload photo button just below city field, reduce space */}
-          <div className="flex flex-col items-center gap-2 mt-2 mb-0">
+          {/* Upload photo button with minimal spacing */}
+          <div className="flex flex-col items-center gap-2 py-1">
             <input
               type="file"
               accept="image/*"
@@ -135,13 +135,13 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             />
             <Button
               type="button"
-              className="mb-0"
               onClick={handleUploadClick}
               variant="outline"
+              size="sm"
             >
               Upload photo
             </Button>
-            <Avatar className="w-20 h-20">
+            <Avatar className="w-16 h-16">
               {avatarPreview ? (
                 <AvatarImage src={avatarPreview} alt={form.name} />
               ) : (
@@ -150,39 +150,39 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
             </Avatar>
           </div>
 
-          {/* Reduce margin between avatar section and bio */}
-          <div className="mt-1">
-            <textarea
-              name="bio"
-              placeholder="Bio"
-              value={form.bio}
-              onChange={handleInputChange}
-              className="w-full rounded border border-gray-300 px-3 py-2"
-              rows={3}
-              required
-            />
-          </div>
+          {/* Bio textarea with minimal top spacing */}
+          <textarea
+            name="bio"
+            placeholder="Bio"
+            value={form.bio}
+            onChange={handleInputChange}
+            className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+            rows={3}
+            required
+          />
 
-          {error && <div className="text-destructive text-sm -mt-2">{error}</div>}
+          {error && <div className="text-destructive text-sm">{error}</div>}
 
-          {/* Tighten spacing for buttons */}
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full mt-2"
-            onClick={handleDeleteAvatar}
-            disabled={!avatarPreview}
-          >
-            Delete Profile
-          </Button>
-          <div className="flex space-x-2 justify-end mt-2">
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSaving}>
-              Cancel
+          {/* Action buttons with minimal spacing */}
+          <div className="space-y-2 pt-1">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={handleDeleteAvatar}
+              disabled={!avatarPreview}
+            >
+              Delete Profile
             </Button>
-            <Button type="submit" disabled={isSaving || !avatarPreview}>
-              Save
-            </Button>
+            <div className="flex space-x-2 justify-end">
+              <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={isSaving}>
+                Cancel
+              </Button>
+              <Button type="submit" size="sm" disabled={isSaving || !avatarPreview}>
+                Save
+              </Button>
+            </div>
           </div>
         </form>
       </DialogContent>
