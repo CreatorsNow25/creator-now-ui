@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, MessageSquare, Eye, Star, DollarSign, Clock, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import StorytellerHeader from '@/components/StorytellerHeader';
+import StorytellerProfile from '@/components/StorytellerProfile';
+import StorytellerSettings from '@/components/StorytellerSettings';
+import HelpCenter from '@/components/HelpCenter';
 import ProjectBriefForm from '@/components/ProjectBriefForm';
 import MatchResults from '@/components/MatchResults';
 import ProjectWorkroom from '@/components/ProjectWorkroom';
@@ -17,6 +19,9 @@ const StorytellerDashboard = () => {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'matches' | 'workroom' | 'payment' | 'review'>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const projects = [
     {
@@ -104,6 +109,11 @@ const StorytellerDashboard = () => {
   const handleCreatorSelected = (creator: any) => {
     console.log('Creator selected:', creator);
     setActiveView('workroom');
+  };
+
+  const handleLogout = () => {
+    console.log('Logging out...');
+    navigate('/');
   };
 
   const renderActiveView = () => {
@@ -272,10 +282,20 @@ const StorytellerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50">
-      <StorytellerHeader />
+      <StorytellerHeader 
+        onProfileClick={() => setShowProfile(true)}
+        onSettingsClick={() => setShowSettings(true)}
+        onHelpClick={() => setShowHelp(true)}
+        onLogout={handleLogout}
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}
       </div>
+      
+      {/* Modals */}
+      <StorytellerProfile isOpen={showProfile} onClose={() => setShowProfile(false)} />
+      <StorytellerSettings isOpen={showSettings} onClose={() => setShowSettings(false)} />
+      <HelpCenter isOpen={showHelp} onClose={() => setShowHelp(false)} />
     </div>
   );
 };

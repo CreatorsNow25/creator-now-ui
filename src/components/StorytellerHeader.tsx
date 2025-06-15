@@ -6,8 +6,42 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Play, Bell, Settings, LogOut, User, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const StorytellerHeader = () => {
+interface StorytellerHeaderProps {
+  onProfileClick?: () => void;
+  onSettingsClick?: () => void;
+  onHelpClick?: () => void;
+  onLogout?: () => void;
+}
+
+const StorytellerHeader = ({ onProfileClick, onSettingsClick, onHelpClick, onLogout }: StorytellerHeaderProps) => {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    } else {
+      // Default logout behavior - redirect to home
+      navigate('/');
+    }
+  };
+
+  const handleProfile = () => {
+    if (onProfileClick) {
+      onProfileClick();
+    }
+  };
+
+  const handleSettings = () => {
+    if (onSettingsClick) {
+      onSettingsClick();
+    }
+  };
+
+  const handleHelp = () => {
+    if (onHelpClick) {
+      onHelpClick();
+    }
+  };
 
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-50">
@@ -55,20 +89,20 @@ const StorytellerHeader = () => {
                   </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleProfile}>
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSettings}>
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleHelp}>
                   <HelpCircle className="mr-2 h-4 w-4" />
                   <span>Help Center</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/')}>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </DropdownMenuItem>
