@@ -1,14 +1,29 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export type ActiveView = 'dashboard' | 'projects' | 'portfolio' | 'earnings' | 'profile' | 'inbox' | 'proposal' | 'workroom' | 'payout';
 
+// Memoized version of getDisplayName to prevent redundant calls
+const displayNameCache = new Map<string, string>();
+
 export function getDisplayName(fullName: string): string {
+  if (!fullName) {
+    return '';
+  }
+
+  // Check cache first
+  if (displayNameCache.has(fullName)) {
+    console.log('getDisplayName: returning cached result for:', fullName);
+    return displayNameCache.get(fullName)!;
+  }
+
   console.log('getDisplayName called with:', fullName);
   
-  if (!fullName) {
-    console.log('getDisplayName: empty name, returning empty string');
-    return '';
+  // If name is already shortened (contains a single letter followed by a dot), return as is
+  if (/\s[A-Z]\.$/.test(fullName)) {
+    console.log('getDisplayName: name already shortened, returning as is:', fullName);
+    displayNameCache.set(fullName, fullName);
+    return fullName;
   }
   
   const parts = fullName.trim().split(' ');
@@ -16,16 +31,19 @@ export function getDisplayName(fullName: string): string {
   
   const first = parts[0];
   const last = parts.length > 1 ? parts[parts.length - 1][0].toUpperCase() + '.' : '';
-  const result = `${first} ${last}`;
+  const result = `${first} ${last}`.trim();
   
   console.log('getDisplayName: result:', result);
+  
+  // Cache the result
+  displayNameCache.set(fullName, result);
+  
   return result;
 }
 
 export const useCreatorDashboard = () => {
   const [activeView, setActiveView] = useState<ActiveView>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
-  // For testing purposes, set to true by default to avoid the profile wizard
   const [profileComplete, setProfileComplete] = useState(true);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
 
@@ -75,7 +93,6 @@ export const useCreatorDashboard = () => {
   };
 
   const handleProfileComplete = () => {
-    // Save profile completion to localStorage
     localStorage.setItem('creatorProfileComplete', 'true');
     setProfileComplete(true);
     setActiveView('dashboard');
@@ -90,10 +107,8 @@ export const useCreatorDashboard = () => {
     setActiveView('workroom');
   };
 
-  // Check profile completion on mount - for testing, default to complete
   useEffect(() => {
     const isComplete = localStorage.getItem('creatorProfileComplete');
-    // If no value in localStorage, default to true for testing (fake profile)
     setProfileComplete(isComplete !== 'false');
   }, []);
 

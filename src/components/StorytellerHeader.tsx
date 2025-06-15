@@ -12,16 +12,22 @@ interface StorytellerHeaderProps {
   onSettingsClick?: () => void;
   onHelpClick?: () => void;
   onLogout?: () => void;
+  onBrowseCreators?: () => void;
 }
 
-const StorytellerHeader = ({ onProfileClick, onSettingsClick, onHelpClick, onLogout }: StorytellerHeaderProps) => {
+const StorytellerHeader = ({ 
+  onProfileClick, 
+  onSettingsClick, 
+  onHelpClick, 
+  onLogout,
+  onBrowseCreators 
+}: StorytellerHeaderProps) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     if (onLogout) {
       onLogout();
     } else {
-      // Default logout behavior - redirect to home
       navigate('/');
     }
   };
@@ -44,12 +50,15 @@ const StorytellerHeader = ({ onProfileClick, onSettingsClick, onHelpClick, onLog
     }
   };
 
-  // New navigation handlers for header links
+  const handleBrowseCreators = () => {
+    if (onBrowseCreators) {
+      onBrowseCreators();
+    }
+  };
+
   const handleNavDashboard = () => navigate('/storyteller-dashboard');
   const handleNavProjects = () => navigate('/storyteller-dashboard');
-  const handleNavBrowseCreators = () => navigate('/creator-dashboard');
 
-  // Mock user data - in real app this would come from auth context
   const currentUser = {
     fullName: "Sarah Chen",
     email: "sarah.chen@email.com",
@@ -89,7 +98,7 @@ const StorytellerHeader = ({ onProfileClick, onSettingsClick, onHelpClick, onLog
               </button>
               <button
                 className="text-gray-700 hover:text-gray-900 font-medium bg-transparent border-none outline-none cursor-pointer"
-                onClick={handleNavBrowseCreators}
+                onClick={handleBrowseCreators}
                 type="button"
               >
                 Browse Creators

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,11 +14,12 @@ import MatchResults from '@/components/MatchResults';
 import ProjectWorkroom from '@/components/ProjectWorkroom';
 import PaymentModal from '@/components/PaymentModal';
 import ReviewForm from '@/components/ReviewForm';
+import CreatorBrowsingSection from '@/components/CreatorBrowsingSection';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
 
 const StorytellerDashboard = () => {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'matches' | 'workroom' | 'payment' | 'review'>('dashboard');
+  const [activeView, setActiveView] = useState<'dashboard' | 'create' | 'matches' | 'workroom' | 'payment' | 'review' | 'browse-creators'>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -123,7 +123,6 @@ const StorytellerDashboard = () => {
     
     switch (activeView) {
       case 'create':
-        console.log('Rendering ProjectBriefForm');
         return <ProjectBriefForm onSubmit={handleProjectSubmitted} onCancel={() => setActiveView('dashboard')} />;
       case 'matches':
         return <MatchResults onCreatorSelect={handleCreatorSelected} onBack={() => setActiveView('dashboard')} />;
@@ -133,6 +132,8 @@ const StorytellerDashboard = () => {
         return <PaymentModal project={selectedProject} onComplete={() => setActiveView('review')} onCancel={() => setActiveView('workroom')} />;
       case 'review':
         return <ReviewForm project={selectedProject} onComplete={() => setActiveView('dashboard')} onSkip={() => setActiveView('dashboard')} />;
+      case 'browse-creators':
+        return <CreatorBrowsingSection onViewMatches={() => setActiveView('matches')} onCreateProject={handleCreateProject} />;
       default:
         return (
           <div className="space-y-8">
@@ -289,6 +290,7 @@ const StorytellerDashboard = () => {
         onSettingsClick={() => setShowSettings(true)}
         onHelpClick={() => setShowHelp(true)}
         onLogout={handleLogout}
+        onBrowseCreators={() => setActiveView('browse-creators')}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}

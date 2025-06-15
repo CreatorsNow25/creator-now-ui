@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Play, Star, Pause } from 'lucide-react';
@@ -7,7 +8,7 @@ import { getDisplayName } from '@/hooks/useCreatorDashboard';
 const TopCreatorsSection = () => {
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
 
-  const creators = [
+  const creators = useMemo(() => [
     {
       name: "Alex Thompson",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
@@ -32,9 +33,14 @@ const TopCreatorsSection = () => {
       thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=200&h=120&fit=crop",
       videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
     }
-  ];
+  ], []);
 
-  console.log('TopCreatorsSection: creators array:', creators);
+  // Memoize display names to prevent recalculation
+  const creatorsWithDisplayNames = useMemo(() => 
+    creators.map(creator => ({
+      ...creator,
+      displayName: getDisplayName(creator.name)
+    })), [creators]);
 
   const toggleVideo = (index: number) => {
     if (playingVideo === index) {
@@ -49,74 +55,68 @@ const TopCreatorsSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold text-center text-white mb-16">Top Rated AI Creators</h2>
         <div className="grid md:grid-cols-3 gap-8">
-          {creators.map((creator, index) => {
-            console.log(`TopCreatorsSection: Processing creator ${index}:`, creator.name);
-            const displayName = getDisplayName(creator.name);
-            console.log(`TopCreatorsSection: Display name for ${creator.name} is:`, displayName);
-            
-            return (
-              <Card key={index} className="bg-dark-card text-white">
-                <CardContent className="p-6">
-                  <div className="relative mb-4">
-                    {playingVideo === index ? (
-                      <div className="relative">
-                        <video 
-                          src={creator.videoUrl}
-                          className="w-full aspect-video object-cover rounded-lg"
-                          controls
-                          autoPlay
-                          onEnded={() => setPlayingVideo(null)}
-                        />
-                        <button
-                          onClick={() => toggleVideo(index)}
-                          className="absolute top-2 right-2 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
-                        >
-                          <Pause className="w-4 h-4 text-white" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="relative">
-                        <img 
-                          src={creator.thumbnail}
-                          alt={creator.specialty}
-                          className="w-full aspect-video object-cover rounded-lg"
-                        />
-                        <button
-                          onClick={() => toggleVideo(index)}
-                          className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center hover:bg-black/60 transition-colors group"
-                        >
-                          <Play className="w-12 h-12 text-white group-hover:scale-110 transition-transform" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex items-center space-x-3 mb-3">
-                    <img 
-                      src={creator.avatar}
-                      alt={displayName}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <div>
-                      <h3 className="font-bold text-white">{displayName}</h3>
-                      <p className="text-sm text-gray-300">{creator.specialty}</p>
+          {creatorsWithDisplayNames.map((creator, index) => (
+            <Card key={index} className="bg-dark-card text-white">
+              <CardContent className="p-6">
+                <div className="relative mb-4">
+                  {playingVideo === index ? (
+                    <div className="relative">
+                      <video 
+                        src={creator.videoUrl}
+                        className="w-full aspect-video object-cover rounded-lg"
+                        controls
+                        autoPlay
+                        onEnded={() => setPlayingVideo(null)}
+                      />
+                      <button
+                        onClick={() => toggleVideo(index)}
+                        className="absolute top-2 right-2 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
+                      >
+                        <Pause className="w-4 h-4 text-white" />
+                      </button>
                     </div>
+                  ) : (
+                    <div className="relative">
+                      <img 
+                        src={creator.thumbnail}
+                        alt={creator.specialty}
+                        className="w-full aspect-video object-cover rounded-lg"
+                      />
+                      <button
+                        onClick={() => toggleVideo(index)}
+                        className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center hover:bg-black/60 transition-colors group"
+                      >
+                        <Play className="w-12 h-12 text-white group-hover:scale-110 transition-transform" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center space-x-3 mb-3">
+                  <img 
+                    src={creator.avatar}
+                    alt={creator.displayName}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                  <div>
+                    <h3 className="font-bold text-white">{creator.displayName}</h3>
+                    <p className="text-sm text-gray-300">{creator.specialty}</p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Star className="w-4 h-4 fill-white text-white" />
-                    <span className="font-medium text-white">
-                      {creator.rating === "New" ? "New" : creator.rating}
-                    </span>
-                    {creator.rating !== "New" && (
-                      <Badge variant="secondary" className="bg-gray-700 text-white">Pro</Badge>
-                    )}
-                    {creator.rating === "New" && (
-                      <Badge variant="secondary" className="bg-blue-600 text-white">New</Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Star className="w-4 h-4 fill-white text-white" />
+                  <span className="font-medium text-white">
+                    {creator.rating === "New" ? "New" : creator.rating}
+                  </span>
+                  {creator.rating !== "New" && (
+                    <Badge variant="secondary" className="bg-gray-700 text-white">Pro</Badge>
+                  )}
+                  {creator.rating === "New" && (
+                    <Badge variant="secondary" className="bg-blue-600 text-white">New</Badge>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>
