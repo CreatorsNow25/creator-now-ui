@@ -44,7 +44,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
             id: profile.id,
             email: authUser?.email || '',
             full_name: profile.full_name || '',
-            role: profile.role || 'storyteller',
+            role: (profile.role === 'storyteller' || profile.role === 'creator') ? profile.role : 'storyteller',
             avatar_url: profile.avatar_url
           });
         }
