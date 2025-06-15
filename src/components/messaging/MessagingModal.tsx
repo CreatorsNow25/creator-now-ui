@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -91,7 +90,7 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
         <DialogContent className="max-w-6xl h-[80vh] p-0">
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mx-auto mb-4"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black mx-auto mb-4"></div>
               <p className="text-gray-600">Loading conversations...</p>
             </div>
           </div>
@@ -130,7 +129,7 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
                       onClick={() => handleConversationSelect(conversation.id)}
                       className={`p-3 rounded-lg cursor-pointer transition-colors ${
                         selectedConversation === conversation.id
-                          ? 'bg-amber-100 border border-amber-200'
+                          ? 'bg-black text-white'
                           : 'hover:bg-white border border-transparent'
                       }`}
                     >
@@ -161,7 +160,7 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
                           </div>
                           
                           {conversation.project_title && (
-                            <p className="text-xs text-amber-600 font-medium mb-1">
+                            <p className="text-xs text-black font-medium mb-1">
                               {conversation.project_title}
                             </p>
                           )}
@@ -171,7 +170,7 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
                               {conversation.last_message || 'No messages yet'}
                             </p>
                             {conversation.unread_count > 0 && (
-                              <Badge className="bg-amber-500 text-white text-xs px-1.5 py-0.5 min-w-[18px] h-5 flex items-center justify-center">
+                              <Badge className="bg-black text-white text-xs px-1.5 py-0.5 min-w-[18px] h-5 flex items-center justify-center">
                                 {conversation.unread_count}
                               </Badge>
                             )}
@@ -225,7 +224,7 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
                         {currentConversation.project_title && (
                           <>
                             <span className="text-gray-400">•</span>
-                            <span className="text-sm text-amber-600 font-medium">
+                            <span className="text-sm text-black font-medium">
                               {currentConversation.project_title}
                             </span>
                           </>
@@ -263,12 +262,12 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
                         >
                           <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                             message.sender_id === user?.id
-                              ? 'bg-amber-500 text-white'
+                              ? 'bg-black text-white'
                               : 'bg-gray-100 text-gray-900'
                           }`}>
                             <p className="text-sm">{message.content}</p>
                             <p className={`text-xs mt-1 ${
-                              message.sender_id === user?.id ? 'text-amber-100' : 'text-gray-500'
+                              message.sender_id === user?.id ? 'text-gray-300' : 'text-gray-500'
                             }`}>
                               {formatTimestamp(message.created_at)}
                             </p>
@@ -289,7 +288,7 @@ const MessagingModal = ({ isOpen, onClose, initialCreatorName, projectTitle }: M
                       onKeyPress={handleKeyPress}
                       className="flex-1"
                     />
-                    <Button onClick={handleSendMessage} disabled={!newMessage.trim()}>
+                    <Button onClick={handleSendMessage} disabled={!newMessage.trim()} className="bg-black text-white hover:bg-gray-800">
                       <Send className="w-4 h-4" />
                     </Button>
                   </div>
