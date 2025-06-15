@@ -6,7 +6,8 @@ export type ActiveView = 'dashboard' | 'projects' | 'portfolio' | 'earnings' | '
 export const useCreatorDashboard = () => {
   const [activeView, setActiveView] = useState<ActiveView>('dashboard');
   const [selectedProject, setSelectedProject] = useState<any>(null);
-  const [profileComplete, setProfileComplete] = useState(false);
+  // For testing purposes, set to true by default to avoid the profile wizard
+  const [profileComplete, setProfileComplete] = useState(true);
   const [showHelpCenter, setShowHelpCenter] = useState(false);
 
   const stats = {
@@ -70,10 +71,11 @@ export const useCreatorDashboard = () => {
     setActiveView('workroom');
   };
 
-  // Check profile completion on mount
+  // Check profile completion on mount - for testing, default to complete
   useEffect(() => {
-    const isComplete = localStorage.getItem('creatorProfileComplete') === 'true';
-    setProfileComplete(isComplete);
+    const isComplete = localStorage.getItem('creatorProfileComplete');
+    // If no value in localStorage, default to true for testing (fake profile)
+    setProfileComplete(isComplete !== 'false');
   }, []);
 
   return {

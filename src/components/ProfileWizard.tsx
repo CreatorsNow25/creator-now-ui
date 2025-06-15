@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,7 +69,7 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
           toast({
             variant: "destructive",
             title: "Bio Required",
-            description: "Please write a professional bio to continue."
+            description: "Please write a bio to continue."
           });
           return false;
         }
@@ -78,7 +77,7 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
           toast({
             variant: "destructive",
             title: "Photo Required",
-            description: "Please upload a professional headshot to continue."
+            description: "Please upload a headshot to continue."
           });
           return false;
         }
@@ -143,13 +142,13 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
               <div className="flex items-center space-x-2">
                 <AlertCircle className="w-5 h-5 text-blue-600" />
                 <p className="text-sm text-blue-700 font-medium">
-                  Both a professional bio and headshot are required to proceed
+                  Both a bio and headshot are required to proceed
                 </p>
               </div>
             </div>
 
             <div>
-              <Label htmlFor="bio">Professional Bio *</Label>
+              <Label htmlFor="bio">Bio *</Label>
               <Textarea
                 id="bio"
                 placeholder="Tell potential clients about your experience, style, and what makes you unique..."
@@ -164,12 +163,12 @@ const ProfileWizard: React.FC<ProfileWizardProps> = ({ onComplete, onCancel }) =
             </div>
 
             <div>
-              <Label>Professional Headshot *</Label>
+              <Label>Headshot *</Label>
               <div className="mt-2">
                 {!profileData.photoPreview ? (
                   <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
                     <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-600 mb-2">Upload a professional headshot</p>
+                    <p className="text-gray-600 mb-2">Upload a headshot</p>
                     <p className="text-xs text-gray-500 mb-3">JPG, PNG up to 10MB</p>
                     <input
                       type="file"
