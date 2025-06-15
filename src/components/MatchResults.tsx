@@ -1,10 +1,11 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Play, ArrowLeft, Eye, MessageSquare, DollarSign } from 'lucide-react';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
+import CreatorProfileModal from './CreatorProfileModal';
+import VideoPlayerModal from './VideoPlayerModal';
 
 interface MatchResultsProps {
   onCreatorSelect: (creator: any) => void;
@@ -12,6 +13,11 @@ interface MatchResultsProps {
 }
 
 const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) => {
+  const [selectedCreator, setSelectedCreator] = useState<any>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [currentVideo, setCurrentVideo] = useState({ url: '', title: '' });
+
   const matchedCreators = [
     {
       id: 1,
@@ -82,13 +88,31 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
   };
 
   const handleViewProfile = (creator: any) => {
-    console.log('Viewing full profile for:', creator.name);
-    // TODO: Navigate to creator's full profile page
+    setSelectedCreator(creator);
+    setShowProfileModal(true);
   };
 
   const handleViewReel = (creator: any) => {
-    console.log('Viewing reel for:', creator.name);
-    // TODO: Open creator's demo reel/portfolio video
+    const displayName = getDisplayName(creator.name);
+    setCurrentVideo({
+      url: `/api/demo-reel-${creator.id}`,
+      title: `${displayName}'s Demo Reel`
+    });
+    setShowVideoModal(true);
+  };
+
+  const handlePlayVideo = (videoUrl: string, title: string) => {
+    setCurrentVideo({ url: videoUrl, title });
+    setShowVideoModal(true);
+  };
+
+  const handlePortfolioVideoClick = (creator: any, index: number) => {
+    const displayName = getDisplayName(creator.name);
+    setCurrentVideo({
+      url: `/api/portfolio-video-${creator.id}-${index + 1}`,
+      title: `${displayName} - Portfolio Video ${index + 1}`
+    });
+    setShowVideoModal(true);
   };
 
   return (
@@ -166,7 +190,11 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
                       <h4 className="font-medium text-gray-900 mb-2">Recent Work</h4>
                       <div className="grid grid-cols-3 gap-2">
                         {creator.portfolio.map((image, index) => (
-                          <div key={index} className="relative group">
+                          <div 
+                            key={index} 
+                            className="relative group cursor-pointer"
+                            onClick={() => handlePortfolioVideoClick(creator, index)}
+                          >
                             <img 
                               src={image}
                               alt={`Portfolio ${index + 1}`}
@@ -232,6 +260,22 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
           View More Creators
         </Button>
       </div>
+
+      {/* Modals */}
+      <CreatorProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        creator={selectedCreator}
+        onInviteToBid={onCreatorSelect}
+        onPlayVideo={handlePlayVideo}
+      />
+
+      <VideoPlayerModal
+        isOpen={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        videoUrl={currentVideo.url}
+        title={currentVideo.title}
+      />
     </div>
   );
 };
