@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,7 +55,7 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
       specialty: "Drama & Thriller",
       rate: 2800,
       availability: "Available now",
-      tags: ["Cinematic Editing", "Advanced VFX"]
+      tags: ["Film Editing", "VFX Design"]
     }
   ];
 
