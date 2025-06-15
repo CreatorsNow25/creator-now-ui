@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -60,13 +61,16 @@ const StorytellerHeader = ({
   };
 
   const handleNavDashboard = () => {
+    console.log('Dashboard button clicked');
     if (onDashboardClick) {
       onDashboardClick();
     } else {
       navigate('/storyteller-dashboard');
     }
   };
+  
   const handleNavProjects = () => {
+    console.log('Projects button clicked');
     if (onProjectsClick) {
       onProjectsClick();
     } else {

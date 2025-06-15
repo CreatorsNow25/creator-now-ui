@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StorytellerHeader from '@/components/StorytellerHeader';
@@ -102,6 +101,16 @@ const StorytellerDashboard = () => {
     alert(`Starting a conversation with ${getDisplayName(creatorName)}. (This is a placeholder action)`);
   };
 
+  const handleDashboardClick = () => {
+    console.log('Dashboard clicked - switching to dashboard view');
+    setActiveView('dashboard');
+  };
+
+  const handleProjectsClick = () => {
+    console.log('Projects clicked - switching to dashboard view');
+    setActiveView('dashboard');
+  };
+
   const renderActiveView = () => {
     console.log('Rendering active view:', activeView);
     
@@ -138,8 +147,8 @@ const StorytellerDashboard = () => {
         onHelpClick={() => setShowHelp(true)}
         onLogout={handleLogout}
         onBrowseCreators={() => setActiveView('browse-creators')}
-        onDashboardClick={() => setActiveView('dashboard')}
-        onProjectsClick={() => setActiveView('dashboard')}
+        onDashboardClick={handleDashboardClick}
+        onProjectsClick={handleProjectsClick}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveView()}
