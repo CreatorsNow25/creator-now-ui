@@ -100,6 +100,20 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
           <DialogTitle>Edit Profile</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            name="name"
+            placeholder="Name"
+            value={form.name}
+            onChange={handleInputChange}
+            required
+          />
+          <Input
+            name="city"
+            placeholder="City"
+            value={form.city}
+            onChange={handleInputChange}
+            required
+          />
           <div className="flex flex-col items-center space-y-2">
             <div className="relative">
               <Avatar className="w-20 h-20">
@@ -135,20 +149,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
               <div className="text-xs text-destructive">You must upload a profile photo.</div>
             )}
           </div>
-          <Input
-            name="name"
-            placeholder="Name"
-            value={form.name}
-            onChange={handleInputChange}
-            required
-          />
-          <Input
-            name="city"
-            placeholder="City"
-            value={form.city}
-            onChange={handleInputChange}
-            required
-          />
           <textarea
             name="bio"
             placeholder="Bio"
