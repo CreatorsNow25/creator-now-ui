@@ -80,6 +80,16 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
     return 'bg-gray-100 text-gray-800';
   };
 
+  const handleViewProfile = (creator: any) => {
+    console.log('Viewing full profile for:', creator.name);
+    // TODO: Navigate to creator's full profile page
+  };
+
+  const handleViewReel = (creator: any) => {
+    console.log('Viewing reel for:', creator.name);
+    // TODO: Open creator's demo reel/portfolio video
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
@@ -187,16 +197,23 @@ const MatchResults: React.FC<MatchResultsProps> = ({ onCreatorSelect, onBack }) 
                     <div className="flex flex-col sm:flex-row gap-3">
                       <Button 
                         onClick={() => onCreatorSelect(creator)}
-                        className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 flex-1"
+                        className="bg-gray-600 hover:bg-gray-700 text-white flex-1"
                       >
                         <MessageSquare className="w-4 h-4 mr-2" />
                         Invite to Bid
                       </Button>
-                      <Button variant="outline" className="flex-1">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1"
+                        onClick={() => handleViewProfile(creator)}
+                      >
                         <Eye className="w-4 h-4 mr-2" />
                         View Full Profile
                       </Button>
-                      <Button variant="outline">
+                      <Button 
+                        variant="outline"
+                        onClick={() => handleViewReel(creator)}
+                      >
                         <Play className="w-4 h-4 mr-2" />
                         View Reel
                       </Button>
