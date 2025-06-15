@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -139,7 +138,7 @@ const CreatorBrowsingSection: React.FC<CreatorBrowsingSectionProps> = ({
                     </Badge>
                   </div>
 
-                  <div className="flex flex-wrap gap-1 mb-4 min-h-[3rem]">
+                  <div className="flex flex-wrap gap-1 mb-4 h-[3rem] overflow-hidden">
                     {creator.tags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-xs">
                         {tag}
