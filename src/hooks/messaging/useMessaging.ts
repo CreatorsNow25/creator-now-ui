@@ -1,4 +1,5 @@
 
+import { supabase } from '@/integrations/supabase/client';
 import { useConversations } from './useConversations';
 import { useMessages } from './useMessages';
 import { useRealtimeMessages } from './useRealtimeMessages';
