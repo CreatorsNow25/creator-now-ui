@@ -1,5 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 interface User {
   id: string;
@@ -13,23 +15,62 @@ interface UserContextType {
   user: User | null;
   loading: boolean;
   setUser: (user: User | null) => void;
+  signOut: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
-  // Using a proper UUID format instead of "1"
-  const [user, setUser] = useState<User | null>({
-    id: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
-    email: 'test@example.com',
-    full_name: 'Test User',
-    role: 'storyteller',
-    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=32&h=32&fit=crop&crop=face&auto=format'
-  });
-  const [loading, setLoading] = useState(false);
+  const { user: authUser, loading: authLoading, signOut: authSignOut } = useAuth();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserProfile = async (userId: string) => {
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+
+        if (profile) {
+          setUser({
+            id: profile.id,
+            email: authUser?.email || '',
+            full_name: profile.full_name || '',
+            role: profile.role || 'storyteller',
+            avatar_url: profile.avatar_url
+          });
+        }
+      } catch (error) {
+        console.error('Error in fetchUserProfile:', error);
+      }
+    };
+
+    if (authUser) {
+      setTimeout(() => {
+        fetchUserProfile(authUser.id);
+      }, 0);
+    } else {
+      setUser(null);
+    }
+    
+    setLoading(authLoading);
+  }, [authUser, authLoading]);
+
+  const handleSignOut = async () => {
+    await authSignOut();
+    setUser(null);
+  };
 
   return (
-    <UserContext.Provider value={{ user, loading, setUser }}>
+    <UserContext.Provider value={{ user, loading, setUser, signOut: handleSignOut }}>
       {children}
     </UserContext.Provider>
   );

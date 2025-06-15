@@ -1,49 +1,94 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Play, Mail, Lock, User, ArrowLeft } from 'lucide-react';
+import { Play, Mail, Lock, User, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from '@/hooks/useAuth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { user, signUp, signIn, signInWithOAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState<'storyteller' | 'creator'>('storyteller');
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      if (userType === 'storyteller') {
-        // Prompt user to search AI Creators
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'storyteller') {
         navigate('/storyteller-dashboard');
       } else {
-        // Prompt user to add bio, pricing, and showcase portfolio
         navigate('/creator-dashboard');
       }
-    }, 1500);
+    }
+  }, [user, navigate]);
+
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const fullName = formData.get('name') as string;
+
+    const { data, error } = await signUp(email, password, {
+      full_name: fullName,
+      role: userType
+    });
+
+    if (error) {
+      if (error.message.includes('already registered')) {
+        setError('This email is already registered. Please try signing in instead.');
+      } else {
+        setError(error.message);
+      }
+    } else {
+      setSuccessMessage('Account created successfully! Please check your email to verify your account.');
+    }
+
+    setIsLoading(false);
+  };
+
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    const { data, error } = await signIn(email, password);
+
+    if (error) {
+      if (error.message.includes('Invalid login credentials')) {
+        setError('Invalid email or password. Please check your credentials and try again.');
+      } else {
+        setError(error.message);
+      }
+    }
+
+    setIsLoading(false);
   };
 
   const handleOAuthLogin = async (provider: "google" | "apple") => {
-    // Initiate OAuth sign-in with Supabase
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: window.location.origin + "/",
-      },
-    });
+    setError(null);
+    const { data, error } = await signInWithOAuth(provider);
+    
     if (error) {
-      alert(`Unable to authenticate with ${provider.charAt(0).toUpperCase() + provider.slice(1)}: ${error.message}`);
-      return;
+      setError(`Unable to authenticate with ${provider.charAt(0).toUpperCase() + provider.slice(1)}: ${error.message}`);
     }
-    // The redirect will occur automatically on successful auth.
   };
 
   return (
@@ -116,6 +161,23 @@ const Auth = () => {
               </p>
             </CardHeader>
             <CardContent>
+              {error && (
+                <Alert className="mb-4 bg-red-900/50 border-red-500">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-red-200">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {successMessage && (
+                <Alert className="mb-4 bg-green-900/50 border-green-500">
+                  <AlertDescription className="text-green-200">
+                    {successMessage}
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <Tabs defaultValue="signin" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-black">
                   <TabsTrigger value="signin" className="text-white data-[state=active]:bg-white data-[state=active]:text-black">Sign In</TabsTrigger>
@@ -123,13 +185,14 @@ const Auth = () => {
                 </TabsList>
                 
                 <TabsContent value="signin" className="space-y-4">
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSignIn} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-white">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-white/60" />
                         <Input
                           id="email"
+                          name="email"
                           type="email"
                           placeholder="Enter Your Email"
                           className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
@@ -143,6 +206,7 @@ const Auth = () => {
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-white/60" />
                         <Input
                           id="password"
+                          name="password"
                           type="password"
                           placeholder="Enter Your Password"
                           className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
@@ -161,13 +225,14 @@ const Auth = () => {
                 </TabsContent>
                 
                 <TabsContent value="signup" className="space-y-4">
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSignUp} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="name" className="text-white">Full Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-3 h-4 w-4 text-white/60" />
                         <Input
                           id="name"
+                          name="name"
                           type="text"
                           placeholder="Enter Your Full Name"
                           className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
@@ -181,6 +246,7 @@ const Auth = () => {
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-white/60" />
                         <Input
                           id="email-signup"
+                          name="email"
                           type="email"
                           placeholder="Enter Your Email"
                           className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
@@ -194,10 +260,12 @@ const Auth = () => {
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-white/60" />
                         <Input
                           id="password-signup"
+                          name="password"
                           type="password"
-                          placeholder="Create A Password"
+                          placeholder="Create A Password (min 6 characters)"
                           className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
+                          minLength={6}
                         />
                       </div>
                     </div>

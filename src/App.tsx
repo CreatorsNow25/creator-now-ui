@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "@/contexts/UserContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import StorytellerDashboard from "./pages/StorytellerDashboard";
@@ -23,8 +24,22 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/storyteller-dashboard" element={<StorytellerDashboard />} />
-            <Route path="/creator-dashboard" element={<CreatorDashboard />} />
+            <Route 
+              path="/storyteller-dashboard" 
+              element={
+                <ProtectedRoute requiredRole="storyteller">
+                  <StorytellerDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/creator-dashboard" 
+              element={
+                <ProtectedRoute requiredRole="creator">
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              } 
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
