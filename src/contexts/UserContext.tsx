@@ -24,7 +24,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const { user: authUser, loading: authLoading, signOut: authSignOut } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [profileFetched, setProfileFetched] = useState(false);
 
   useEffect(() => {
     console.log('UserContext: Auth state changed', { authUser: authUser?.id, authLoading });
@@ -42,11 +41,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
         if (error && error.code !== 'PGRST116') {
           console.error('UserContext: Error fetching profile:', error);
+          setLoading(false);
           return;
         }
 
         if (profile) {
-          // Properly type the role with fallback
           const userRole = (profile.role === 'storyteller' || profile.role === 'creator') 
             ? profile.role as 'storyteller' | 'creator'
             : 'storyteller' as const;
@@ -64,29 +63,28 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
           console.log('UserContext: No profile found, user needs to complete profile');
           setUser(null);
         }
-        setProfileFetched(true);
       } catch (error) {
         console.error('UserContext: Error in fetchUserProfile:', error);
-        setProfileFetched(true);
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (authUser && !profileFetched) {
+    if (authUser && !user) {
       console.log('UserContext: Auth user exists, fetching profile');
       fetchUserProfile(authUser.id);
     } else if (!authUser) {
       console.log('UserContext: No auth user, clearing user state');
       setUser(null);
-      setProfileFetched(false);
+      setLoading(authLoading);
+    } else {
+      setLoading(authLoading);
     }
-    
-    setLoading(authLoading);
-  }, [authUser, authLoading, profileFetched]);
+  }, [authUser, authLoading]);
 
   const handleSignOut = async () => {
     console.log('UserContext: Signing out');
     setUser(null);
-    setProfileFetched(false);
     await authSignOut();
   };
 
