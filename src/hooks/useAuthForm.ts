@@ -65,7 +65,7 @@ export const useAuthForm = () => {
         setError(`Signup failed: ${error.message}`);
       }
     } else {
-      setSuccessMessage('Account created successfully! Please check your email and click the verification link before signing in.');
+      setSuccessMessage('Welcome to Creators Now! Please check your email for a verification link to complete your account setup.');
     }
 
     setIsLoading(false);
@@ -103,7 +103,7 @@ export const useAuthForm = () => {
     setIsLoading(false);
   };
 
-  const handleOAuthLogin = async (provider: "google" | "apple") => {
+  const handleOAuthLogin = async (provider: "google") => {
     setError(null);
     console.log('Auth: Attempting OAuth login with:', provider);
     

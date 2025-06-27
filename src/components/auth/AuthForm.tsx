@@ -16,7 +16,7 @@ interface AuthFormProps {
   successMessage: string | null;
   onSignUp: (e: React.FormEvent<HTMLFormElement>) => void;
   onSignIn: (e: React.FormEvent<HTMLFormElement>) => void;
-  onOAuthLogin: (provider: "google" | "apple") => void;
+  onOAuthLogin: (provider: "google") => void;
 }
 
 const AuthForm = ({

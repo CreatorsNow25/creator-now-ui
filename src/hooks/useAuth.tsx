@@ -62,7 +62,7 @@ export const useAuth = () => {
     return { error };
   };
 
-  const signInWithOAuth = async (provider: 'google' | 'apple') => {
+  const signInWithOAuth = async (provider: 'google') => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
