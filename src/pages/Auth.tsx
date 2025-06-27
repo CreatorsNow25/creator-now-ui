@@ -41,18 +41,25 @@ const Auth = () => {
     const password = formData.get('password') as string;
     const fullName = formData.get('name') as string;
 
+    console.log('Auth: Attempting signup with:', { email, passwordLength: password.length, fullName, userType });
+
     const { data, error } = await signUp(email, password, {
       full_name: fullName,
       role: userType
     });
 
+    console.log('Auth: Signup result:', { data: data?.user?.id, error });
+
     if (error) {
+      console.error('Auth: Signup error details:', error);
       if (error.message.includes('already registered')) {
         setError('This email is already registered. Please try signing in instead.');
       } else if (error.message.includes('Password should be at least')) {
-        setError('Password must be at least 8 characters long and contain uppercase, lowercase, and numbers.');
+        setError('Password must be at least 6 characters long.');
+      } else if (error.message.includes('weak')) {
+        setError('Password is too weak. Please use at least 6 characters.');
       } else {
-        setError(error.message);
+        setError(`Signup failed: ${error.message}`);
       }
     } else {
       setSuccessMessage('Account created successfully! Please check your email and click the verification link before signing in.');
@@ -71,15 +78,22 @@ const Auth = () => {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
+    console.log('Auth: Attempting signin with:', { email, passwordLength: password.length });
+
     const { data, error } = await signIn(email, password);
 
+    console.log('Auth: Signin result:', { data: data?.user?.id, error });
+
     if (error) {
+      console.error('Auth: Signin error details:', error);
       if (error.message.includes('Invalid login credentials')) {
         setError('Invalid email or password. If you just signed up, please check your email and verify your account first.');
       } else if (error.message.includes('Email not confirmed')) {
         setError('Please check your email and click the verification link before signing in.');
+      } else if (error.message.includes('not confirmed')) {
+        setError('Please verify your email address by clicking the link we sent you.');
       } else {
-        setError(error.message);
+        setError(`Sign in failed: ${error.message}`);
       }
     }
 
@@ -88,9 +102,12 @@ const Auth = () => {
 
   const handleOAuthLogin = async (provider: "google" | "apple") => {
     setError(null);
+    console.log('Auth: Attempting OAuth login with:', provider);
+    
     const { data, error } = await signInWithOAuth(provider);
     
     if (error) {
+      console.error('Auth: OAuth error:', error);
       setError(`Unable to authenticate with ${provider.charAt(0).toUpperCase() + provider.slice(1)}: ${error.message}`);
     }
   };
@@ -266,14 +283,14 @@ const Auth = () => {
                           id="password-signup"
                           name="password"
                           type="password"
-                          placeholder="8+ characters with uppercase, lowercase & numbers"
+                          placeholder="At least 6 characters"
                           className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
-                          minLength={8}
+                          minLength={6}
                         />
                       </div>
                       <p className="text-xs text-white/60">
-                        Password must be at least 8 characters with uppercase, lowercase, and numbers
+                        Password must be at least 6 characters long
                       </p>
                     </div>
                     <Button 
