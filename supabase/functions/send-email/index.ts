@@ -28,12 +28,24 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('Send email function called');
+    console.log('🚀 Send email function called - FUNCTION IS WORKING!');
+    
+    // Check if required environment variables are present
+    if (!resend) {
+      console.error('❌ RESEND_API_KEY is missing');
+      throw new Error('RESEND_API_KEY is not configured');
+    }
+    
+    if (!hookSecret) {
+      console.error('❌ SEND_EMAIL_HOOK_SECRET is missing');
+      throw new Error('SEND_EMAIL_HOOK_SECRET is not configured');
+    }
     
     const payload = await req.text()
     const headers = Object.fromEntries(req.headers)
     
-    console.log('Payload received, verifying webhook...');
+    console.log('📧 Processing email request...');
+    console.log('Headers received:', Object.keys(headers));
     
     const wh = new Webhook(hookSecret)
     const {
@@ -56,21 +68,23 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log('Webhook verified, processing email...', {
+    console.log('✅ Webhook verified successfully');
+    console.log('📋 Email details:', {
       email: user.email,
       action_type: email_action_type,
-      user_role: user.user_metadata?.role
+      user_role: user.user_metadata?.role,
+      redirect_to
     });
 
     const userName = user.user_metadata?.full_name || user.email.split('@')[0];
     const userRole = user.user_metadata?.role || 'storyteller';
-    const appUrl = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.vercel.app') || 'https://creators-now.vercel.app';
+    const appUrl = 'https://creators-now.vercel.app';
 
     let emailHtml: string;
     let emailSubject: string;
 
     if (email_action_type === 'signup') {
-      // Send verification email
+      console.log('📨 Sending verification email...');
       emailHtml = await renderAsync(
         React.createElement(VerificationEmail, {
           supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
@@ -83,7 +97,7 @@ Deno.serve(async (req) => {
       );
       emailSubject = 'Verify your Creators Now account';
     } else {
-      // Send welcome email for other actions
+      console.log('👋 Sending welcome email...');
       emailHtml = await renderAsync(
         React.createElement(WelcomeEmail, {
           user_name: userName,
@@ -94,7 +108,7 @@ Deno.serve(async (req) => {
       emailSubject = 'Welcome to Creators Now!';
     }
 
-    console.log('Sending email via Resend...');
+    console.log('📤 Sending email via Resend...');
 
     const { data, error } = await resend.emails.send({
       from: 'Creators Now <info@creators.now>',
@@ -104,13 +118,17 @@ Deno.serve(async (req) => {
     });
 
     if (error) {
-      console.error('Resend error:', error);
+      console.error('❌ Resend error:', error);
       throw error;
     }
 
-    console.log('Email sent successfully:', data);
+    console.log('✅ Email sent successfully!', data);
 
-    return new Response(JSON.stringify({ success: true, data }), {
+    return new Response(JSON.stringify({ 
+      success: true, 
+      data,
+      message: 'Custom email sent successfully!' 
+    }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -118,11 +136,13 @@ Deno.serve(async (req) => {
       },
     });
   } catch (error: any) {
-    console.error('Error in send-email function:', error);
+    console.error('💥 Error in send-email function:', error);
+    console.error('Stack trace:', error.stack);
     return new Response(
       JSON.stringify({ 
         error: error.message,
-        details: error.stack 
+        details: error.stack,
+        timestamp: new Date().toISOString()
       }),
       {
         status: 500,
