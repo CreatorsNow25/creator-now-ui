@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,11 +49,13 @@ const Auth = () => {
     if (error) {
       if (error.message.includes('already registered')) {
         setError('This email is already registered. Please try signing in instead.');
+      } else if (error.message.includes('Password should be at least')) {
+        setError('Password must be at least 8 characters long and contain uppercase, lowercase, and numbers.');
       } else {
         setError(error.message);
       }
     } else {
-      setSuccessMessage('Account created successfully! Please check your email to verify your account before signing in.');
+      setSuccessMessage('Account created successfully! Please check your email and click the verification link before signing in.');
     }
 
     setIsLoading(false);
@@ -72,7 +75,9 @@ const Auth = () => {
 
     if (error) {
       if (error.message.includes('Invalid login credentials')) {
-        setError('Invalid email or password. Please check your credentials and try again.');
+        setError('Invalid email or password. If you just signed up, please check your email and verify your account first.');
+      } else if (error.message.includes('Email not confirmed')) {
+        setError('Please check your email and click the verification link before signing in.');
       } else {
         setError(error.message);
       }
@@ -261,12 +266,15 @@ const Auth = () => {
                           id="password-signup"
                           name="password"
                           type="password"
-                          placeholder="Create A Password (min 6 characters)"
+                          placeholder="8+ characters with uppercase, lowercase & numbers"
                           className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
-                          minLength={6}
+                          minLength={8}
                         />
                       </div>
+                      <p className="text-xs text-white/60">
+                        Password must be at least 8 characters with uppercase, lowercase, and numbers
+                      </p>
                     </div>
                     <Button 
                       type="submit" 

@@ -18,22 +18,26 @@ const EmailVerify = () => {
     
     const verifyEmail = async () => {
       try {
-        // Get the token and type from URL parameters
-        const token = searchParams.get('token');
+        // Get the token_hash and type from URL parameters (Supabase's format)
+        const tokenHash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         
-        console.log('EmailVerify: URL params:', { token: token?.substring(0, 10) + '...', type });
+        console.log('EmailVerify: URL params:', { 
+          tokenHash: tokenHash?.substring(0, 10) + '...', 
+          type,
+          allParams: Object.fromEntries(searchParams.entries())
+        });
 
-        if (!token || !type) {
-          console.log('EmailVerify: Missing token or type');
+        if (!tokenHash || !type) {
+          console.log('EmailVerify: Missing token_hash or type');
           setStatus('error');
           setMessage('Invalid verification link. Please check your email and try again.');
           return;
         }
 
-        // Verify the email with Supabase
+        // Verify the email with Supabase using the correct method
         const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: token,
+          token_hash: tokenHash,
           type: type as any
         });
 
@@ -44,22 +48,30 @@ const EmailVerify = () => {
           setStatus('error');
           
           if (error.message.includes('expired')) {
-            setMessage('This verification link has expired. Please request a new one.');
-          } else if (error.message.includes('invalid')) {
+            setMessage('This verification link has expired. Please request a new one by signing up again.');
+          } else if (error.message.includes('invalid') || error.message.includes('not found')) {
             setMessage('This verification link is invalid. Please check your email and try again.');
           } else {
-            setMessage('Email verification failed. Please try again or contact support.');
+            setMessage(`Email verification failed: ${error.message}`);
           }
         } else if (data?.user) {
-          console.log('EmailVerify: Verification successful');
+          console.log('EmailVerify: Verification successful for user:', data.user.id);
           setStatus('success');
-          setMessage('Your email has been verified successfully! Redirecting to your dashboard...');
+          setMessage('Your email has been verified successfully! You can now sign in to your account.');
           
-          // Wait a moment then redirect based on user role
+          // Get user role from user metadata to redirect appropriately
+          const userRole = data.user.user_metadata?.role;
+          console.log('EmailVerify: User role:', userRole);
+          
+          // Wait a moment then redirect to sign in
           setTimeout(() => {
-            // For now, redirect to auth page which will handle the role-based redirect
-            navigate('/auth');
-          }, 2000);
+            navigate('/auth', { 
+              state: { 
+                message: 'Email verified! You can now sign in.',
+                verified: true 
+              } 
+            });
+          }, 3000);
         } else {
           console.log('EmailVerify: No user data received');
           setStatus('error');
@@ -68,7 +80,7 @@ const EmailVerify = () => {
       } catch (err) {
         console.error('EmailVerify: Unexpected error:', err);
         setStatus('error');
-        setMessage('An unexpected error occurred. Please try again.');
+        setMessage('An unexpected error occurred during verification. Please try again.');
       }
     };
 
@@ -158,9 +170,17 @@ const EmailVerify = () => {
               )}
 
               {status === 'success' && (
-                <p className="text-white/80 text-sm">
-                  You will be redirected automatically in a few seconds...
-                </p>
+                <div className="space-y-3">
+                  <p className="text-white/80 text-sm">
+                    Redirecting you to sign in...
+                  </p>
+                  <Button 
+                    onClick={() => navigate('/auth')}
+                    className="w-full bg-white text-black hover:bg-white/90"
+                  >
+                    Continue to Sign In
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
