@@ -29,6 +29,11 @@ Deno.serve(async (req) => {
 
   try {
     console.log('🚀 Send email function called - FUNCTION IS WORKING!');
+    console.log('🔍 Request details:', {
+      method: req.method,
+      headers: Object.keys(Object.fromEntries(req.headers)),
+      url: req.url
+    });
     
     // Check if required environment variables are present
     if (!resend) {
@@ -46,6 +51,7 @@ Deno.serve(async (req) => {
     
     console.log('📧 Processing email request...');
     console.log('Headers received:', Object.keys(headers));
+    console.log('Payload length:', payload.length);
     
     const wh = new Webhook(hookSecret)
     const {
