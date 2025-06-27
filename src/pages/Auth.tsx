@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,6 +17,23 @@ const Auth = () => {
   const [userType, setUserType] = useState<'storyteller' | 'creator'>('storyteller');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Password validation function
+  const validatePassword = (password: string) => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/\d/.test(password)) {
+      return 'Password must contain at least one number';
+    }
+    return null;
+  };
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -41,6 +57,14 @@ const Auth = () => {
     const password = formData.get('password') as string;
     const fullName = formData.get('name') as string;
 
+    // Validate password strength before attempting signup
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      setIsLoading(false);
+      return;
+    }
+
     console.log('Auth: Attempting signup with:', { email, passwordLength: password.length, fullName, userType });
 
     const { data, error } = await signUp(email, password, {
@@ -55,9 +79,9 @@ const Auth = () => {
       if (error.message.includes('already registered')) {
         setError('This email is already registered. Please try signing in instead.');
       } else if (error.message.includes('Password should be at least')) {
-        setError('Password must be at least 6 characters long.');
+        setError('Password must be at least 8 characters long with uppercase, lowercase, and numbers.');
       } else if (error.message.includes('weak')) {
-        setError('Password is too weak. Please use at least 6 characters.');
+        setError('Password is too weak. Please use at least 8 characters with uppercase, lowercase, and numbers.');
       } else {
         setError(`Signup failed: ${error.message}`);
       }
@@ -283,14 +307,14 @@ const Auth = () => {
                           id="password-signup"
                           name="password"
                           type="password"
-                          placeholder="At least 6 characters"
+                          placeholder="8+ characters with uppercase, lowercase & numbers"
                           className="pl-10 bg-black border-white/20 text-white placeholder:text-white/60 focus:text-white"
                           required
-                          minLength={6}
+                          minLength={8}
                         />
                       </div>
                       <p className="text-xs text-white/60">
-                        Password must be at least 6 characters long
+                        Password must be at least 8 characters with uppercase, lowercase, and numbers
                       </p>
                     </div>
                     <Button 
