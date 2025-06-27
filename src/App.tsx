@@ -8,6 +8,7 @@ import { UserProvider } from "@/contexts/UserContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import EmailVerify from "./pages/EmailVerify";
 import StorytellerDashboard from "./pages/StorytellerDashboard";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import NotFound from "./pages/NotFound";
@@ -24,6 +25,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/verify" element={<EmailVerify />} />
             <Route 
               path="/storyteller-dashboard" 
               element={

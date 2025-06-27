@@ -36,7 +36,7 @@ export const useAuth = () => {
   }, []);
 
   const signUp = async (email: string, password: string, userData?: { full_name?: string; role?: 'storyteller' | 'creator' }) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/verify`;
     
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -66,7 +66,7 @@ export const useAuth = () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/`
+        redirectTo: `${window.location.origin}/verify`
       }
     });
     return { data, error };

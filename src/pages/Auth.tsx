@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,7 +52,7 @@ const Auth = () => {
         setError(error.message);
       }
     } else {
-      setSuccessMessage('Account created successfully! Please check your email to verify your account.');
+      setSuccessMessage('Account created successfully! Please check your email to verify your account before signing in.');
     }
 
     setIsLoading(false);
