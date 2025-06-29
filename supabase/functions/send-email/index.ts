@@ -1,4 +1,5 @@
 
+
 import React from 'npm:react@18.3.1'
 import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
@@ -53,33 +54,52 @@ Deno.serve(async (req) => {
     console.log('Headers received:', Object.keys(headers));
     console.log('Payload length:', payload.length);
     console.log('Hook secret length:', hookSecret.length);
-    console.log('Hook secret first/last chars:', hookSecret.charAt(0) + '...' + hookSecret.charAt(hookSecret.length - 1));
+    console.log('Hook secret preview:', hookSecret.substring(0, 20) + '...');
     
-    // Verify webhook signature
+    // Try different webhook secret formats
     let webhookData;
-    try {
-      const wh = new Webhook(hookSecret.trim()) // Trim any whitespace
-      webhookData = wh.verify(payload, headers) as {
-        user: {
-          id: string
-          email: string
-          user_metadata?: {
-            full_name?: string
-            role?: string
+    let lastError;
+    
+    const secretsToTry = [
+      hookSecret.trim(),
+      hookSecret.replace(/^"/, '').replace(/"$/, ''), // Remove quotes if present
+      hookSecret.replace(/\\n/g, '\n'), // Handle escaped newlines
+    ];
+    
+    for (const secret of secretsToTry) {
+      try {
+        console.log('🔐 Trying webhook verification with secret length:', secret.length);
+        const wh = new Webhook(secret)
+        webhookData = wh.verify(payload, headers) as {
+          user: {
+            id: string
+            email: string
+            user_metadata?: {
+              full_name?: string
+              role?: string
+            }
+          }
+          email_data: {
+            token: string
+            token_hash: string
+            redirect_to: string
+            email_action_type: string
           }
         }
-        email_data: {
-          token: string
-          token_hash: string
-          redirect_to: string
-          email_action_type: string
-        }
+        console.log('✅ Webhook verified successfully with secret variant');
+        break;
+      } catch (error) {
+        console.log('❌ Webhook verification failed with this secret variant:', error.message);
+        lastError = error;
+        continue;
       }
-      console.log('✅ Webhook verified successfully');
-    } catch (webhookError) {
-      console.error('❌ Webhook verification failed:', webhookError);
-      console.error('Webhook headers:', JSON.stringify(headers, null, 2));
-      throw new Error(`Webhook verification failed: ${webhookError.message}`);
+    }
+
+    if (!webhookData) {
+      console.error('❌ All webhook verification attempts failed');
+      console.error('Last error:', lastError?.message);
+      console.error('Webhook headers received:', JSON.stringify(headers, null, 2));
+      throw new Error(`Webhook verification failed: ${lastError?.message}`);
     }
 
     const {
@@ -172,3 +192,4 @@ Deno.serve(async (req) => {
     );
   }
 });
+
