@@ -1,5 +1,4 @@
 
-
 import React from 'npm:react@18.3.1'
 import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
@@ -56,50 +55,51 @@ Deno.serve(async (req) => {
     console.log('Hook secret length:', hookSecret.length);
     console.log('Hook secret preview:', hookSecret.substring(0, 20) + '...');
     
-    // Try different webhook secret formats
+    // Extract the actual secret from different possible formats
+    let actualSecret = hookSecret.trim();
+    
+    // If the secret starts with "v1,", extract everything after it
+    if (actualSecret.startsWith('v1,')) {
+      actualSecret = actualSecret.substring(3);
+      console.log('🔧 Extracted secret after v1, prefix');
+    }
+    
+    // Remove any quotes that might wrap the secret
+    if ((actualSecret.startsWith('"') && actualSecret.endsWith('"')) || 
+        (actualSecret.startsWith("'") && actualSecret.endsWith("'"))) {
+      actualSecret = actualSecret.slice(1, -1);
+      console.log('🔧 Removed quotes from secret');
+    }
+    
+    console.log('🔐 Using processed secret length:', actualSecret.length);
+    console.log('🔐 Processed secret preview:', actualSecret.substring(0, 20) + '...');
+    
+    // Verify webhook signature
     let webhookData;
-    let lastError;
-    
-    const secretsToTry = [
-      hookSecret.trim(),
-      hookSecret.replace(/^"/, '').replace(/"$/, ''), // Remove quotes if present
-      hookSecret.replace(/\\n/g, '\n'), // Handle escaped newlines
-    ];
-    
-    for (const secret of secretsToTry) {
-      try {
-        console.log('🔐 Trying webhook verification with secret length:', secret.length);
-        const wh = new Webhook(secret)
-        webhookData = wh.verify(payload, headers) as {
-          user: {
-            id: string
-            email: string
-            user_metadata?: {
-              full_name?: string
-              role?: string
-            }
-          }
-          email_data: {
-            token: string
-            token_hash: string
-            redirect_to: string
-            email_action_type: string
+    try {
+      const wh = new Webhook(actualSecret)
+      webhookData = wh.verify(payload, headers) as {
+        user: {
+          id: string
+          email: string
+          user_metadata?: {
+            full_name?: string
+            role?: string
           }
         }
-        console.log('✅ Webhook verified successfully with secret variant');
-        break;
-      } catch (error) {
-        console.log('❌ Webhook verification failed with this secret variant:', error.message);
-        lastError = error;
-        continue;
+        email_data: {
+          token: string
+          token_hash: string
+          redirect_to: string
+          email_action_type: string
+        }
       }
-    }
-
-    if (!webhookData) {
-      console.error('❌ All webhook verification attempts failed');
-      console.error('Last error:', lastError?.message);
+      console.log('✅ Webhook verified successfully');
+    } catch (webhookError) {
+      console.error('❌ Webhook verification failed:', webhookError);
       console.error('Webhook headers received:', JSON.stringify(headers, null, 2));
-      throw new Error(`Webhook verification failed: ${lastError?.message}`);
+      console.error('Actual secret used:', actualSecret.substring(0, 10) + '...');
+      throw new Error(`Webhook verification failed: ${webhookError.message}`);
     }
 
     const {
@@ -192,4 +192,3 @@ Deno.serve(async (req) => {
     );
   }
 });
-
