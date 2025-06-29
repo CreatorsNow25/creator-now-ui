@@ -52,29 +52,41 @@ Deno.serve(async (req) => {
     console.log('📧 Processing email request...');
     console.log('Headers received:', Object.keys(headers));
     console.log('Payload length:', payload.length);
+    console.log('Hook secret length:', hookSecret.length);
+    console.log('Hook secret first/last chars:', hookSecret.charAt(0) + '...' + hookSecret.charAt(hookSecret.length - 1));
     
-    const wh = new Webhook(hookSecret)
+    // Verify webhook signature
+    let webhookData;
+    try {
+      const wh = new Webhook(hookSecret.trim()) // Trim any whitespace
+      webhookData = wh.verify(payload, headers) as {
+        user: {
+          id: string
+          email: string
+          user_metadata?: {
+            full_name?: string
+            role?: string
+          }
+        }
+        email_data: {
+          token: string
+          token_hash: string
+          redirect_to: string
+          email_action_type: string
+        }
+      }
+      console.log('✅ Webhook verified successfully');
+    } catch (webhookError) {
+      console.error('❌ Webhook verification failed:', webhookError);
+      console.error('Webhook headers:', JSON.stringify(headers, null, 2));
+      throw new Error(`Webhook verification failed: ${webhookError.message}`);
+    }
+
     const {
       user,
       email_data: { token, token_hash, redirect_to, email_action_type },
-    } = wh.verify(payload, headers) as {
-      user: {
-        id: string
-        email: string
-        user_metadata?: {
-          full_name?: string
-          role?: string
-        }
-      }
-      email_data: {
-        token: string
-        token_hash: string
-        redirect_to: string
-        email_action_type: string
-      }
-    }
+    } = webhookData;
 
-    console.log('✅ Webhook verified successfully');
     console.log('📋 Email details:', {
       email: user.email,
       action_type: email_action_type,
