@@ -33,12 +33,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    console.log('🚀 Send email function called - FUNCTION IS WORKING!');
-    console.log('🔍 Request details:', {
-      method: req.method,
-      headers: Object.keys(Object.fromEntries(req.headers)),
-      url: req.url
-    });
+    console.log('🚀 Send email function called');
     
     // Check if required environment variables are present
     if (!resend) {
@@ -46,40 +41,11 @@ Deno.serve(async (req) => {
       throw new Error('RESEND_API_KEY is not configured');
     }
     
-    if (!hookSecret) {
-      console.error('❌ SEND_EMAIL_HOOK_SECRET is missing');
-      throw new Error('SEND_EMAIL_HOOK_SECRET is not configured');
-    }
-    
     const payload = await req.text()
     const headers = Object.fromEntries(req.headers)
     
     console.log('📧 Processing email request...');
-    console.log('Headers received:', Object.keys(headers));
-    console.log('Payload length:', payload.length);
-    console.log('Hook secret length:', hookSecret.length);
-    console.log('Hook secret preview:', hookSecret.substring(0, 20) + '...');
     
-    // Extract the actual secret from different possible formats
-    let actualSecret = hookSecret.trim();
-    
-    // If the secret starts with "v1,", extract everything after it
-    if (actualSecret.startsWith('v1,')) {
-      actualSecret = actualSecret.substring(3);
-      console.log('🔧 Extracted secret after v1, prefix');
-    }
-    
-    // Remove any quotes that might wrap the secret
-    if ((actualSecret.startsWith('"') && actualSecret.endsWith('"')) || 
-        (actualSecret.startsWith("'") && actualSecret.endsWith("'"))) {
-      actualSecret = actualSecret.slice(1, -1);
-      console.log('🔧 Removed quotes from secret');
-    }
-    
-    console.log('🔐 Using processed secret length:', actualSecret.length);
-    console.log('🔐 Processed secret preview:', actualSecret.substring(0, 20) + '...');
-    
-    // Parse the payload to determine email type
     let webhookData;
     let emailType = 'auth'; // default to auth emails
     
@@ -93,7 +59,12 @@ Deno.serve(async (req) => {
         console.log('📬 Custom email type detected:', parsedPayload.email_type);
       } else {
         // Standard auth webhook verification
-        const wh = new Webhook(actualSecret)
+        if (!hookSecret) {
+          console.error('❌ SEND_EMAIL_HOOK_SECRET is missing');
+          throw new Error('SEND_EMAIL_HOOK_SECRET is not configured');
+        }
+        
+        const wh = new Webhook(hookSecret)
         webhookData = wh.verify(payload, headers) as {
           user: {
             id: string
@@ -115,8 +86,6 @@ Deno.serve(async (req) => {
       }
     } catch (webhookError) {
       console.error('❌ Webhook verification failed:', webhookError);
-      console.error('Webhook headers received:', JSON.stringify(headers, null, 2));
-      console.error('Actual secret used:', actualSecret.substring(0, 10) + '...');
       throw new Error(`Webhook verification failed: ${webhookError.message}`);
     }
 
