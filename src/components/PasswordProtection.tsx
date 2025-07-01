@@ -231,7 +231,7 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
               setShowWaitlist(true);
             }}
             variant="outline"
-            className="w-full border-white/20 text-white hover:bg-white hover:text-black"
+            className="w-full border-white/20 text-white bg-transparent hover:bg-white hover:text-black"
           >
             Join Waitlist
           </Button>
@@ -241,7 +241,7 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
               setShowWaitlist(true);
             }}
             variant="outline"
-            className="w-full border-white/20 text-white hover:bg-white hover:text-black"
+            className="w-full border-white/20 text-white bg-transparent hover:bg-white hover:text-black"
           >
             Request Demo
           </Button>
