@@ -5,6 +5,7 @@ import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { VerificationEmail } from './_templates/verification-email.tsx'
 import { WelcomeEmail } from './_templates/welcome-email.tsx'
 import { PasswordResetEmail } from './_templates/password-reset-email.tsx'
+import { EmailChangeEmail } from './_templates/email-change-email.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 const hookSecret = Deno.env.get('SEND_EMAIL_HOOK_SECRET') as string
@@ -92,6 +93,7 @@ Deno.serve(async (req) => {
           token_hash: string
           redirect_to: string
           email_action_type: string
+          new_email?: string
         }
       }
       console.log('✅ Webhook verified successfully');
@@ -104,14 +106,15 @@ Deno.serve(async (req) => {
 
     const {
       user,
-      email_data: { token, token_hash, redirect_to, email_action_type },
+      email_data: { token, token_hash, redirect_to, email_action_type, new_email },
     } = webhookData;
 
     console.log('📋 Email details:', {
       email: user.email,
       action_type: email_action_type,
       user_role: user.user_metadata?.role,
-      redirect_to
+      redirect_to,
+      new_email
     });
 
     const userName = user.user_metadata?.full_name || user.email.split('@')[0];
@@ -147,6 +150,20 @@ Deno.serve(async (req) => {
         })
       );
       emailSubject = 'Reset your Creators Now password';
+    } else if (email_action_type === 'email_change') {
+      console.log('✉️ Sending email change confirmation...');
+      emailHtml = await renderAsync(
+        React.createElement(EmailChangeEmail, {
+          supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
+          token,
+          token_hash,
+          redirect_to,
+          email_action_type,
+          user_name: userName,
+          new_email,
+        })
+      );
+      emailSubject = 'Confirm your email address change';
     } else {
       console.log('👋 Sending welcome email...');
       emailHtml = await renderAsync(
