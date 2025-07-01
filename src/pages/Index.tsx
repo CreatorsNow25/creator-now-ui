@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import HeroSection from '@/components/HeroSection';
@@ -9,15 +9,23 @@ import TestimonialsSection from '@/components/TestimonialsSection';
 import TrustSecuritySection from '@/components/TrustSecuritySection';
 import CTASection from '@/components/CTASection';
 import FooterSection from '@/components/FooterSection';
+import PasswordProtection from '@/components/PasswordProtection';
 import { useUser } from '@/contexts/UserContext';
 
 const Index = () => {
   const navigate = useNavigate();
   const { user, loading } = useUser();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check if user has entered password (stored in sessionStorage)
+  useEffect(() => {
+    const hasAccess = sessionStorage.getItem('creators-access') === 'true';
+    setIsAuthenticated(hasAccess);
+  }, []);
 
   // Redirect authenticated users to their appropriate dashboard
   useEffect(() => {
-    if (!loading && user) {
+    if (!loading && user && isAuthenticated) {
       console.log('Index: User authenticated, redirecting to dashboard', { userRole: user.role });
       if (user.role === 'storyteller') {
         navigate('/storyteller-dashboard');
@@ -25,7 +33,17 @@ const Index = () => {
         navigate('/creator-dashboard');
       }
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, isAuthenticated]);
+
+  const handlePasswordAuthenticated = () => {
+    sessionStorage.setItem('creators-access', 'true');
+    setIsAuthenticated(true);
+  };
+
+  // Show password protection if not authenticated
+  if (!isAuthenticated) {
+    return <PasswordProtection onAuthenticated={handlePasswordAuthenticated} />;
+  }
 
   // Show loading while checking authentication
   if (loading) {
