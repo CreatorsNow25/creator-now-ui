@@ -1,288 +1,108 @@
 
-import React from 'npm:react@18.3.1'
-import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
-import { Resend } from 'npm:resend@4.0.0'
-import { renderAsync } from 'npm:@react-email/components@0.0.22'
-import { VerificationEmail } from './_templates/verification-email.tsx'
-import { WelcomeEmail } from './_templates/welcome-email.tsx'
-import { PasswordResetEmail } from './_templates/password-reset-email.tsx'
-import { EmailChangeEmail } from './_templates/email-change-email.tsx'
-import { ReviewRequestEmail } from './_templates/review-request-email.tsx'
-import { ReviewReceivedEmail } from './_templates/review-received-email.tsx'
-import { FeedbackRequestEmail } from './_templates/feedback-request-email.tsx'
-import { WaitlistNotificationEmail } from './_templates/waitlist-notification-email.tsx'
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
-const hookSecret = Deno.env.get('SEND_EMAIL_HOOK_SECRET') as string
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+interface EmailHookPayload {
+  type: string;
+  table: string;
+  record: any;
+  schema: string;
+  old_record?: any;
 }
 
-Deno.serve(async (req) => {
+const handler = async (req: Request): Promise<Response> => {
+  console.log('Send email function called');
+  
   // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== 'POST') {
-    return new Response('Method not allowed', { 
-      status: 405,
-      headers: corsHeaders 
-    });
-  }
-
   try {
-    console.log('🚀 Send email function called');
-    
-    // Check if required environment variables are present
-    if (!resend) {
-      console.error('❌ RESEND_API_KEY is missing');
-      throw new Error('RESEND_API_KEY is not configured');
-    }
-    
-    const payload = await req.text()
-    const headers = Object.fromEntries(req.headers)
-    
-    console.log('📧 Processing email request...');
-    
-    let webhookData;
-    let emailType = 'auth'; // default to auth emails
-    
-    try {
-      const parsedPayload = JSON.parse(payload);
+    const payload: EmailHookPayload = await req.json();
+    console.log('Email hook payload:', JSON.stringify(payload, null, 2));
+
+    // Handle user confirmation email
+    if (payload.type === 'INSERT' && payload.table === 'users') {
+      const user = payload.record;
+      const email = user.email;
+      const confirmationUrl = user.confirmation_url || user.email_confirm_url;
       
-      // Check if this is a custom email type (review/feedback/waitlist)
-      if (parsedPayload.email_type) {
-        emailType = 'custom';
-        webhookData = parsedPayload;
-        console.log('📬 Custom email type detected:', parsedPayload.email_type);
-      } else {
-        // Standard auth webhook verification
-        if (!hookSecret) {
-          console.error('❌ SEND_EMAIL_HOOK_SECRET is missing');
-          throw new Error('SEND_EMAIL_HOOK_SECRET is not configured');
-        }
-        
-        const wh = new Webhook(hookSecret)
-        webhookData = wh.verify(payload, headers) as {
-          user: {
-            id: string
-            email: string
-            user_metadata?: {
-              full_name?: string
-              role?: string
-            }
-          }
-          email_data: {
-            token: string
-            token_hash: string
-            redirect_to: string
-            email_action_type: string
-            new_email?: string
-          }
-        }
-        console.log('✅ Auth webhook verified successfully');
+      console.log('Sending confirmation email to:', email);
+      
+      if (!email) {
+        console.error('No email found in user record');
+        return new Response(JSON.stringify({ error: 'No email found' }), {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
       }
-    } catch (webhookError) {
-      console.error('❌ Webhook verification failed:', webhookError);
-      throw new Error(`Webhook verification failed: ${webhookError.message}`);
-    }
 
-    let emailHtml: string;
-    let emailSubject: string;
-    let recipientEmail: string;
-
-    if (emailType === 'custom') {
-      // Handle custom email types (reviews, feedback, waitlist, etc.)
-      const customData = webhookData as any;
-      
-      if (customData.email_type === 'waitlist_notification') {
-        console.log('📝 Sending waitlist notification email...');
-        recipientEmail = 'info@creators.now';
-        
-        emailHtml = await renderAsync(
-          React.createElement(WaitlistNotificationEmail, {
-            email: customData.email,
-            message: customData.message,
-            request_type: customData.request_type,
-            timestamp: customData.timestamp,
-          })
-        );
-        emailSubject = `New ${customData.request_type === 'demo' ? 'Demo Request' : 'Waitlist Signup'}: ${customData.email}`;
-        
-      } else {
-        // Handle other custom email types
-        recipientEmail = customData.recipient_email;
-        
-        if (customData.email_type === 'review_request') {
-          console.log('📝 Sending review request email...');
-          emailHtml = await renderAsync(
-            React.createElement(ReviewRequestEmail, {
-              recipient_name: customData.recipient_name,
-              project_title: customData.project_title,
-              reviewer_name: customData.reviewer_name,
-              reviewer_type: customData.reviewer_type,
-              app_url: customData.app_url || 'https://creators-now.vercel.app',
-              project_id: customData.project_id,
-            })
-          );
-          emailSubject = `Review Request: ${customData.project_title}`;
-          
-        } else if (customData.email_type === 'review_received') {
-          console.log('⭐ Sending review received email...');
-          emailHtml = await renderAsync(
-            React.createElement(ReviewReceivedEmail, {
-              recipient_name: customData.recipient_name,
-              project_title: customData.project_title,
-              reviewer_name: customData.reviewer_name,
-              reviewer_type: customData.reviewer_type,
-              rating: customData.rating,
-              review_comment: customData.review_comment,
-              app_url: customData.app_url || 'https://creators-now.vercel.app',
-              project_id: customData.project_id,
-            })
-          );
-          emailSubject = `New ${customData.rating}-star review for ${customData.project_title}`;
-          
-        } else if (customData.email_type === 'feedback_request') {
-          console.log('💬 Sending feedback request email...');
-          emailHtml = await renderAsync(
-            React.createElement(FeedbackRequestEmail, {
-              recipient_name: customData.recipient_name,
-              project_title: customData.project_title,
-              requester_name: customData.requester_name,
-              requester_type: customData.requester_type,
-              feedback_type: customData.feedback_type,
-              app_url: customData.app_url || 'https://creators-now.vercel.app',
-              project_id: customData.project_id,
-              message: customData.message,
-            })
-          );
-          emailSubject = `Feedback Request: ${customData.project_title}`;
-          
-        } else {
-          throw new Error(`Unknown custom email type: ${customData.email_type}`);
-        }
-      }
-      
-    } else {
-      // Handle standard auth emails
-      const {
-        user,
-        email_data: { token, token_hash, redirect_to, email_action_type, new_email },
-      } = webhookData as any;
-
-      console.log('📋 Email details:', {
-        email: user.email,
-        action_type: email_action_type,
-        user_role: user.user_metadata?.role,
-        redirect_to,
-        new_email
+      // Send welcome/confirmation email
+      const emailResponse = await resend.emails.send({
+        from: "Creators Now <onboarding@resend.dev>",
+        to: [email],
+        subject: "Welcome to Creators Now - Verify Your Email",
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #000; text-align: center;">Welcome to Creators Now!</h1>
+            <p>Thank you for joining our platform where storytellers connect with AI creators.</p>
+            ${confirmationUrl ? `
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${confirmationUrl}" 
+                   style="background-color: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                  Verify Your Email
+                </a>
+              </div>
+              <p style="color: #666; font-size: 14px;">
+                Or copy and paste this link into your browser:<br>
+                <a href="${confirmationUrl}">${confirmationUrl}</a>
+              </p>
+            ` : '<p>Your account is ready to use!</p>'}
+            <p>Once verified, you can start exploring our platform and connecting with creators.</p>
+            <p>Best regards,<br>The Creators Now Team</p>
+          </div>
+        `,
       });
 
-      recipientEmail = user.email;
-      const userName = user.user_metadata?.full_name || user.email.split('@')[0];
-      const userRole = user.user_metadata?.role || 'storyteller';
-      const appUrl = 'https://creators-now.vercel.app';
+      console.log("Email sent successfully:", emailResponse);
 
-      if (email_action_type === 'signup') {
-        console.log('📨 Sending verification email...');
-        emailHtml = await renderAsync(
-          React.createElement(VerificationEmail, {
-            supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
-            token,
-            token_hash,
-            redirect_to,
-            email_action_type,
-            user_name: userName,
-          })
-        );
-        emailSubject = 'Verify your Creators Now account';
-      } else if (email_action_type === 'recovery') {
-        console.log('🔐 Sending password reset email...');
-        emailHtml = await renderAsync(
-          React.createElement(PasswordResetEmail, {
-            supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
-            token,
-            token_hash,
-            redirect_to,
-            email_action_type,
-            user_name: userName,
-          })
-        );
-        emailSubject = 'Reset your Creators Now password';
-      } else if (email_action_type === 'email_change') {
-        console.log('✉️ Sending email change confirmation...');
-        emailHtml = await renderAsync(
-          React.createElement(EmailChangeEmail, {
-            supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
-            token,
-            token_hash,
-            redirect_to,
-            email_action_type,
-            user_name: userName,
-            new_email,
-          })
-        );
-        emailSubject = 'Confirm your email address change';
-      } else {
-        console.log('👋 Sending welcome email...');
-        emailHtml = await renderAsync(
-          React.createElement(WelcomeEmail, {
-            user_name: userName,
-            user_role: userRole,
-            app_url: appUrl,
-          })
-        );
-        emailSubject = 'Welcome to Creators Now!';
-      }
+      return new Response(JSON.stringify({ success: true, emailResponse }), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
+      });
     }
 
-    console.log('📤 Sending email via Resend...');
-
-    const { data, error } = await resend.emails.send({
-      from: 'Creators Now <info@creators.now>',
-      to: [recipientEmail],
-      subject: emailSubject,
-      html: emailHtml,
-    });
-
-    if (error) {
-      console.error('❌ Resend error:', error);
-      throw error;
-    }
-
-    console.log('✅ Email sent successfully!', data);
-
-    return new Response(JSON.stringify({ 
-      success: true, 
-      data,
-      message: 'Email sent successfully!' 
-    }), {
+    // If we don't handle this type of email, just return success
+    console.log('Email type not handled, returning success');
+    return new Response(JSON.stringify({ success: true, message: 'Email type not handled' }), {
       status: 200,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...corsHeaders,
       },
     });
+
   } catch (error: any) {
-    console.error('💥 Error in send-email function:', error);
-    console.error('Stack trace:', error.stack);
+    console.error("Error in send-email function:", error);
     return new Response(
-      JSON.stringify({ 
-        error: error.message,
-        details: error.stack,
-        timestamp: new Date().toISOString()
-      }),
+      JSON.stringify({ error: error.message }),
       {
         status: 500,
-        headers: { 
-          'Content-Type': 'application/json', 
-          ...corsHeaders 
-        },
+        headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
   }
-});
+};
+
+serve(handler);
