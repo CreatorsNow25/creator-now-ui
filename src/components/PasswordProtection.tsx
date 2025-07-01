@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Play, Lock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PasswordProtectionProps {
   onAuthenticated: () => void;
@@ -18,6 +19,7 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
   const [message, setMessage] = useState('');
   const [requestType, setRequestType] = useState<'waitlist' | 'demo' | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Simple password - you can change this
   const ACCESS_PASSWORD = 'creators2024';
@@ -31,18 +33,49 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
     }
   };
 
-  const handleWaitlistSubmit = (e: React.FormEvent) => {
+  const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // For now, just store in localStorage - you can later connect to a database
-    const submissions = JSON.parse(localStorage.getItem('waitlist') || '[]');
-    submissions.push({
-      email,
-      message,
-      type: requestType,
-      timestamp: new Date().toISOString()
-    });
-    localStorage.setItem('waitlist', JSON.stringify(submissions));
-    setSubmitted(true);
+    setIsSubmitting(true);
+    
+    try {
+      // Store in database
+      const { error: dbError } = await supabase
+        .from('waitlist_submissions')
+        .insert({
+          email,
+          message: message || null,
+          request_type: requestType!
+        });
+
+      if (dbError) {
+        console.error('Database error:', dbError);
+        setError('Failed to submit. Please try again.');
+        return;
+      }
+
+      // Send notification email to admin
+      const { error: emailError } = await supabase.functions.invoke('send-email', {
+        body: {
+          email_type: 'waitlist_notification',
+          email,
+          message,
+          request_type: requestType,
+          timestamp: new Date().toISOString()
+        }
+      });
+
+      if (emailError) {
+        console.error('Email error:', emailError);
+        // Don't show error to user since data was saved
+      }
+
+      setSubmitted(true);
+    } catch (error) {
+      console.error('Submission error:', error);
+      setError('Failed to submit. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -67,6 +100,7 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
                 setEmail('');
                 setMessage('');
                 setRequestType(null);
+                setError('');
               }}
               className="bg-white text-black hover:bg-gray-200"
             >
@@ -100,6 +134,7 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
                   onChange={(e) => setEmail(e.target.value)}
                   className="bg-black border-white/20 text-white placeholder:text-white/60"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
               <div>
@@ -111,20 +146,30 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   className="w-full h-24 px-3 py-2 bg-black border border-white/20 rounded-md text-white placeholder:text-white/60 resize-none"
+                  disabled={isSubmitting}
                 />
               </div>
+              {error && (
+                <Alert className="bg-red-900/50 border-red-500">
+                  <AlertDescription className="text-red-200">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              )}
               <div className="flex gap-2">
                 <Button 
                   type="submit"
                   className="flex-1 bg-white text-black hover:bg-gray-200"
+                  disabled={isSubmitting}
                 >
-                  {requestType === 'demo' ? 'Request Demo' : 'Join Waitlist'}
+                  {isSubmitting ? 'Submitting...' : (requestType === 'demo' ? 'Request Demo' : 'Join Waitlist')}
                 </Button>
                 <Button 
                   type="button"
                   variant="outline"
                   onClick={() => setShowWaitlist(false)}
                   className="border-white/20 text-white hover:bg-white hover:text-black"
+                  disabled={isSubmitting}
                 >
                   Back
                 </Button>

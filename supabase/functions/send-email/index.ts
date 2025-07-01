@@ -10,6 +10,7 @@ import { EmailChangeEmail } from './_templates/email-change-email.tsx'
 import { ReviewRequestEmail } from './_templates/review-request-email.tsx'
 import { ReviewReceivedEmail } from './_templates/review-received-email.tsx'
 import { FeedbackRequestEmail } from './_templates/feedback-request-email.tsx'
+import { WaitlistNotificationEmail } from './_templates/waitlist-notification-email.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 const hookSecret = Deno.env.get('SEND_EMAIL_HOOK_SECRET') as string
@@ -52,7 +53,7 @@ Deno.serve(async (req) => {
     try {
       const parsedPayload = JSON.parse(payload);
       
-      // Check if this is a custom email type (review/feedback)
+      // Check if this is a custom email type (review/feedback/waitlist)
       if (parsedPayload.email_type) {
         emailType = 'custom';
         webhookData = parsedPayload;
@@ -94,58 +95,76 @@ Deno.serve(async (req) => {
     let recipientEmail: string;
 
     if (emailType === 'custom') {
-      // Handle custom email types (reviews, feedback, etc.)
+      // Handle custom email types (reviews, feedback, waitlist, etc.)
       const customData = webhookData as any;
-      recipientEmail = customData.recipient_email;
       
-      if (customData.email_type === 'review_request') {
-        console.log('📝 Sending review request email...');
-        emailHtml = await renderAsync(
-          React.createElement(ReviewRequestEmail, {
-            recipient_name: customData.recipient_name,
-            project_title: customData.project_title,
-            reviewer_name: customData.reviewer_name,
-            reviewer_type: customData.reviewer_type,
-            app_url: customData.app_url || 'https://creators-now.vercel.app',
-            project_id: customData.project_id,
-          })
-        );
-        emailSubject = `Review Request: ${customData.project_title}`;
+      if (customData.email_type === 'waitlist_notification') {
+        console.log('📝 Sending waitlist notification email...');
+        recipientEmail = 'info@creators.now'; // Your admin email - change this!
         
-      } else if (customData.email_type === 'review_received') {
-        console.log('⭐ Sending review received email...');
         emailHtml = await renderAsync(
-          React.createElement(ReviewReceivedEmail, {
-            recipient_name: customData.recipient_name,
-            project_title: customData.project_title,
-            reviewer_name: customData.reviewer_name,
-            reviewer_type: customData.reviewer_type,
-            rating: customData.rating,
-            review_comment: customData.review_comment,
-            app_url: customData.app_url || 'https://creators-now.vercel.app',
-            project_id: customData.project_id,
-          })
-        );
-        emailSubject = `New ${customData.rating}-star review for ${customData.project_title}`;
-        
-      } else if (customData.email_type === 'feedback_request') {
-        console.log('💬 Sending feedback request email...');
-        emailHtml = await renderAsync(
-          React.createElement(FeedbackRequestEmail, {
-            recipient_name: customData.recipient_name,
-            project_title: customData.project_title,
-            requester_name: customData.requester_name,
-            requester_type: customData.requester_type,
-            feedback_type: customData.feedback_type,
-            app_url: customData.app_url || 'https://creators-now.vercel.app',
-            project_id: customData.project_id,
+          React.createElement(WaitlistNotificationEmail, {
+            email: customData.email,
             message: customData.message,
+            request_type: customData.request_type,
+            timestamp: customData.timestamp,
           })
         );
-        emailSubject = `Feedback Request: ${customData.project_title}`;
+        emailSubject = `New ${customData.request_type === 'demo' ? 'Demo Request' : 'Waitlist Signup'}: ${customData.email}`;
         
       } else {
-        throw new Error(`Unknown custom email type: ${customData.email_type}`);
+        // Handle other custom email types
+        recipientEmail = customData.recipient_email;
+        
+        if (customData.email_type === 'review_request') {
+          console.log('📝 Sending review request email...');
+          emailHtml = await renderAsync(
+            React.createElement(ReviewRequestEmail, {
+              recipient_name: customData.recipient_name,
+              project_title: customData.project_title,
+              reviewer_name: customData.reviewer_name,
+              reviewer_type: customData.reviewer_type,
+              app_url: customData.app_url || 'https://creators-now.vercel.app',
+              project_id: customData.project_id,
+            })
+          );
+          emailSubject = `Review Request: ${customData.project_title}`;
+          
+        } else if (customData.email_type === 'review_received') {
+          console.log('⭐ Sending review received email...');
+          emailHtml = await renderAsync(
+            React.createElement(ReviewReceivedEmail, {
+              recipient_name: customData.recipient_name,
+              project_title: customData.project_title,
+              reviewer_name: customData.reviewer_name,
+              reviewer_type: customData.reviewer_type,
+              rating: customData.rating,
+              review_comment: customData.review_comment,
+              app_url: customData.app_url || 'https://creators-now.vercel.app',
+              project_id: customData.project_id,
+            })
+          );
+          emailSubject = `New ${customData.rating}-star review for ${customData.project_title}`;
+          
+        } else if (customData.email_type === 'feedback_request') {
+          console.log('💬 Sending feedback request email...');
+          emailHtml = await renderAsync(
+            React.createElement(FeedbackRequestEmail, {
+              recipient_name: customData.recipient_name,
+              project_title: customData.project_title,
+              requester_name: customData.requester_name,
+              requester_type: customData.requester_type,
+              feedback_type: customData.feedback_type,
+              app_url: customData.app_url || 'https://creators-now.vercel.app',
+              project_id: customData.project_id,
+              message: customData.message,
+            })
+          );
+          emailSubject = `Feedback Request: ${customData.project_title}`;
+          
+        } else {
+          throw new Error(`Unknown custom email type: ${customData.email_type}`);
+        }
       }
       
     } else {

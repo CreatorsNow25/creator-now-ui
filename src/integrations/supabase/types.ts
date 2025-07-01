@@ -186,6 +186,33 @@ export type Database = {
           },
         ]
       }
+      waitlist_submissions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          request_type: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          request_type: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          request_type?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
