@@ -21,61 +21,75 @@ const EmailVerify = () => {
         // Get the token_hash and type from URL parameters (Supabase's format)
         const tokenHash = searchParams.get('token_hash');
         const type = searchParams.get('type');
+        const token = searchParams.get('token');
         
         console.log('EmailVerify: URL params:', { 
           tokenHash: tokenHash?.substring(0, 10) + '...', 
           type,
+          token: token?.substring(0, 10) + '...',
           allParams: Object.fromEntries(searchParams.entries())
         });
 
-        if (!tokenHash || !type) {
-          console.log('EmailVerify: Missing token_hash or type');
+        if (tokenHash && type) {
+          // Use token_hash method for Supabase auth verification
+          const { data, error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: type as any
+          });
+
+          console.log('EmailVerify: Token hash verification result:', { user: data?.user?.id, error });
+
+          if (error) {
+            console.error('EmailVerify: Token hash verification failed:', error);
+            setStatus('error');
+            setMessage(`Email verification failed: ${error.message}`);
+          } else if (data?.user) {
+            console.log('EmailVerify: Verification successful for user:', data.user.id);
+            setStatus('success');
+            setMessage('Your email has been verified successfully! You can now sign in to your account.');
+            
+            // Wait a moment then redirect to sign in
+            setTimeout(() => {
+              navigate('/auth', { 
+                state: { 
+                  message: 'Email verified! You can now sign in.',
+                  verified: true 
+                } 
+              });
+            }, 3000);
+          }
+        } else if (token && type) {
+          // Fallback to token method
+          const { data, error } = await supabase.auth.verifyOtp({
+            token: token,
+            type: type as any
+          });
+
+          console.log('EmailVerify: Token verification result:', { user: data?.user?.id, error });
+
+          if (error) {
+            console.error('EmailVerify: Token verification failed:', error);
+            setStatus('error');
+            setMessage(`Email verification failed: ${error.message}`);
+          } else if (data?.user) {
+            console.log('EmailVerify: Verification successful for user:', data.user.id);
+            setStatus('success');
+            setMessage('Your email has been verified successfully! You can now sign in to your account.');
+            
+            // Wait a moment then redirect to sign in
+            setTimeout(() => {
+              navigate('/auth', { 
+                state: { 
+                  message: 'Email verified! You can now sign in.',
+                  verified: true 
+                } 
+              });
+            }, 3000);
+          }
+        } else {
+          console.log('EmailVerify: Missing required parameters');
           setStatus('error');
           setMessage('Invalid verification link. Please check your email and try again.');
-          return;
-        }
-
-        // Verify the email with Supabase using the correct method
-        const { data, error } = await supabase.auth.verifyOtp({
-          token_hash: tokenHash,
-          type: type as any
-        });
-
-        console.log('EmailVerify: Verification result:', { user: data?.user?.id, error });
-
-        if (error) {
-          console.error('EmailVerify: Verification failed:', error);
-          setStatus('error');
-          
-          if (error.message.includes('expired')) {
-            setMessage('This verification link has expired. Please request a new one by signing up again.');
-          } else if (error.message.includes('invalid') || error.message.includes('not found')) {
-            setMessage('This verification link is invalid. Please check your email and try again.');
-          } else {
-            setMessage(`Email verification failed: ${error.message}`);
-          }
-        } else if (data?.user) {
-          console.log('EmailVerify: Verification successful for user:', data.user.id);
-          setStatus('success');
-          setMessage('Your email has been verified successfully! You can now sign in to your account.');
-          
-          // Get user role from user metadata to redirect appropriately
-          const userRole = data.user.user_metadata?.role;
-          console.log('EmailVerify: User role:', userRole);
-          
-          // Wait a moment then redirect to sign in
-          setTimeout(() => {
-            navigate('/auth', { 
-              state: { 
-                message: 'Email verified! You can now sign in.',
-                verified: true 
-              } 
-            });
-          }, 3000);
-        } else {
-          console.log('EmailVerify: No user data received');
-          setStatus('error');
-          setMessage('Verification completed but no user data received. Please try signing in.');
         }
       } catch (err) {
         console.error('EmailVerify: Unexpected error:', err);

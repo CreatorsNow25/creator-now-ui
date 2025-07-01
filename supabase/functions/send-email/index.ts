@@ -1,6 +1,9 @@
 
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import React from 'npm:react@18.3.1';
+import { renderAsync } from 'npm:@react-email/components@0.0.22';
+import { VerificationEmail } from './_templates/verification-email.tsx';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -33,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
     if (payload.type === 'INSERT' && payload.table === 'users') {
       const user = payload.record;
       const email = user.email;
-      const confirmationUrl = user.confirmation_url || user.email_confirm_url;
+      const userName = user.raw_user_meta_data?.full_name || user.email?.split('@')[0];
       
       console.log('Sending confirmation email to:', email);
       
@@ -45,31 +48,24 @@ const handler = async (req: Request): Promise<Response> => {
         });
       }
 
-      // Send welcome/confirmation email
+      // Use the React email template for verification
+      const emailHtml = await renderAsync(
+        React.createElement(VerificationEmail, {
+          supabase_url: Deno.env.get('SUPABASE_URL') || '',
+          email_action_type: 'signup',
+          redirect_to: `${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'lovableproject.com') || 'http://localhost:3000'}/verify`,
+          token_hash: user.confirmation_token || '',
+          token: user.confirmation_token || '',
+          user_name: userName,
+        })
+      );
+
+      // Send verification email using the template
       const emailResponse = await resend.emails.send({
         from: "Creators Now <onboarding@resend.dev>",
         to: [email],
         subject: "Welcome to Creators Now - Verify Your Email",
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #000; text-align: center;">Welcome to Creators Now!</h1>
-            <p>Thank you for joining our platform where storytellers connect with AI creators.</p>
-            ${confirmationUrl ? `
-              <div style="text-align: center; margin: 30px 0;">
-                <a href="${confirmationUrl}" 
-                   style="background-color: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-                  Verify Your Email
-                </a>
-              </div>
-              <p style="color: #666; font-size: 14px;">
-                Or copy and paste this link into your browser:<br>
-                <a href="${confirmationUrl}">${confirmationUrl}</a>
-              </p>
-            ` : '<p>Your account is ready to use!</p>'}
-            <p>Once verified, you can start exploring our platform and connecting with creators.</p>
-            <p>Best regards,<br>The Creators Now Team</p>
-          </div>
-        `,
+        html: emailHtml,
       });
 
       console.log("Email sent successfully:", emailResponse);
