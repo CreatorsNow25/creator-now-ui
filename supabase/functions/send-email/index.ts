@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
       
       if (customData.email_type === 'waitlist_notification') {
         console.log('📝 Sending waitlist notification email...');
-        recipientEmail = 'info@creators.now'; // Your admin email - change this!
+        recipientEmail = 'your-email@gmail.com'; // CHANGE THIS TO YOUR ACTUAL EMAIL!
         
         emailHtml = await renderAsync(
           React.createElement(WaitlistNotificationEmail, {
