@@ -22,11 +22,13 @@ const EmailVerify = () => {
         const tokenHash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         const token = searchParams.get('token');
+        const email = searchParams.get('email');
         
         console.log('EmailVerify: URL params:', { 
           tokenHash: tokenHash?.substring(0, 10) + '...', 
           type,
           token: token?.substring(0, 10) + '...',
+          email,
           allParams: Object.fromEntries(searchParams.entries())
         });
 
@@ -58,9 +60,10 @@ const EmailVerify = () => {
               });
             }, 3000);
           }
-        } else if (token && type) {
-          // Fallback to token method
+        } else if (token && type && email) {
+          // Use token method with email for email verification
           const { data, error } = await supabase.auth.verifyOtp({
+            email: email,
             token: token,
             type: type as any
           });
