@@ -18,7 +18,7 @@ const EmailVerify = () => {
     
     const verifyEmail = async () => {
       try {
-        // Get the token_hash and type from URL parameters (Supabase's format)
+        // Get all possible parameters from URL
         const tokenHash = searchParams.get('token_hash');
         const type = searchParams.get('type');
         const token = searchParams.get('token');
@@ -32,8 +32,9 @@ const EmailVerify = () => {
           allParams: Object.fromEntries(searchParams.entries())
         });
 
+        // Try token_hash method first (this is what Supabase typically sends)
         if (tokenHash && type) {
-          // Use token_hash method for Supabase auth verification
+          console.log('EmailVerify: Using token_hash method');
           const { data, error } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
             type: type as any
@@ -45,7 +46,10 @@ const EmailVerify = () => {
             console.error('EmailVerify: Token hash verification failed:', error);
             setStatus('error');
             setMessage(`Email verification failed: ${error.message}`);
-          } else if (data?.user) {
+            return;
+          }
+          
+          if (data?.user) {
             console.log('EmailVerify: Verification successful for user:', data.user.id);
             setStatus('success');
             setMessage('Your email has been verified successfully! You can now sign in to your account.');
@@ -59,9 +63,13 @@ const EmailVerify = () => {
                 } 
               });
             }, 3000);
+            return;
           }
-        } else if (token && type && email) {
-          // Use token method with email for email verification
+        }
+
+        // Fallback to token method if we have token and email
+        if (token && type && email) {
+          console.log('EmailVerify: Using token method with email');
           const { data, error } = await supabase.auth.verifyOtp({
             email: email,
             token: token,
@@ -74,7 +82,10 @@ const EmailVerify = () => {
             console.error('EmailVerify: Token verification failed:', error);
             setStatus('error');
             setMessage(`Email verification failed: ${error.message}`);
-          } else if (data?.user) {
+            return;
+          }
+          
+          if (data?.user) {
             console.log('EmailVerify: Verification successful for user:', data.user.id);
             setStatus('success');
             setMessage('Your email has been verified successfully! You can now sign in to your account.');
@@ -88,12 +99,49 @@ const EmailVerify = () => {
                 } 
               });
             }, 3000);
+            return;
           }
-        } else {
-          console.log('EmailVerify: Missing required parameters');
-          setStatus('error');
-          setMessage('Invalid verification link. Please check your email and try again.');
         }
+
+        // Try token method without email as last resort
+        if (token && type) {
+          console.log('EmailVerify: Using token method without email');
+          try {
+            const { data, error } = await supabase.auth.verifyOtp({
+              token: token,
+              type: type as any
+            });
+
+            console.log('EmailVerify: Token-only verification result:', { user: data?.user?.id, error });
+
+            if (error) {
+              console.error('EmailVerify: Token-only verification failed:', error);
+            } else if (data?.user) {
+              console.log('EmailVerify: Verification successful for user:', data.user.id);
+              setStatus('success');
+              setMessage('Your email has been verified successfully! You can now sign in to your account.');
+              
+              // Wait a moment then redirect to sign in
+              setTimeout(() => {
+                navigate('/auth', { 
+                  state: { 
+                    message: 'Email verified! You can now sign in.',
+                    verified: true 
+                  } 
+                });
+              }, 3000);
+              return;
+            }
+          } catch (tokenError) {
+            console.error('EmailVerify: Token-only method failed:', tokenError);
+          }
+        }
+
+        // If we get here, none of the methods worked
+        console.log('EmailVerify: No valid verification parameters found');
+        setStatus('error');
+        setMessage('Invalid verification link. Please check your email and try again, or contact support if the problem persists.');
+
       } catch (err) {
         console.error('EmailVerify: Unexpected error:', err);
         setStatus('error');
