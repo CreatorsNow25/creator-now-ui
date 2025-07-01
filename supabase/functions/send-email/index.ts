@@ -1,10 +1,10 @@
-
 import React from 'npm:react@18.3.1'
 import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0'
 import { Resend } from 'npm:resend@4.0.0'
 import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { VerificationEmail } from './_templates/verification-email.tsx'
 import { WelcomeEmail } from './_templates/welcome-email.tsx'
+import { PasswordResetEmail } from './_templates/password-reset-email.tsx'
 
 const resend = new Resend(Deno.env.get('RESEND_API_KEY') as string)
 const hookSecret = Deno.env.get('SEND_EMAIL_HOOK_SECRET') as string
@@ -134,6 +134,19 @@ Deno.serve(async (req) => {
         })
       );
       emailSubject = 'Verify your Creators Now account';
+    } else if (email_action_type === 'recovery') {
+      console.log('🔐 Sending password reset email...');
+      emailHtml = await renderAsync(
+        React.createElement(PasswordResetEmail, {
+          supabase_url: Deno.env.get('SUPABASE_URL') ?? '',
+          token,
+          token_hash,
+          redirect_to,
+          email_action_type,
+          user_name: userName,
+        })
+      );
+      emailSubject = 'Reset your Creators Now password';
     } else {
       console.log('👋 Sending welcome email...');
       emailHtml = await renderAsync(

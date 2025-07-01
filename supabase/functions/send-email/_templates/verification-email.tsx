@@ -1,4 +1,3 @@
-
 import {
   Body,
   Container,
@@ -72,6 +71,18 @@ export const VerificationEmail = ({
           <Text style={footerBrand}>
             <strong>Creators Now</strong> - Where Stories Meet AI
           </Text>
+          
+          <Section style={socialLinks}>
+            <Link href="https://facebook.com/creatorsnow" style={socialLink}>Facebook</Link>
+            <Text style={socialSeparator}>•</Text>
+            <Link href="https://instagram.com/creatorsnow" style={socialLink}>Instagram</Link>
+            <Text style={socialSeparator}>•</Text>
+            <Link href="https://linkedin.com/company/creatorsnow" style={socialLink}>LinkedIn</Link>
+            <Text style={socialSeparator}>•</Text>
+            <Link href="https://twitter.com/creatorsnow" style={socialLink}>Twitter</Link>
+            <Text style={socialSeparator}>•</Text>
+            <Link href="https://youtube.com/@creatorsnow" style={socialLink}>YouTube</Link>
+          </Section>
         </Section>
       </Container>
     </Body>
@@ -184,4 +195,26 @@ const footerBrand = {
   color: '#ffffff',
   fontSize: '14px',
   margin: '0',
+}
+
+const socialLinks = {
+  textAlign: 'center' as const,
+  marginTop: '16px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexWrap: 'wrap' as const,
+}
+
+const socialLink = {
+  color: '#888888',
+  fontSize: '12px',
+  textDecoration: 'none',
+  margin: '0 4px',
+}
+
+const socialSeparator = {
+  color: '#888888',
+  fontSize: '12px',
+  margin: '0 8px',
 }
