@@ -5,7 +5,14 @@ import React from 'npm:react@18.3.1';
 import { renderAsync } from 'npm:@react-email/components@0.0.22';
 import { VerificationEmail } from './_templates/verification-email.tsx';
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const resendApiKey = Deno.env.get("RESEND_API_KEY");
+console.log('RESEND_API_KEY configured:', !!resendApiKey);
+
+if (!resendApiKey) {
+  console.error('RESEND_API_KEY not found in environment variables');
+}
+
+const resend = new Resend(resendApiKey);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,17 +56,38 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       // Use the React email template for verification
+      const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+      const redirectTo = 'https://creators-now.vercel.app/verify';
+      
+      console.log('Email template params:', {
+        supabase_url: supabaseUrl,
+        redirect_to: redirectTo,
+        token_hash: user.confirmation_token ? 'present' : 'missing',
+        user_name: userName
+      });
+      
       const emailHtml = await renderAsync(
         React.createElement(VerificationEmail, {
-          supabase_url: Deno.env.get('SUPABASE_URL') || '',
+          supabase_url: supabaseUrl,
           email_action_type: 'signup',
-          redirect_to: `${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'lovableproject.com') || 'http://localhost:3000'}/verify`,
+          redirect_to: redirectTo,
           token_hash: user.confirmation_token || '',
           token: user.confirmation_token || '',
           user_name: userName,
         })
       );
 
+      // Check if RESEND_API_KEY is available before sending
+      if (!resendApiKey) {
+        console.error('Cannot send email: RESEND_API_KEY not configured');
+        return new Response(JSON.stringify({ error: 'Email service not configured' }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
+
+      console.log('Attempting to send email via Resend...');
+      
       // Send verification email using the template
       const emailResponse = await resend.emails.send({
         from: "Creators Now <onboarding@resend.dev>",
@@ -69,6 +97,15 @@ const handler = async (req: Request): Promise<Response> => {
       });
 
       console.log("Email sent successfully:", emailResponse);
+      
+      // Check if email was sent successfully
+      if (emailResponse.error) {
+        console.error('Resend API error:', emailResponse.error);
+        return new Response(JSON.stringify({ error: 'Failed to send email', details: emailResponse.error }), {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
 
       return new Response(JSON.stringify({ success: true, emailResponse }), {
         status: 200,
