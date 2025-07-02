@@ -9,10 +9,3 @@ additional_redirect_urls = ["https://creators-now.vercel.app/verify"]
 enable_signup = true
 double_confirm_changes = true
 enable_confirmations = true
-
-[auth.hook.send_email]
-enabled = true
-uri = "https://qwvleuornxbjkudvsifr.supabase.co/functions/v1/send-email"
-
-[functions.send-email]
-verify_jwt = false
