@@ -46,6 +46,23 @@ export const useAuth = () => {
         data: userData
       }
     });
+
+    // Send verification email after successful signup
+    if (data.user && !error) {
+      try {
+        await supabase.functions.invoke('send-email', {
+          body: {
+            email_type: 'verification',
+            email: email,
+            user_name: userData?.full_name || email.split('@')[0],
+          }
+        });
+      } catch (emailError) {
+        console.error('Failed to send verification email:', emailError);
+        // Don't fail the signup if email fails
+      }
+    }
+
     return { data, error };
   };
 

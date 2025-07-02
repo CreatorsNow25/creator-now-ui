@@ -108,7 +108,7 @@ export const WaitlistNotificationEmail = ({
 export default WaitlistNotificationEmail;
 
 const main = {
-  backgroundColor: '#ffffff',
+  backgroundColor: '#000000',
   fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
 };
 
@@ -120,13 +120,14 @@ const container = {
 
 const section = {
   padding: '24px',
-  border: 'solid 1px #dedede',
+  border: 'solid 1px #333333',
   borderRadius: '5px',
   textAlign: 'left' as const,
+  backgroundColor: '#111111',
 };
 
 const h1 = {
-  color: '#333',
+  color: '#ffffff',
   fontSize: '24px',
   fontWeight: 'bold',
   margin: '40px 0',
@@ -134,47 +135,47 @@ const h1 = {
 };
 
 const text = {
-  color: '#333',
+  color: '#ffffff',
   fontSize: '14px',
   margin: '24px 0',
   lineHeight: '1.5',
 };
 
 const highlightText = {
-  color: '#000',
+  color: '#ffffff',
   fontSize: '16px',
   fontWeight: 'bold',
   margin: '16px 0',
   padding: '12px',
-  backgroundColor: '#f4f4f4',
+  backgroundColor: '#1a1a1a',
   borderRadius: '4px',
 };
 
 const messageText = {
-  color: '#555',
+  color: '#cccccc',
   fontSize: '14px',
   fontStyle: 'italic',
   margin: '16px 0',
   padding: '12px',
-  backgroundColor: '#f9f9f9',
-  borderLeft: '4px solid #007ee6',
+  backgroundColor: '#1a1a1a',
+  borderLeft: '4px solid #ffffff',
   borderRadius: '4px',
 };
 
 const link = {
-  color: '#007ee6',
+  color: '#ffffff',
   textDecoration: 'underline',
 };
 
 const hr = {
   border: 'none',
-  borderTop: '1px solid #eaeaea',
+  borderTop: '1px solid #333333',
   margin: '26px 0',
   width: '100%',
 };
 
 const footer = {
-  color: '#898989',
+  color: '#888888',
   fontSize: '12px',
   lineHeight: '22px',
   marginTop: '12px',
