@@ -73,15 +73,15 @@ export const VerificationEmail = ({
           </Text>
           
           <Section style={socialLinks}>
-            <Link href="https://facebook.com/creatorsnow" style={socialLink}>Facebook</Link>
+            <Link href="https://x.com/joincreatorsnow" style={socialLink}>Twitter</Link>
             <Text style={socialSeparator}>•</Text>
-            <Link href="https://instagram.com/creatorsnow" style={socialLink}>Instagram</Link>
+            <Link href="https://instagram.com/joincreatorsnow" style={socialLink}>Instagram</Link>
             <Text style={socialSeparator}>•</Text>
-            <Link href="https://linkedin.com/company/creatorsnow" style={socialLink}>LinkedIn</Link>
+            <Link href="https://tiktok.com/@joincreatorsnow" style={socialLink}>TikTok</Link>
             <Text style={socialSeparator}>•</Text>
-            <Link href="https://twitter.com/creatorsnow" style={socialLink}>Twitter</Link>
+            <Link href="https://threads.net/@joincreatorsnow" style={socialLink}>Threads</Link>
             <Text style={socialSeparator}>•</Text>
-            <Link href="https://youtube.com/@creatorsnow" style={socialLink}>YouTube</Link>
+            <Link href="https://facebook.com/joincreatorsnow" style={socialLink}>Facebook</Link>
           </Section>
         </Section>
       </Container>
