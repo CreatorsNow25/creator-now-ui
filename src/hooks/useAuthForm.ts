@@ -64,8 +64,14 @@ export const useAuthForm = () => {
       } else {
         setError(`Signup failed: ${error.message}`);
       }
+    } else if (data?.user) {
+      if (data.user.email_confirmed_at) {
+        setSuccessMessage('Account created and verified! You can now sign in.');
+      } else {
+        setSuccessMessage('Account created successfully! Please check your email for a verification link to complete your setup.');
+      }
     } else {
-      setSuccessMessage('Welcome to Creators Now! Please check your email for a verification link to complete your account setup.');
+      setSuccessMessage('Account created! Please check your email for a verification link.');
     }
 
     setIsLoading(false);
