@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -100,40 +99,6 @@ const EmailVerify = () => {
               });
             }, 3000);
             return;
-          }
-        }
-
-        // Try token method without email as last resort
-        if (token && type) {
-          console.log('EmailVerify: Using token method without email');
-          try {
-            const { data, error } = await supabase.auth.verifyOtp({
-              token: token,
-              type: type as any
-            });
-
-            console.log('EmailVerify: Token-only verification result:', { user: data?.user?.id, error });
-
-            if (error) {
-              console.error('EmailVerify: Token-only verification failed:', error);
-            } else if (data?.user) {
-              console.log('EmailVerify: Verification successful for user:', data.user.id);
-              setStatus('success');
-              setMessage('Your email has been verified successfully! You can now sign in to your account.');
-              
-              // Wait a moment then redirect to sign in
-              setTimeout(() => {
-                navigate('/auth', { 
-                  state: { 
-                    message: 'Email verified! You can now sign in.',
-                    verified: true 
-                  } 
-                });
-              }, 3000);
-              return;
-            }
-          } catch (tokenError) {
-            console.error('EmailVerify: Token-only method failed:', tokenError);
           }
         }
 
