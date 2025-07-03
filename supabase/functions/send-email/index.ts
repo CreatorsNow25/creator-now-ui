@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import React from 'npm:react@18.3.1';
@@ -11,7 +10,6 @@ import { UserConfirmationEmail } from './_templates/user-confirmation-email.tsx'
 const resendApiKey = Deno.env.get("RESEND_API_KEY");
 console.log('=== EMAIL FUNCTION STARTED ===');
 console.log('RESEND_API_KEY configured:', !!resendApiKey);
-console.log('RESEND_API_KEY length:', resendApiKey?.length || 0);
 
 if (!resendApiKey) {
   console.error('❌ CRITICAL: RESEND_API_KEY not found in environment variables');
@@ -43,8 +41,6 @@ interface EmailRequest {
 const handler = async (req: Request): Promise<Response> => {
   console.log('=== NEW EMAIL REQUEST ===');
   console.log('Request method:', req.method);
-  console.log('Request URL:', req.url);
-  console.log('Request headers:', Object.fromEntries(req.headers.entries()));
   
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -75,11 +71,9 @@ const handler = async (req: Request): Promise<Response> => {
       case 'verification':
         console.log('🔐 Processing verification email for:', emailRequest.email);
         
-        // For verification emails, we need to generate a proper token_hash
+        // For verification emails, generate OTP through Supabase
         const supabaseUrl = 'https://qwvleuornxbjkudvsifr.supabase.co';
         const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-        
-        console.log('Service role key configured:', !!serviceRoleKey);
         
         if (!serviceRoleKey) {
           console.error('❌ SUPABASE_SERVICE_ROLE_KEY not found');
@@ -108,19 +102,17 @@ const handler = async (req: Request): Promise<Response> => {
 
         const otpData = await otpResponse.json();
         console.log('🔑 OTP generation response status:', otpResponse.status);
-        console.log('🔑 OTP generation response:', JSON.stringify(otpData, null, 2));
 
         if (!otpResponse.ok) {
           console.error('❌ Failed to generate OTP:', otpData);
-          return new Response(JSON.stringify({ error: 'Failed to generate verification token', details: otpData }), {
+          return new Response(JSON.stringify({ error: 'Failed to generate verification token' }), {
             status: 500,
             headers: { "Content-Type": "application/json", ...corsHeaders },
           });
         }
 
-        // Use the generated token_hash
         const token_hash = otpData.token_hash || '';
-        console.log('🔑 Generated token_hash length:', token_hash.length);
+        console.log('🔑 Generated token_hash for verification');
         
         console.log('📧 Rendering verification email template...');
         emailHtml = await renderAsync(
@@ -130,10 +122,9 @@ const handler = async (req: Request): Promise<Response> => {
             redirect_to: emailRequest.redirect_to || 'https://creators-now.vercel.app/verify',
             token_hash: token_hash,
             token: otpData.token || '',
-            user_name: emailRequest.user_name,
+            user_name: emailRequest.user_name || '',
           })
         );
-        console.log('✅ Email template rendered successfully');
         
         subject = emailRequest.user_name ? `Welcome to Creators Now, ${emailRequest.user_name}!` : 'Welcome to Creators Now!';
         toEmail = emailRequest.email;
@@ -167,7 +158,7 @@ const handler = async (req: Request): Promise<Response> => {
         );
         
         subject = `New ${emailRequest.request_type === 'demo' ? 'Demo Request' : 'Waitlist Signup'} - ${emailRequest.email}`;
-        toEmail = 'info@creators.now'; // Admin email
+        toEmail = 'info@creators.now';
         break;
 
       case 'user_confirmation':
@@ -193,10 +184,9 @@ const handler = async (req: Request): Promise<Response> => {
         });
     }
 
-    console.log('📧 Preparing to send email via Resend...');
+    console.log('📧 Sending email via Resend...');
     console.log('📧 To:', toEmail);
     console.log('📧 Subject:', subject);
-    console.log('📧 HTML length:', emailHtml.length);
     
     const emailResponse = await resend.emails.send({
       from: "Creators Now <info@creators.now>",
@@ -205,7 +195,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: emailHtml,
     });
 
-    console.log("✅ Email sent successfully via Resend:", JSON.stringify(emailResponse, null, 2));
+    console.log("✅ Email sent successfully:", JSON.stringify(emailResponse, null, 2));
     
     if (emailResponse.error) {
       console.error('❌ Resend API error:', emailResponse.error);
@@ -215,7 +205,6 @@ const handler = async (req: Request): Promise<Response> => {
       });
     }
 
-    console.log('=== EMAIL REQUEST COMPLETED SUCCESSFULLY ===');
     return new Response(JSON.stringify({ success: true, emailResponse }), {
       status: 200,
       headers: {
@@ -226,9 +215,8 @@ const handler = async (req: Request): Promise<Response> => {
 
   } catch (error: any) {
     console.error("❌ CRITICAL ERROR in send-email function:", error);
-    console.error("❌ Error stack:", error.stack);
     return new Response(
-      JSON.stringify({ error: error.message, stack: error.stack }),
+      JSON.stringify({ error: error.message }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
