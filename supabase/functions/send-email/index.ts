@@ -32,6 +32,8 @@ interface EmailRequest {
   request_type?: 'waitlist' | 'demo';
   timestamp?: string;
   redirect_to?: string;
+  token_hash?: string;
+  token?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -63,18 +65,56 @@ const handler = async (req: Request): Promise<Response> => {
       case 'verification':
         console.log('Sending verification email to:', emailRequest.email);
         
-        // Generate verification URL using Supabase's auth confirm endpoint
-        const verificationUrl = `https://qwvleuornxbjkudvsifr.supabase.co/auth/v1/verify?type=signup&redirect_to=${encodeURIComponent(emailRequest.redirect_to || 'https://creators-now.vercel.app/verify')}`;
+        // For verification emails, we need to generate a proper token_hash
+        // Since this is called by the database trigger, we'll use Supabase's auth API
+        const supabaseUrl = 'https://qwvleuornxbjkudvsifr.supabase.co';
+        const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+        
+        if (!serviceRoleKey) {
+          console.error('SUPABASE_SERVICE_ROLE_KEY not found');
+          return new Response(JSON.stringify({ error: 'Service configuration missing' }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+        }
+
+        // Generate OTP for email verification
+        const otpResponse = await fetch(`${supabaseUrl}/auth/v1/otp`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${serviceRoleKey}`,
+            'Content-Type': 'application/json',
+            'apikey': serviceRoleKey
+          },
+          body: JSON.stringify({
+            email: emailRequest.email,
+            type: 'signup',
+            create_user: false
+          })
+        });
+
+        const otpData = await otpResponse.json();
+        console.log('OTP generation response:', otpData);
+
+        if (!otpResponse.ok) {
+          console.error('Failed to generate OTP:', otpData);
+          return new Response(JSON.stringify({ error: 'Failed to generate verification token' }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+        }
+
+        // Use the generated token_hash
+        const token_hash = otpData.token_hash || '';
         
         emailHtml = await renderAsync(
           React.createElement(VerificationEmail, {
-            supabase_url: 'https://qwvleuornxbjkudvsifr.supabase.co',
+            supabase_url: supabaseUrl,
             email_action_type: 'signup',
             redirect_to: emailRequest.redirect_to || 'https://creators-now.vercel.app/verify',
-            token_hash: '',
-            token: '',
+            token_hash: token_hash,
+            token: otpData.token || '',
             user_name: emailRequest.user_name,
-            verification_url: verificationUrl,
           })
         );
         
