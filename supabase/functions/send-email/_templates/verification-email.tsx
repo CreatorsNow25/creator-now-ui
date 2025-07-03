@@ -20,7 +20,6 @@ interface VerificationEmailProps {
   token_hash: string
   token: string
   user_name?: string
-  verification_url?: string
 }
 
 export const VerificationEmail = ({
@@ -30,9 +29,8 @@ export const VerificationEmail = ({
   redirect_to,
   token_hash,
   user_name,
-  verification_url,
 }: VerificationEmailProps) => {
-  const finalVerificationUrl = verification_url || `${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`;
+  const verificationUrl = `${supabase_url}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`;
   
   return (
     <Html>
@@ -58,7 +56,7 @@ export const VerificationEmail = ({
           <Section style={buttonContainer}>
             <Button
               style={button}
-              href={finalVerificationUrl}
+              href={verificationUrl}
             >
               Verify Email Address
             </Button>

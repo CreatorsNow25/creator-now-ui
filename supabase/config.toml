@@ -9,7 +9,7 @@ additional_redirect_urls = ["https://creators-now.vercel.app/verify"]
 [auth.email]
 enable_signup = true
 double_confirm_changes = true
-enable_confirmations = false
+enable_confirmations = true
 
 [functions.send-email]
 verify_jwt = false
