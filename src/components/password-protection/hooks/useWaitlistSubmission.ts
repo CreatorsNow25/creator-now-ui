@@ -31,7 +31,8 @@ export const useWaitlistSubmission = () => {
       }
 
       // Send notification email to admin
-      const { error: emailError } = await supabase.functions.invoke('send-email', {
+      console.log('Invoking send-email function for:', requestType, 'request from:', email);
+      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-email', {
         body: {
           email_type: 'waitlist_notification',
           email,
@@ -42,9 +43,14 @@ export const useWaitlistSubmission = () => {
       });
 
       if (emailError) {
-        console.error('Email error:', emailError);
-        // Don't show error to user since data was saved
+        console.error('Email function error:', emailError);
+        console.error('Email error details:', JSON.stringify(emailError, null, 2));
+        // Show warning to user about email notification failure
+        setError(`Submission saved successfully, but email notification failed: ${emailError.message || 'Unknown error'}`);
+        return true; // Still return true since data was saved
       }
+
+      console.log('Email function response:', emailData);
 
       return true;
     } catch (error) {
