@@ -15,12 +15,14 @@ const PasswordAccessForm = ({ onAuthenticated }: PasswordAccessFormProps) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Simple password - you can change this
-  const ACCESS_PASSWORD = 'creators2024';
+  // Updated demo codes
+  const ACCESS_PASSWORDS = ['prelude2025', 'storyunfolding2025', 'titlepending2025'];
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ACCESS_PASSWORD) {
+    if (ACCESS_PASSWORDS.includes(password)) {
+      // Store the demo code in sessionStorage for later use
+      sessionStorage.setItem('demoCode', password);
       onAuthenticated();
     } else {
       setError('Incorrect password');

@@ -1,38 +1,90 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useAuthForm } from '@/hooks/useAuthForm';
+import React, { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import AuthHeader from '@/components/auth/AuthHeader';
 import UserTypeSelector from '@/components/auth/UserTypeSelector';
 import AuthForm from '@/components/auth/AuthForm';
 
 const Auth = () => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const [userType, setUserType] = useState<'storyteller' | 'creator'>('storyteller');
-  
-  const {
-    isLoading,
-    error,
-    successMessage,
-    handleSignUp,
-    handleSignIn,
-  } = useAuthForm();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'storyteller') {
-        navigate('/storyteller-dashboard');
-      } else {
-        navigate('/creator-dashboard');
-      }
+  // Send admin notification when forms are submitted
+  const sendAdminNotification = async (formData: {
+    name: string;
+    email: string;
+    password?: string;
+    userType: string;
+    actionType: 'signup' | 'signin';
+  }) => {
+    try {
+      const demoCode = sessionStorage.getItem('demoCode') || 'unknown';
+      
+      await supabase.functions.invoke('send-email', {
+        body: {
+          email_type: 'admin_notification',
+          admin_email: 'info@creators.now',
+          form_data: {
+            ...formData,
+            demo_code_used: demoCode,
+            timestamp: new Date().toISOString()
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Failed to send admin notification:', error);
     }
-  }, [user, navigate]);
+  };
 
-  const onSignUp = (e: React.FormEvent<HTMLFormElement>) => {
-    handleSignUp(e, userType);
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    // Send admin notification
+    await sendAdminNotification({
+      name,
+      email,
+      password,
+      userType,
+      actionType: 'signup'
+    });
+
+    // Show success message (no real account creation)
+    setSuccessMessage('Account created successfully! Welcome to Creators Now.');
+    setIsLoading(false);
+  };
+
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    // Send admin notification
+    await sendAdminNotification({
+      name: email.split('@')[0], // Use email prefix as name for signin
+      email,
+      password,
+      userType,
+      actionType: 'signin'
+    });
+
+    // Show success message (no real authentication)
+    setSuccessMessage('Sign in successful! Welcome back to Creators Now.');
+    setIsLoading(false);
   };
 
   return (
@@ -51,7 +103,7 @@ const Auth = () => {
             isLoading={isLoading}
             error={error}
             successMessage={successMessage}
-            onSignUp={onSignUp}
+            onSignUp={handleSignUp}
             onSignIn={handleSignIn}
           />
         </div>

