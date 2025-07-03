@@ -86,16 +86,18 @@ export const ReviewRequestEmail = ({
             <strong>Creators Now</strong> - Where Stories Meet AI
           </Text>
           
+          <Text style={connectText}>Connect with us</Text>
+          
           <Section style={socialLinks}>
-            <Link href="https://facebook.com/creatorsnow" style={socialLink}>Facebook</Link>
+            <Link href="https://x.com/joincreatorsnow" style={socialLink}>X</Link>
             <Text style={socialSeparator}>•</Text>
-            <Link href="https://instagram.com/creatorsnow" style={socialLink}>Instagram</Link>
+            <Link href="https://instagram.com/joincreatorsnow" style={socialLink}>Instagram</Link>
             <Text style={socialSeparator}>•</Text>
-            <Link href="https://linkedin.com/company/creatorsnow" style={socialLink}>LinkedIn</Link>
+            <Link href="https://tiktok.com/@joincreatorsnow" style={socialLink}>TikTok</Link>
             <Text style={socialSeparator}>•</Text>
-            <Link href="https://twitter.com/creatorsnow" style={socialLink}>Twitter</Link>
+            <Link href="https://threads.net/@joincreatorsnow" style={socialLink}>Threads</Link>
             <Text style={socialSeparator}>•</Text>
-            <Link href="https://youtube.com/@creatorsnow" style={socialLink}>YouTube</Link>
+            <Link href="https://facebook.com/joincreatorsnow" style={socialLink}>Facebook</Link>
           </Section>
         </Section>
       </Container>
@@ -218,9 +220,17 @@ const footerBrand = {
   margin: '0',
 }
 
+const connectText = {
+  color: '#ffffff',
+  fontSize: '14px',
+  fontWeight: 'bold',
+  margin: '16px 0 8px 0',
+  textAlign: 'center' as const,
+};
+
 const socialLinks = {
   textAlign: 'center' as const,
-  marginTop: '16px',
+  marginTop: '8px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

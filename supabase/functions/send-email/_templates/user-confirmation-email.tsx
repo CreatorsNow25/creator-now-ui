@@ -42,7 +42,7 @@ export const UserConfirmationEmail = ({
             {request_type === 'demo' ? (
               <>
                 <Text style={text}>
-                  Our team will review your demo request and get back to you within 24-48 hours to schedule a personalized demonstration of our platform.
+                  Our team will review your demo request and get back to you within 24-48 hours.
                 </Text>
                 <Text style={text}>
                   In the meantime, feel free to explore more about how we're connecting storytellers with AI creators at{' '}
@@ -83,16 +83,23 @@ export const UserConfirmationEmail = ({
             </Text>
           </Section>
           
-          <Text style={footer}>
-            <Link
-              href={app_url}
-              target="_blank"
-              style={{ ...link, color: '#898989' }}
-            >
-              Creators Now
-            </Link>
-            {' '}- Connecting Storytellers with AI Creators
+          <Text style={footerBrand}>
+            <strong>Creators Now</strong> - Connecting Storytellers with AI Creators
           </Text>
+          
+          <Text style={connectText}>Connect with us</Text>
+          
+          <Section style={socialLinks}>
+            <Link href="https://x.com/joincreatorsnow" style={socialLink}>X</Link>
+            <Text style={socialSeparator}>•</Text>
+            <Link href="https://instagram.com/joincreatorsnow" style={socialLink}>Instagram</Link>
+            <Text style={socialSeparator}>•</Text>
+            <Link href="https://tiktok.com/@joincreatorsnow" style={socialLink}>TikTok</Link>
+            <Text style={socialSeparator}>•</Text>
+            <Link href="https://threads.net/@joincreatorsnow" style={socialLink}>Threads</Link>
+            <Text style={socialSeparator}>•</Text>
+            <Link href="https://facebook.com/joincreatorsnow" style={socialLink}>Facebook</Link>
+          </Section>
         </Container>
       </Body>
     </Html>
@@ -147,11 +154,39 @@ const hr = {
   width: '100%',
 };
 
-const footer = {
+const footerBrand = {
+  color: '#ffffff',
+  fontSize: '14px',
+  margin: '0',
+  textAlign: 'center' as const,
+};
+
+const connectText = {
+  color: '#ffffff',
+  fontSize: '14px',
+  fontWeight: 'bold',
+  margin: '16px 0 8px 0',
+  textAlign: 'center' as const,
+};
+
+const socialLinks = {
+  textAlign: 'center' as const,
+  marginTop: '8px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexWrap: 'wrap' as const,
+};
+
+const socialLink = {
   color: '#888888',
   fontSize: '12px',
-  lineHeight: '22px',
-  marginTop: '12px',
-  marginBottom: '24px',
-  textAlign: 'center' as const,
+  textDecoration: 'none',
+  margin: '0 4px',
+};
+
+const socialSeparator = {
+  color: '#888888',
+  fontSize: '12px',
+  margin: '0 8px',
 };
