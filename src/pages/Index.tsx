@@ -1,6 +1,14 @@
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
+import HowItWorksSection from '@/components/HowItWorksSection';
+import TopCreatorsSection from '@/components/TopCreatorsSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
+import TrustSecuritySection from '@/components/TrustSecuritySection';
+import CTASection from '@/components/CTASection';
+import FooterSection from '@/components/FooterSection';
 import PasswordProtection from '@/components/PasswordProtection';
 
 const Index = () => {
@@ -13,14 +21,6 @@ const Index = () => {
     setIsAuthenticated(hasAccess);
   }, []);
 
-  // Redirect authenticated users directly to the auth/demo page
-  useEffect(() => {
-    if (isAuthenticated) {
-      console.log('Index: User authenticated, redirecting to auth page');
-      navigate('/auth');
-    }
-  }, [isAuthenticated, navigate]);
-
   const handlePasswordAuthenticated = () => {
     sessionStorage.setItem('creators-access', 'true');
     setIsAuthenticated(true);
@@ -31,13 +31,19 @@ const Index = () => {
     return <PasswordProtection onAuthenticated={handlePasswordAuthenticated} />;
   }
 
-  // Show loading while redirecting
+  // Show main website after demo code entry
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
-        <p className="text-white">Loading demo platform...</p>
-      </div>
+    <div className="min-h-screen bg-black text-white">
+      <Header />
+      <main>
+        <HeroSection />
+        <HowItWorksSection />
+        <TopCreatorsSection />
+        <TestimonialsSection />
+        <TrustSecuritySection />
+        <CTASection />
+      </main>
+      <FooterSection />
     </div>
   );
 };
