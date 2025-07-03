@@ -6,6 +6,7 @@ import { renderAsync } from 'npm:@react-email/components@0.0.22';
 import { VerificationEmail } from './_templates/verification-email.tsx';
 import { WelcomeEmail } from './_templates/welcome-email.tsx';
 import { WaitlistNotificationEmail } from './_templates/waitlist-notification-email.tsx';
+import { UserConfirmationEmail } from './_templates/user-confirmation-email.tsx';
 
 const resendApiKey = Deno.env.get("RESEND_API_KEY");
 console.log('RESEND_API_KEY configured:', !!resendApiKey);
@@ -22,7 +23,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  email_type: 'verification' | 'welcome' | 'waitlist_notification';
+  email_type: 'verification' | 'welcome' | 'waitlist_notification' | 'user_confirmation';
   email: string;
   user_name?: string;
   user_role?: string;
@@ -60,7 +61,7 @@ const handler = async (req: Request): Promise<Response> => {
         console.log('Sending verification email to:', payload.email);
         
         const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-        const redirectTo = 'https://creators-now.vercel.app/verify';
+        const redirectTo = 'https://creators.now/verify';
         
         emailHtml = await renderAsync(
           React.createElement(VerificationEmail, {
@@ -84,7 +85,7 @@ const handler = async (req: Request): Promise<Response> => {
           React.createElement(WelcomeEmail, {
             user_name: payload.user_name,
             user_role: payload.user_role,
-            app_url: 'https://creators-now.vercel.app',
+            app_url: 'https://creators.now',
           })
         );
         
@@ -105,7 +106,22 @@ const handler = async (req: Request): Promise<Response> => {
         );
         
         subject = `New ${payload.request_type === 'demo' ? 'Demo Request' : 'Waitlist Signup'} - ${payload.email}`;
-        toEmail = 'contact@creators-now.com'; // Admin email
+        toEmail = 'info@creators.now'; // Admin email
+        break;
+
+      case 'user_confirmation':
+        console.log('Sending user confirmation email to:', payload.email);
+        
+        emailHtml = await renderAsync(
+          React.createElement(UserConfirmationEmail, {
+            user_name: payload.user_name || payload.email.split('@')[0],
+            request_type: payload.request_type || 'waitlist',
+            app_url: 'https://creators.now',
+          })
+        );
+        
+        subject = `Thank you for your ${payload.request_type === 'demo' ? 'demo request' : 'waitlist signup'}!`;
+        toEmail = payload.email;
         break;
 
       default:
@@ -119,7 +135,7 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Attempting to send email via Resend...');
     
     const emailResponse = await resend.emails.send({
-      from: "Creators Now <onboarding@resend.dev>",
+      from: "Creators Now <info@creators.now>",
       to: [toEmail],
       subject,
       html: emailHtml,

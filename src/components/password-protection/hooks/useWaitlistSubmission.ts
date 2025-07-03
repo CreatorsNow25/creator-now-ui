@@ -31,8 +31,8 @@ export const useWaitlistSubmission = () => {
       }
 
       // Send notification email to admin
-      console.log('Invoking send-email function for:', requestType, 'request from:', email);
-      const { data: emailData, error: emailError } = await supabase.functions.invoke('send-email', {
+      console.log('Invoking send-email function for admin notification:', requestType, 'request from:', email);
+      const { data: adminEmailData, error: adminEmailError } = await supabase.functions.invoke('send-email', {
         body: {
           email_type: 'waitlist_notification',
           email,
@@ -42,15 +42,39 @@ export const useWaitlistSubmission = () => {
         }
       });
 
-      if (emailError) {
-        console.error('Email function error:', emailError);
-        console.error('Email error details:', JSON.stringify(emailError, null, 2));
-        // Show warning to user about email notification failure
-        setError(`Submission saved successfully, but email notification failed: ${emailError.message || 'Unknown error'}`);
-        return true; // Still return true since data was saved
+      if (adminEmailError) {
+        console.error('Admin email function error:', adminEmailError);
+        console.error('Admin email error details:', JSON.stringify(adminEmailError, null, 2));
+      } else {
+        console.log('Admin email function response:', adminEmailData);
       }
 
-      console.log('Email function response:', emailData);
+      // Send confirmation email to user
+      console.log('Invoking send-email function for user confirmation:', requestType, 'request from:', email);
+      const { data: userEmailData, error: userEmailError } = await supabase.functions.invoke('send-email', {
+        body: {
+          email_type: 'user_confirmation',
+          email,
+          user_name: email.split('@')[0],
+          request_type: requestType
+        }
+      });
+
+      if (userEmailError) {
+        console.error('User confirmation email error:', userEmailError);
+        console.error('User email error details:', JSON.stringify(userEmailError, null, 2));
+      } else {
+        console.log('User confirmation email response:', userEmailData);
+      }
+
+      // If either email failed, show warning but still return success since data was saved
+      if (adminEmailError || userEmailError) {
+        const failedEmails = [];
+        if (adminEmailError) failedEmails.push('admin notification');
+        if (userEmailError) failedEmails.push('user confirmation');
+        setError(`Submission saved successfully, but ${failedEmails.join(' and ')} email(s) failed to send.`);
+        return true;
+      }
 
       return true;
     } catch (error) {

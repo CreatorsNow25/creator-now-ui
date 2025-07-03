@@ -91,7 +91,7 @@ export const WaitlistNotificationEmail = ({
           
           <Text style={footer}>
             <Link
-              href="https://creators-now.vercel.app"
+              href="https://creators.now"
               target="_blank"
               style={{ ...link, color: '#898989' }}
             >
