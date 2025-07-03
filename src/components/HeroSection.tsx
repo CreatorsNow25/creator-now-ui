@@ -22,7 +22,7 @@ const HeroSection = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
             size="lg" 
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/storyteller-dashboard')}
             className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-3"
           >
             Storyteller
@@ -30,7 +30,7 @@ const HeroSection = () => {
           </Button>
           <Button 
             size="lg" 
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/creator-dashboard')}
             className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-3"
           >
             AI Creator
