@@ -40,7 +40,6 @@ export const useAuth = () => {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/verify`,
         data: userData
       }
     });

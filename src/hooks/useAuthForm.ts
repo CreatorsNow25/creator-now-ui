@@ -45,6 +45,28 @@ export const useAuthForm = () => {
     }
   };
 
+  // Manual profile creation as backup
+  const createUserProfile = async (userId: string, email: string, fullName: string, role: 'storyteller' | 'creator') => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .insert({
+          id: userId,
+          full_name: fullName || email.split('@')[0],
+          role: role,
+          is_online: false
+        });
+
+      if (error) {
+        console.error('Failed to create profile manually:', error);
+      } else {
+        console.log('Profile created manually as backup');
+      }
+    } catch (error) {
+      console.error('Error creating profile manually:', error);
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>, userType: 'storyteller' | 'creator') => {
     e.preventDefault();
     setIsLoading(true);
@@ -85,16 +107,17 @@ export const useAuthForm = () => {
         setError(`Signup failed: ${error.message}`);
       }
     } else if (data?.user) {
-      // Send signup confirmation email
+      // Create profile manually as backup (in case trigger fails)
+      if (data.user.id) {
+        await createUserProfile(data.user.id, email, fullName, userType);
+      }
+      
+      // Send simple thank you email
       await sendSignupConfirmationEmail(email, fullName);
       
-      if (data.user.email_confirmed_at) {
-        setSuccessMessage('Account created and verified! You can now sign in.');
-      } else {
-        setSuccessMessage('Account created successfully! Please check your email for a verification link to complete your setup.');
-      }
+      setSuccessMessage('Account created successfully! You can now sign in.');
     } else {
-      setSuccessMessage('Account created! Please check your email for a verification link.');
+      setSuccessMessage('Account created! You can now sign in.');
     }
 
     setIsLoading(false);
@@ -119,11 +142,7 @@ export const useAuthForm = () => {
     if (error) {
       console.error('Auth: Signin error details:', error);
       if (error.message.includes('Invalid login credentials')) {
-        setError('Invalid email or password. If you just signed up, please check your email and verify your account first.');
-      } else if (error.message.includes('Email not confirmed')) {
-        setError('Please check your email and click the verification link before signing in.');
-      } else if (error.message.includes('not confirmed')) {
-        setError('Please verify your email address by clicking the link we sent you.');
+        setError('Invalid email or password. Please check your credentials and try again.');
       } else {
         setError(`Sign in failed: ${error.message}`);
       }
