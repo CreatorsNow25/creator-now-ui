@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Mail, Lock, User, AlertCircle } from 'lucide-react';
-import OAuthButtons from './OAuthButtons';
 
 interface AuthFormProps {
   userType: 'storyteller' | 'creator';
@@ -16,7 +15,6 @@ interface AuthFormProps {
   successMessage: string | null;
   onSignUp: (e: React.FormEvent<HTMLFormElement>) => void;
   onSignIn: (e: React.FormEvent<HTMLFormElement>) => void;
-  onOAuthLogin: (provider: "google") => void;
 }
 
 const AuthForm = ({
@@ -25,8 +23,7 @@ const AuthForm = ({
   error,
   successMessage,
   onSignUp,
-  onSignIn,
-  onOAuthLogin
+  onSignIn
 }: AuthFormProps) => {
   return (
     <Card className="bg-gray-900 border-white/20 text-white">
@@ -163,8 +160,6 @@ const AuthForm = ({
             </form>
           </TabsContent>
         </Tabs>
-
-        <OAuthButtons onOAuthLogin={onOAuthLogin} />
       </CardContent>
     </Card>
   );

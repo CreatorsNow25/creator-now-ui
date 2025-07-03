@@ -61,23 +61,12 @@ export const useAuth = () => {
     return { error };
   };
 
-  const signInWithOAuth = async (provider: 'google') => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/verify`
-      }
-    });
-    return { data, error };
-  };
-
   return {
     user,
     session,
     loading,
     signUp,
     signIn,
-    signOut,
-    signInWithOAuth
+    signOut
   };
 };

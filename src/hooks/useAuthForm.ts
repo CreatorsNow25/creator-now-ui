@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useAuthForm = () => {
-  const { signUp, signIn, signInWithOAuth } = useAuth();
+  const { signUp, signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -23,6 +24,25 @@ export const useAuthForm = () => {
       return 'Password must contain at least one number';
     }
     return null;
+  };
+
+  // Send signup confirmation email
+  const sendSignupConfirmationEmail = async (email: string, fullName: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('send-email', {
+        body: {
+          email_type: 'signup_confirmation',
+          email: email,
+          user_name: fullName || email.split('@')[0]
+        }
+      });
+
+      if (error) {
+        console.error('Failed to send signup confirmation email:', error);
+      }
+    } catch (error) {
+      console.error('Error sending signup confirmation email:', error);
+    }
   };
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>, userType: 'storyteller' | 'creator') => {
@@ -65,6 +85,9 @@ export const useAuthForm = () => {
         setError(`Signup failed: ${error.message}`);
       }
     } else if (data?.user) {
+      // Send signup confirmation email
+      await sendSignupConfirmationEmail(email, fullName);
+      
       if (data.user.email_confirmed_at) {
         setSuccessMessage('Account created and verified! You can now sign in.');
       } else {
@@ -109,24 +132,11 @@ export const useAuthForm = () => {
     setIsLoading(false);
   };
 
-  const handleOAuthLogin = async (provider: "google") => {
-    setError(null);
-    console.log('Auth: Attempting OAuth login with:', provider);
-    
-    const { data, error } = await signInWithOAuth(provider);
-    
-    if (error) {
-      console.error('Auth: OAuth error:', error);
-      setError(`Unable to authenticate with ${provider.charAt(0).toUpperCase() + provider.slice(1)}: ${error.message}`);
-    }
-  };
-
   return {
     isLoading,
     error,
     successMessage,
     handleSignUp,
     handleSignIn,
-    handleOAuthLogin,
   };
 };

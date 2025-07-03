@@ -18,7 +18,6 @@ const Auth = () => {
     successMessage,
     handleSignUp,
     handleSignIn,
-    handleOAuthLogin,
   } = useAuthForm();
 
   // Redirect if already authenticated
@@ -54,7 +53,6 @@ const Auth = () => {
             successMessage={successMessage}
             onSignUp={onSignUp}
             onSignIn={handleSignIn}
-            onOAuthLogin={handleOAuthLogin}
           />
         </div>
       </div>
