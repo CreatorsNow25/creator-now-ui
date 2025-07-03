@@ -47,30 +47,8 @@ export const useAuth = () => {
       }
     });
 
-    // Send verification email after successful signup
-    if (data.user && !error) {
-      try {
-        console.log('Invoking send-email function for verification email to:', email);
-        const { data: emailData, error: emailError } = await supabase.functions.invoke('send-email', {
-          body: {
-            email_type: 'verification',
-            email: email,
-            user_name: userData?.full_name || email.split('@')[0],
-          }
-        });
-        
-        if (emailError) {
-          console.error('Verification email error:', emailError);
-          console.error('Email error details:', JSON.stringify(emailError, null, 2));
-        } else {
-          console.log('Verification email sent successfully:', emailData);
-        }
-      } catch (emailError) {
-        console.error('Failed to send verification email:', emailError);
-        // Don't fail the signup if email fails
-      }
-    }
-
+    // Verification email will now be automatically sent by Supabase auth trigger
+    // with real, working verification tokens
     return { data, error };
   };
 
