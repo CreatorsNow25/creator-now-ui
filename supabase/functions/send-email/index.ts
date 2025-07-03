@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 import React from 'npm:react@18.3.1';
@@ -8,15 +9,6 @@ import { WaitlistNotificationEmail } from './_templates/waitlist-notification-em
 import { UserConfirmationEmail } from './_templates/user-confirmation-email.tsx';
 
 const resendApiKey = Deno.env.get("RESEND_API_KEY");
-console.log('=== EMAIL FUNCTION STARTED ===');
-console.log('RESEND_API_KEY configured:', !!resendApiKey);
-
-if (!resendApiKey) {
-  console.error('❌ CRITICAL: RESEND_API_KEY not found in environment variables');
-} else {
-  console.log('✅ RESEND_API_KEY found');
-}
-
 const resend = new Resend(resendApiKey);
 
 const corsHeaders = {
@@ -39,51 +31,23 @@ interface EmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
-  console.log('=== NEW EMAIL REQUEST ===');
-  console.log('Request method:', req.method);
-  
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    console.log('Handling CORS preflight request');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const payload = await req.json();
-    console.log('📧 Email request payload received:', JSON.stringify(payload, null, 2));
-
-    if (!resendApiKey) {
-      console.error('❌ Cannot send email: RESEND_API_KEY not configured');
-      return new Response(JSON.stringify({ error: 'Email service not configured' }), {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
     const emailRequest = payload as EmailRequest;
     let emailHtml = '';
     let subject = '';
     let toEmail = '';
 
-    console.log('Processing email type:', emailRequest.email_type);
-
     switch (emailRequest.email_type) {
       case 'verification':
-        console.log('🔐 Processing verification email for:', emailRequest.email);
-        
         // For verification emails, generate OTP through Supabase
         const supabaseUrl = 'https://qwvleuornxbjkudvsifr.supabase.co';
         const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-        
-        if (!serviceRoleKey) {
-          console.error('❌ SUPABASE_SERVICE_ROLE_KEY not found');
-          return new Response(JSON.stringify({ error: 'Service configuration missing' }), {
-            status: 500,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          });
-        }
-
-        console.log('🔑 Generating OTP for email verification...');
         
         // Generate OTP for email verification
         const otpResponse = await fetch(`${supabaseUrl}/auth/v1/otp`, {
@@ -101,20 +65,8 @@ const handler = async (req: Request): Promise<Response> => {
         });
 
         const otpData = await otpResponse.json();
-        console.log('🔑 OTP generation response status:', otpResponse.status);
-
-        if (!otpResponse.ok) {
-          console.error('❌ Failed to generate OTP:', otpData);
-          return new Response(JSON.stringify({ error: 'Failed to generate verification token' }), {
-            status: 500,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          });
-        }
-
         const token_hash = otpData.token_hash || '';
-        console.log('🔑 Generated token_hash for verification');
         
-        console.log('📧 Rendering verification email template...');
         emailHtml = await renderAsync(
           React.createElement(VerificationEmail, {
             supabase_url: supabaseUrl,
@@ -131,8 +83,6 @@ const handler = async (req: Request): Promise<Response> => {
         break;
 
       case 'welcome':
-        console.log('Sending welcome email to:', emailRequest.email);
-        
         emailHtml = await renderAsync(
           React.createElement(WelcomeEmail, {
             user_name: emailRequest.user_name,
@@ -146,8 +96,6 @@ const handler = async (req: Request): Promise<Response> => {
         break;
 
       case 'waitlist_notification':
-        console.log('Sending waitlist notification email');
-        
         emailHtml = await renderAsync(
           React.createElement(WaitlistNotificationEmail, {
             email: emailRequest.email,
@@ -162,8 +110,6 @@ const handler = async (req: Request): Promise<Response> => {
         break;
 
       case 'user_confirmation':
-        console.log('Sending user confirmation email to:', emailRequest.email);
-        
         emailHtml = await renderAsync(
           React.createElement(UserConfirmationEmail, {
             user_name: emailRequest.user_name || emailRequest.email.split('@')[0],
@@ -177,28 +123,20 @@ const handler = async (req: Request): Promise<Response> => {
         break;
 
       default:
-        console.error('❌ Unknown email type:', emailRequest.email_type);
         return new Response(JSON.stringify({ error: 'Unknown email type' }), {
           status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         });
     }
 
-    console.log('📧 Sending email via Resend...');
-    console.log('📧 To:', toEmail);
-    console.log('📧 Subject:', subject);
-    
     const emailResponse = await resend.emails.send({
       from: "Creators Now <info@creators.now>",
       to: [toEmail],
       subject,
       html: emailHtml,
     });
-
-    console.log("✅ Email sent successfully:", JSON.stringify(emailResponse, null, 2));
     
     if (emailResponse.error) {
-      console.error('❌ Resend API error:', emailResponse.error);
       return new Response(JSON.stringify({ error: 'Failed to send email', details: emailResponse.error }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -214,7 +152,6 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
   } catch (error: any) {
-    console.error("❌ CRITICAL ERROR in send-email function:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {
