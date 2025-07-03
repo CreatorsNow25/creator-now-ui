@@ -23,7 +23,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  email_type: 'verification' | 'welcome' | 'waitlist_notification' | 'user_confirmation';
+  email_type: 'welcome' | 'waitlist_notification' | 'user_confirmation';
   email: string;
   user_name?: string;
   user_role?: string;
@@ -32,17 +32,21 @@ interface EmailRequest {
   timestamp?: string;
 }
 
-interface AuthTriggerPayload {
-  type: string;
-  table: string;
-  record: {
+interface AuthWebhookPayload {
+  user: {
     id: string;
     email: string;
     raw_user_meta_data?: {
       full_name?: string;
     };
   };
-  schema: string;
+  email_data: {
+    token: string;
+    token_hash: string;
+    redirect_to: string;
+    email_action_type: string;
+    site_url: string;
+  };
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -69,91 +73,89 @@ const handler = async (req: Request): Promise<Response> => {
     let subject = '';
     let toEmail = '';
 
-    // Check if this is a Supabase auth trigger (for verification emails)
-    if (payload.type === 'INSERT' && payload.table === 'users' && payload.schema === 'auth') {
-      console.log('Handling auth trigger for verification email');
+    // Check if this is a Supabase Auth Webhook (for verification emails)
+    if (payload.user && payload.email_data && payload.email_data.token) {
+      console.log('Handling Supabase Auth Webhook for verification email');
       
-      const authPayload = payload as AuthTriggerPayload;
-      const userEmail = authPayload.record.email;
-      const userName = authPayload.record.raw_user_meta_data?.full_name;
+      const webhookPayload = payload as AuthWebhookPayload;
+      const userEmail = webhookPayload.user.email;
+      const userName = webhookPayload.user.raw_user_meta_data?.full_name;
+      const { token, token_hash, redirect_to, email_action_type } = webhookPayload.email_data;
+      const supabaseUrl = webhookPayload.email_data.site_url;
       
-      // For verification emails triggered by Supabase auth, we don't have access to the tokens here
-      // The user will get the native Supabase verification email with working tokens
-      // We'll skip sending our custom verification email from the trigger to avoid conflicts
-      console.log('Auth trigger detected - letting Supabase handle verification email');
+      console.log('Verification email data:', { userEmail, userName, token_hash, email_action_type });
       
-      return new Response(JSON.stringify({ success: true, message: 'Auth trigger handled' }), {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-          ...corsHeaders,
-        },
-      });
-    }
+      emailHtml = await renderAsync(
+        React.createElement(VerificationEmail, {
+          supabase_url: supabaseUrl,
+          email_action_type,
+          redirect_to,
+          token_hash,
+          token,
+          user_name: userName,
+        })
+      );
+      
+      subject = userName ? `Welcome to Creators Now, ${userName}!` : 'Welcome to Creators Now!';
+      toEmail = userEmail;
+    } else {
+      // Handle manual email requests (all other email types)
+      const emailRequest = payload as EmailRequest;
 
-    // Handle manual email requests (all other email types)
-    const emailRequest = payload as EmailRequest;
+      switch (emailRequest.email_type) {
+        case 'welcome':
+          console.log('Sending welcome email to:', emailRequest.email);
+          
+          emailHtml = await renderAsync(
+            React.createElement(WelcomeEmail, {
+              user_name: emailRequest.user_name,
+              user_role: emailRequest.user_role,
+              app_url: 'https://creators.now',
+            })
+          );
+          
+          subject = "Welcome to Creators Now - Let's Get Started!";
+          toEmail = emailRequest.email;
+          break;
 
-    switch (emailRequest.email_type) {
-      case 'verification':
-        console.log('Manual verification email request - this should not happen anymore');
-        return new Response(JSON.stringify({ error: 'Verification emails are now handled by auth trigger' }), {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        });
+        case 'waitlist_notification':
+          console.log('Sending waitlist notification email');
+          
+          emailHtml = await renderAsync(
+            React.createElement(WaitlistNotificationEmail, {
+              email: emailRequest.email,
+              message: emailRequest.message,
+              request_type: emailRequest.request_type || 'waitlist',
+              timestamp: emailRequest.timestamp || new Date().toISOString(),
+            })
+          );
+          
+          subject = `New ${emailRequest.request_type === 'demo' ? 'Demo Request' : 'Waitlist Signup'} - ${emailRequest.email}`;
+          toEmail = 'info@creators.now'; // Admin email
+          break;
 
-      case 'welcome':
-        console.log('Sending welcome email to:', emailRequest.email);
-        
-        emailHtml = await renderAsync(
-          React.createElement(WelcomeEmail, {
-            user_name: emailRequest.user_name,
-            user_role: emailRequest.user_role,
-            app_url: 'https://creators.now',
-          })
-        );
-        
-        subject = "Welcome to Creators Now - Let's Get Started!";
-        toEmail = emailRequest.email;
-        break;
+        case 'user_confirmation':
+          console.log('Sending user confirmation email to:', emailRequest.email);
+          
+          emailHtml = await renderAsync(
+            React.createElement(UserConfirmationEmail, {
+              user_name: emailRequest.user_name || emailRequest.email.split('@')[0],
+              request_type: emailRequest.request_type || 'waitlist',
+              app_url: 'https://creators.now',
+            })
+          );
+          
+          subject = `Thank you for your ${emailRequest.request_type === 'demo' ? 'demo request' : 'waitlist signup'}!`;
+          toEmail = emailRequest.email;
+          break;
 
-      case 'waitlist_notification':
-        console.log('Sending waitlist notification email');
-        
-        emailHtml = await renderAsync(
-          React.createElement(WaitlistNotificationEmail, {
-            email: emailRequest.email,
-            message: emailRequest.message,
-            request_type: emailRequest.request_type || 'waitlist',
-            timestamp: emailRequest.timestamp || new Date().toISOString(),
-          })
-        );
-        
-        subject = `New ${emailRequest.request_type === 'demo' ? 'Demo Request' : 'Waitlist Signup'} - ${emailRequest.email}`;
-        toEmail = 'info@creators.now'; // Admin email
-        break;
-
-      case 'user_confirmation':
-        console.log('Sending user confirmation email to:', emailRequest.email);
-        
-        emailHtml = await renderAsync(
-          React.createElement(UserConfirmationEmail, {
-            user_name: emailRequest.user_name || emailRequest.email.split('@')[0],
-            request_type: emailRequest.request_type || 'waitlist',
-            app_url: 'https://creators.now',
-          })
-        );
-        
-        subject = `Thank you for your ${emailRequest.request_type === 'demo' ? 'demo request' : 'waitlist signup'}!`;
-        toEmail = emailRequest.email;
-        break;
-
-      default:
-        console.error('Unknown email type:', emailRequest.email_type);
-        return new Response(JSON.stringify({ error: 'Unknown email type' }), {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        });
+        default:
+          console.error('Unknown email type:', emailRequest.email_type);
+          return new Response(JSON.stringify({ error: 'Unknown email type' }), {
+            status: 400,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+      }
     }
 
     console.log('Attempting to send email via Resend...');
