@@ -47,8 +47,26 @@ export const useAuth = () => {
       }
     });
 
-    // Verification email will now be automatically sent by Supabase auth trigger
-    // with real, working verification tokens
+    // Send custom verification email manually
+    if (data?.user && !data.user.email_confirmed_at) {
+      console.log('Sending custom verification email for user:', data.user.id);
+      
+      try {
+        await supabase.functions.invoke('send-email', {
+          body: {
+            email_type: 'verification',
+            email: email,
+            user_name: userData?.full_name,
+            user_id: data.user.id,
+            redirect_to: redirectUrl
+          }
+        });
+        console.log('Custom verification email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send verification email:', emailError);
+      }
+    }
+
     return { data, error };
   };
 
