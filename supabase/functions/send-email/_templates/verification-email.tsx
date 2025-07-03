@@ -1,3 +1,4 @@
+
 import {
   Body,
   Container,
@@ -57,11 +58,6 @@ export const VerificationEmail = ({
             Verify Email Address
           </Button>
         </Section>
-        
-        <Text style={text}>
-          Or copy and paste this verification code:
-        </Text>
-        <code style={code}>{token}</code>
         
         <Text style={footerText}>
           If you didn't create an account with Creators Now, you can safely ignore this email.
@@ -170,20 +166,6 @@ const button = {
   padding: '12px 24px',
 }
 
-const code = {
-  display: 'inline-block',
-  padding: '16px 24px',
-  width: '100%',
-  backgroundColor: '#1a1a1a',
-  border: '1px solid #333333',
-  borderRadius: '6px',
-  color: '#ffffff',
-  fontSize: '16px',
-  fontFamily: 'monospace',
-  textAlign: 'center' as const,
-  margin: '16px 0',
-}
-
 const footerText = {
   color: '#888888',
   fontSize: '14px',
@@ -217,10 +199,4 @@ const socialLink = {
   fontSize: '12px',
   textDecoration: 'none',
   margin: '0 4px',
-}
-
-const socialSeparator = {
-  color: '#888888',
-  fontSize: '12px',
-  margin: '0 8px',
 }
