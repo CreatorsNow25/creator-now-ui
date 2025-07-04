@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
   });
 
   // Check if user has demo access
-  const hasDemo Access = sessionStorage.getItem('creators-access') === 'true';
+  const hasDemoAccess = sessionStorage.getItem('creators-access') === 'true';
 
   console.log('ProtectedRoute: Demo access check:', { hasDemoAccess });
 
