@@ -20,6 +20,11 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     pathname: location.pathname 
   });
 
+  // Check if user has demo access
+  const hasDemo Access = sessionStorage.getItem('creators-access') === 'true';
+
+  console.log('ProtectedRoute: Demo access check:', { hasDemoAccess });
+
   if (loading) {
     console.log('ProtectedRoute: Still loading, showing loading screen');
     return (
@@ -32,8 +37,14 @@ const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
     );
   }
 
+  // Allow demo users to access all protected routes
+  if (hasDemoAccess) {
+    console.log('ProtectedRoute: Demo access granted, rendering children');
+    return <>{children}</>;
+  }
+
   if (!user) {
-    console.log('ProtectedRoute: No user, redirecting to auth');
+    console.log('ProtectedRoute: No user and no demo access, redirecting to auth');
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
