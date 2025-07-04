@@ -47,8 +47,11 @@ const StorytellerDashboard = () => {
     );
   }
 
-  // Show loading if user is not available yet (but auth is done)
-  if (!user) {
+  // Check for demo access
+  const hasDemoAccess = sessionStorage.getItem('creators-access') === 'true';
+  
+  // Show loading if user is not available yet (but auth is done) and no demo access
+  if (!user && !hasDemoAccess) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
