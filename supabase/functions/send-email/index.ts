@@ -286,12 +286,12 @@ What's Next?
 • Follow our progress on social media
 • Share the word with other creators and storytellers`;
 
-        const emailTitle = emailRequest.request_type === 'demo' ? 'Thank you for requesting a demo' : 'Thank you for signing up for the waitlist';
+        const emailTitle = emailRequest.request_type === 'demo' ? 'Thank you for requesting a demo' : 'You\'re now on our waitlist!';
         
         // Format content with bold "What's Next?" header
         const formattedContent = emailRequest.request_type === 'demo' 
-          ? `We've received your demo request and are excited to connect with you!<br><br>Our team will review your demo request and get back to you within 24–48 hours.<br><br>In the meantime, feel free to explore more about how we're connecting storytellers with AI creators at creators.now<br><br><strong>What's Next?</strong><br>We'll reach out within 24–48 hours with the access code and answer any questions you may have. Thank you for your interest in Creators Now!`
-          : `Thank you for your interest in Creators Now! You're now on our exclusive waitlist!<br><br>We're working hard to build something amazing for creators and storytellers. Stay tuned for updates!<br><br><strong>What's Next?</strong><br>• Keep an eye on your inbox for updates<br>• Follow our progress on social media<br>• Share the word with other creators and storytellers`;
+          ? `We've received your demo request and are excited to connect with you!<br><br>Our team will review your demo request and get back to you within 24–48 hours.<br><br><strong>What's Next?</strong><br>We'll reach out within 24–48 hours with the access code and answer any questions you may have.<br>Thank you for your interest in <a href="https://creators.now" style="color: #ffffff; text-decoration: underline;">Creators Now</a>!`
+          : `We're working hard to build something big for both AI creators and storytellers. Stay tuned for updates!<br><br><strong>What's Next?</strong><br>• Keep an eye on your inbox for updates<br>• Follow our progress on social media<br>• Share the word with other creators and storytellers`;
 
         emailHtml = `
           <!DOCTYPE html>
