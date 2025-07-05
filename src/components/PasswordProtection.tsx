@@ -61,7 +61,7 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
               onDemoClick={handleDemoClick}
             />
             <p className="text-center text-white/60 text-sm">
-              Connect with AI creators and bring your stories to life
+              Connecting Storytellers with experienced AI Creators to bring stories to life
             </p>
           </div>
         );
