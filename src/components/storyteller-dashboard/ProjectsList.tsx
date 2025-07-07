@@ -54,25 +54,27 @@ const ProjectsList = ({ projects, onViewProject, onMessageCreator }: ProjectsLis
       <CardContent>
         <div className="space-y-4">
           {projects.map((project) => (
-            <div key={project.id} className="border rounded-lg p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between mb-4">
+            <div key={project.id} className="border rounded-lg p-4 sm:p-6 hover:shadow-md transition-shadow">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 space-y-3 sm:space-y-0">
                 <div className="flex-1">
                   <h3 className="font-bold text-gray-900 mb-2">{project.title}</h3>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm text-gray-600">
                     <Badge className={getStatusColor(project.status)}>
                       {getStatusText(project.status)}
                     </Badge>
-                    <span className="flex items-center">
-                      <DollarSign className="w-4 h-4 mr-1" />
-                      ${project.budget.toLocaleString()}
-                    </span>
-                    <span className="flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {project.deadline}
-                    </span>
+                    <div className="flex items-center space-x-4">
+                      <span className="flex items-center">
+                        <DollarSign className="w-4 h-4 mr-1" />
+                        ${project.budget.toLocaleString()}
+                      </span>
+                      <span className="flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {project.deadline}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 self-start">
                   <img 
                     src={project.creator.avatar}
                     alt={getDisplayName(project.creator.name)}
@@ -93,9 +95,9 @@ const ProjectsList = ({ projects, onViewProject, onMessageCreator }: ProjectsLis
                 <Progress value={project.progress} className="h-2" />
               </div>
               
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center sm:justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center space-x-2">
-                  <Button variant="outline" size="sm" onClick={() => onMessageCreator(project.creator.name)}>
+                  <Button variant="outline" size="sm" onClick={() => onMessageCreator(project.creator.name)} className="flex-1 sm:flex-none">
                     <MessageSquare className="w-4 h-4 mr-2" />
                     Message
                   </Button>
@@ -104,6 +106,7 @@ const ProjectsList = ({ projects, onViewProject, onMessageCreator }: ProjectsLis
                   onClick={() => onViewProject(project)}
                   variant="default" 
                   size="sm"
+                  className="flex-1 sm:flex-none"
                 >
                   View Project
                 </Button>
