@@ -67,7 +67,7 @@ export const RealAuthForm = () => {
         throw new Error('Password must be at least 8 characters long');
       }
 
-      const redirectUrl = `${window.location.origin}/email-verify`;
+      const redirectUrl = `https://creators-now.vercel.app/verify`;
       
       // Sign up user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
