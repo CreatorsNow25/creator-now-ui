@@ -22,18 +22,18 @@ const HeroSection = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
             size="lg" 
-            onClick={() => navigate('/storyteller-dashboard')}
+            onClick={() => navigate('/real-auth?role=storyteller')}
             className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-3"
           >
-            Storyteller
+            I'm a Storyteller
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
           <Button 
             size="lg" 
-            onClick={() => navigate('/creator-dashboard')}
+            onClick={() => navigate('/real-auth?role=creator')}
             className="bg-white text-black hover:bg-gray-200 text-lg px-8 py-3"
           >
-            AI Creator
+            I'm an AI Creator
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>

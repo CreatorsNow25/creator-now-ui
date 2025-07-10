@@ -127,6 +127,7 @@ const Onboarding = () => {
     try {
       const formData = new FormData(e.currentTarget);
       const bio = formData.get('bio') as string;
+      const location = formData.get('location') as string;
 
       let avatarUrl = userProfile.avatar_url;
 
@@ -138,12 +139,13 @@ const Onboarding = () => {
         }
       }
 
-      // Update profile with basic info
+      // Update profile with basic info including location
       const { error } = await supabase
         .from('real_user_profiles')
         .update({
           bio: bio || null,
-          avatar_url: avatarUrl
+          avatar_url: avatarUrl,
+          city_state_country: location
         })
         .eq('user_id', userProfile.user_id);
 
@@ -340,12 +342,18 @@ const Onboarding = () => {
                   </div>
                 </div>
 
-                {/* Location Display */}
+                {/* Location Input */}
                 <div className="space-y-2">
-                  <Label className="text-white">Location</Label>
-                  <div className="text-gray-300 bg-gray-800 p-3 rounded border border-gray-700">
-                    {userProfile.city_state_country}
-                  </div>
+                  <Label htmlFor="location" className="text-white">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    type="text"
+                    placeholder="City, State or Country"
+                    required
+                    defaultValue={userProfile.city_state_country}
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
                 </div>
 
                 {/* Bio */}
