@@ -57,10 +57,13 @@ const Header = () => {
             ) : (
               <>
                 <Button variant="ghost" onClick={() => navigate('/auth')} className="text-white hover:text-black hover:bg-white">
+                  Demo
+                </Button>
+                <Button variant="ghost" onClick={() => navigate('/real-auth')} className="text-white hover:text-black hover:bg-white">
                   Sign In
                 </Button>
-                <Button onClick={() => navigate('/auth')} className="bg-black text-white hover:bg-gray-800 border border-white">
-                  Get Started
+                <Button onClick={() => navigate('/real-auth')} className="bg-white text-black hover:bg-gray-200">
+                  Sign Up
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </>

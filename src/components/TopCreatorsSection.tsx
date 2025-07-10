@@ -4,18 +4,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Play, Star, Pause } from 'lucide-react';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
+import { useRealUsers } from '@/hooks/useRealUsers';
 
 const TopCreatorsSection = () => {
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
+  const { realCreators, loading } = useRealUsers();
 
-  const creators = useMemo(() => [
+  const demoCreators = useMemo(() => [
     {
       name: "Alex Thompson",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face",
       rating: 4.9,
       specialty: "Animation Trailers",
       thumbnail: "https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?w=200&h=120&fit=crop",
-      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      type: 'demo' as const
     },
     {
       name: "Emma Collins",
@@ -23,7 +26,8 @@ const TopCreatorsSection = () => {
       rating: 4.8,
       specialty: "Fantasy Adventures",
       thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop",
-      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      type: 'demo' as const
     },
     {
       name: "Jordan Kim",
@@ -31,16 +35,24 @@ const TopCreatorsSection = () => {
       rating: "New",
       specialty: "Sci-Fi Concepts",
       thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=200&h=120&fit=crop",
-      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+      type: 'demo' as const
     }
   ], []);
 
+  // Combine real creators with demo creators
+  const allCreators = useMemo(() => {
+    const combined = [...realCreators, ...demoCreators];
+    // Show maximum of 6 creators (prioritize real users)
+    return combined.slice(0, 6);
+  }, [realCreators, demoCreators]);
+
   // Memoize display names to prevent recalculation
   const creatorsWithDisplayNames = useMemo(() => 
-    creators.map(creator => ({
+    allCreators.map(creator => ({
       ...creator,
-      displayName: getDisplayName(creator.name)
-    })), [creators]);
+      displayName: creator.type === 'real' ? creator.displayName : getDisplayName(creator.name)
+    })), [allCreators]);
 
   const toggleVideo = (index: number) => {
     if (playingVideo === index) {
@@ -114,6 +126,11 @@ const TopCreatorsSection = () => {
                   )}
                   {creator.rating === "New" && (
                     <Badge variant="secondary" className="bg-blue-600 text-white">New</Badge>
+                  )}
+                  {creator.type === 'real' && (
+                    <Badge variant="outline" className="bg-green-500/20 border-green-500 text-green-400">
+                      Verified
+                    </Badge>
                   )}
                 </div>
               </CardContent>

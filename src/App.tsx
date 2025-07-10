@@ -8,10 +8,14 @@ import { UserProvider } from "@/contexts/UserContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import RealAuth from "./pages/RealAuth";
 import EmailVerify from "./pages/EmailVerify";
 import StorytellerDashboard from "./pages/StorytellerDashboard";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import NotFound from "./pages/NotFound";
+import Onboarding from "./pages/Onboarding";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +29,11 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/real-auth" element={<RealAuth />} />
+            <Route path="/email-verify" element={<EmailVerify />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route path="/verify" element={<EmailVerify />} />
             <Route 
               path="/storyteller-dashboard" 

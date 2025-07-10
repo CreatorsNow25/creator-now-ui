@@ -191,6 +191,139 @@ export type Database = {
           },
         ]
       }
+      real_user_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          city_state_country: string
+          created_at: string
+          display_name: string | null
+          email: string
+          email_confirmed: boolean | null
+          first_name: string
+          id: string
+          last_name: string
+          onboarding_completed: boolean | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          city_state_country: string
+          created_at?: string
+          display_name?: string | null
+          email: string
+          email_confirmed?: boolean | null
+          first_name: string
+          id?: string
+          last_name: string
+          onboarding_completed?: boolean | null
+          role: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          city_state_country?: string
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          email_confirmed?: boolean | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          onboarding_completed?: boolean | null
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      real_user_projects: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          file_url: string | null
+          id: string
+          summary: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          summary?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          file_url?: string | null
+          id?: string
+          summary?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "real_user_projects_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "real_user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      real_user_videos: {
+        Row: {
+          created_at: string
+          id: string
+          specialties: string | null
+          thumbnail_url: string | null
+          tools_used: string | null
+          updated_at: string
+          user_id: string
+          video_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          specialties?: string | null
+          thumbnail_url?: string | null
+          tools_used?: string | null
+          updated_at?: string
+          user_id: string
+          video_url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          specialties?: string | null
+          thumbnail_url?: string | null
+          tools_used?: string | null
+          updated_at?: string
+          user_id?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "real_user_videos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "real_user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       waitlist_submissions: {
         Row: {
           created_at: string

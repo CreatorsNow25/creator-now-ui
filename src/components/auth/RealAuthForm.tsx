@@ -1,0 +1,470 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Upload, AlertCircle, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+export const RealAuthForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'storyteller' | 'creator'>('storyteller');
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        setError('Profile image must be less than 5MB');
+        return;
+      }
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file');
+        return;
+      }
+      setProfileImage(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfileImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+      setError(null);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
+    setIsLoading(true);
+
+    if (!agreedToTerms) {
+      setError('You must agree to the Terms and Conditions and Privacy Policy to continue.');
+      setIsLoading(false);
+      return;
+    }
+
+    const formData = new FormData(e.currentTarget);
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+    const cityStateCountry = formData.get('cityStateCountry') as string;
+
+    try {
+      // Validate password strength
+      if (password.length < 8) {
+        throw new Error('Password must be at least 8 characters long');
+      }
+
+      const redirectUrl = `${window.location.origin}/email-verify`;
+      
+      // Sign up user with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+            full_name: `${firstName} ${lastName}`,
+            role: selectedRole
+          }
+        }
+      });
+
+      if (authError) throw authError;
+
+      if (authData.user) {
+        let avatarUrl = null;
+
+        // Upload profile image if provided
+        if (profileImage) {
+          const fileExt = profileImage.name.split('.').pop();
+          const fileName = `${authData.user.id}/avatar.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('user-uploads')
+            .upload(fileName, profileImage);
+
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage
+              .from('user-uploads')
+              .getPublicUrl(fileName);
+            avatarUrl = urlData.publicUrl;
+          }
+        }
+
+        // Create user profile
+        const { error: profileError } = await supabase
+          .from('real_user_profiles')
+          .insert({
+            user_id: authData.user.id,
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            city_state_country: cityStateCountry,
+            role: selectedRole,
+            avatar_url: avatarUrl,
+            email_confirmed: false,
+            onboarding_completed: false
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          // Don't fail the signup if profile creation fails, just log it
+        }
+
+        // Send confirmation email
+        try {
+          await supabase.functions.invoke('send-email', {
+            body: {
+              email_type: 'verification',
+              email: email,
+              user_name: firstName,
+              redirect_to: redirectUrl
+            }
+          });
+        } catch (emailError) {
+          console.error('Email sending error:', emailError);
+          // Don't fail signup if email fails
+        }
+
+        setSuccessMessage(
+          'Account created successfully! Please check your email to verify your account before signing in.'
+        );
+        
+        toast({
+          title: "Account Created",
+          description: "Please check your email to verify your account.",
+        });
+      }
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      setError(error.message || 'An unexpected error occurred during sign up.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setSuccessMessage(null);
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (signInError) throw signInError;
+
+      // Check if user profile exists and is confirmed
+      if (data.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('real_user_profiles')
+          .select('email_confirmed, onboarding_completed, role')
+          .eq('user_id', data.user.id)
+          .maybeSingle();
+
+        if (profileError) {
+          console.error('Profile check error:', profileError);
+        }
+
+        if (!profile?.email_confirmed) {
+          await supabase.auth.signOut();
+          setError('Please verify your email address before signing in. Check your inbox for a verification link.');
+          setIsLoading(false);
+          return;
+        }
+
+        if (!profile?.onboarding_completed) {
+          // Redirect to onboarding
+          window.location.href = '/onboarding';
+          return;
+        }
+
+        // Redirect to appropriate dashboard
+        const userRole = data.user.user_metadata?.role || profile?.role;
+        if (userRole === 'creator') {
+          window.location.href = '/creator-dashboard';
+        } else {
+          window.location.href = '/storyteller-dashboard';
+        }
+      }
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      setError(error.message || 'An unexpected error occurred during sign in.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const email = prompt('Please enter your email address:');
+    if (!email) return;
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password Reset Sent",
+        description: "Check your email for password reset instructions.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send password reset email.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  return (
+    <Card className="w-full bg-dark-card text-white border-gray-800">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl text-center text-white">Join Creators Now</CardTitle>
+        <CardDescription className="text-center text-gray-400">
+          Create your account or sign in to get started
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {error && (
+          <Alert className="mb-6 bg-red-900/20 border-red-500 text-red-200">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {successMessage && (
+          <Alert className="mb-6 bg-green-900/20 border-green-500 text-green-200">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>{successMessage}</AlertDescription>
+          </Alert>
+        )}
+
+        <Tabs defaultValue="signup" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+            <TabsTrigger value="signup" className="text-white data-[state=active]:bg-white data-[state=active]:text-black">
+              Sign Up
+            </TabsTrigger>
+            <TabsTrigger value="signin" className="text-white data-[state=active]:bg-white data-[state=active]:text-black">
+              Sign In
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="signup" className="space-y-4">
+            <form onSubmit={handleSignUp} className="space-y-4">
+              {/* Role Selection */}
+              <div className="space-y-3">
+                <Label className="text-white">I am a:</Label>
+                <RadioGroup
+                  value={selectedRole}
+                  onValueChange={(value: 'storyteller' | 'creator') => setSelectedRole(value)}
+                  className="flex space-x-6"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="storyteller" id="storyteller" />
+                    <Label htmlFor="storyteller" className="text-white cursor-pointer">Storyteller</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="creator" id="creator" />
+                    <Label htmlFor="creator" className="text-white cursor-pointer">AI Creator</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Profile Image Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="profileImage" className="text-white">Profile Photo</Label>
+                <div className="flex items-center space-x-4">
+                  {profileImagePreview ? (
+                    <img 
+                      src={profileImagePreview} 
+                      alt="Profile preview" 
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
+                      <Upload className="w-6 h-6 text-gray-400" />
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    id="profileImage"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('profileImage')?.click()}
+                    className="text-white border-gray-600 hover:bg-gray-700"
+                  >
+                    Choose Photo
+                  </Button>
+                </div>
+              </div>
+
+              {/* Name Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-white">First Name</Label>
+                  <Input
+                    id="firstName"
+                    name="firstName"
+                    type="text"
+                    required
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-white">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    name="lastName"
+                    type="text"
+                    required
+                    className="bg-gray-800 border-gray-700 text-white"
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-white">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-white">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  minLength={8}
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+                <p className="text-sm text-gray-400">Must be at least 8 characters long</p>
+              </div>
+
+              {/* Location */}
+              <div className="space-y-2">
+                <Label htmlFor="cityStateCountry" className="text-white">Location</Label>
+                <Input
+                  id="cityStateCountry"
+                  name="cityStateCountry"
+                  type="text"
+                  placeholder="City, State or Country"
+                  required
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+
+              {/* Terms and Conditions */}
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="terms"
+                  checked={agreedToTerms}
+                  onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                  className="mt-1"
+                />
+                <Label htmlFor="terms" className="text-sm text-white leading-relaxed cursor-pointer">
+                  By signing up, I agree to the{' '}
+                  <a href="/terms" target="_blank" className="text-blue-400 hover:underline">
+                    Terms and Conditions
+                  </a>{' '}
+                  and{' '}
+                  <a href="/privacy" target="_blank" className="text-blue-400 hover:underline">
+                    Privacy Policy
+                  </a>
+                </Label>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-white text-black hover:bg-gray-200"
+                disabled={isLoading || !agreedToTerms}
+              >
+                {isLoading ? 'Creating Account...' : 'Create Account'}
+              </Button>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="signin" className="space-y-4">
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signin-email" className="text-white">Email</Label>
+                <Input
+                  id="signin-email"
+                  name="email"
+                  type="email"
+                  required
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="signin-password" className="text-white">Password</Label>
+                <Input
+                  id="signin-password"
+                  name="password"
+                  type="password"
+                  required
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-white text-black hover:bg-gray-200"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Signing In...' : 'Sign In'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="link"
+                onClick={handleForgotPassword}
+                className="w-full text-blue-400 hover:text-blue-300"
+              >
+                Forgot Password?
+              </Button>
+            </form>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
+};
