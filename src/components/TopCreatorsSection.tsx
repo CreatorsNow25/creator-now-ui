@@ -54,42 +54,44 @@ const TopCreatorsSection = () => {
     <section className="py-20 bg-black-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-4xl font-bold text-center text-white mb-16">Top Rated AI Creators</h2>
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           {creatorsWithDisplayNames.map((creator, index) => (
             <Card key={index} className="bg-dark-card text-white">
-              <CardContent className="p-6">
+              <CardContent className="p-4 sm:p-6">
                 <div className="relative mb-4">
-                  {playingVideo === index ? (
-                    <div className="relative">
-                      <video 
-                        src={creator.videoUrl}
-                        className="w-full aspect-video object-cover rounded-lg"
-                        controls
-                        autoPlay
-                        onEnded={() => setPlayingVideo(null)}
-                      />
-                      <button
-                        onClick={() => toggleVideo(index)}
-                        className="absolute top-2 right-2 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors"
-                      >
-                        <Pause className="w-4 h-4 text-white" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="relative">
-                      <img 
-                        src={creator.thumbnail}
-                        alt={creator.specialty}
-                        className="w-full aspect-video object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={() => toggleVideo(index)}
-                        className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center hover:bg-black/60 transition-colors group"
-                      >
-                        <Play className="w-12 h-12 text-white group-hover:scale-110 transition-transform" />
-                      </button>
-                    </div>
-                  )}
+                  <div className="w-full aspect-video bg-gray-900 rounded-lg overflow-hidden">
+                    {playingVideo === index ? (
+                      <div className="relative w-full h-full">
+                        <video 
+                          src={creator.videoUrl}
+                          className="w-full h-full object-cover"
+                          controls
+                          autoPlay
+                          onEnded={() => setPlayingVideo(null)}
+                        />
+                        <button
+                          onClick={() => toggleVideo(index)}
+                          className="absolute top-2 right-2 bg-black/50 rounded-full p-2 hover:bg-black/70 transition-colors z-10"
+                        >
+                          <Pause className="w-4 h-4 text-white" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="relative w-full h-full">
+                        <img 
+                          src={creator.thumbnail}
+                          alt={creator.specialty}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          onClick={() => toggleVideo(index)}
+                          className="absolute inset-0 bg-black/40 flex items-center justify-center hover:bg-black/60 transition-colors group"
+                        >
+                          <Play className="w-8 h-8 sm:w-12 sm:h-12 text-white group-hover:scale-110 transition-transform" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="flex items-center space-x-3 mb-3">
                   <img 
