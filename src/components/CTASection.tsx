@@ -14,17 +14,17 @@ const CTASection = () => {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button 
             size="lg" 
-            onClick={() => navigate('/real-auth?role=storyteller')}
+            onClick={() => navigate('/storyteller-dashboard')}
             className="bg-black text-white hover:bg-gray-800 text-lg px-8 py-3"
           >
-            I'm a Storyteller
+            Storyteller
           </Button>
           <Button 
             size="lg" 
-            onClick={() => navigate('/real-auth?role=creator')}
+            onClick={() => navigate('/creator-dashboard')}
             className="bg-black text-white hover:bg-gray-800 text-lg px-8 py-3"
           >
-            I'm an AI Creator
+            AI Creator
           </Button>
         </div>
       </div>
