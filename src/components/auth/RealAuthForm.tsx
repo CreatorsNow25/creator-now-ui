@@ -83,20 +83,8 @@ export const RealAuthForm = () => {
           // Don't fail the signup if profile creation fails, just log it
         }
 
-        // Send confirmation email
-        try {
-          await supabase.functions.invoke('send-email', {
-            body: {
-              email_type: 'verification',
-              email: email,
-              user_name: firstName,
-              redirect_to: redirectUrl
-            }
-          });
-        } catch (emailError) {
-          console.error('Email sending error:', emailError);
-          // Don't fail signup if email fails
-        }
+        // Supabase will automatically send verification email
+        // when emailRedirectTo is provided in the signup options
 
         setSuccessMessage(
           'Account created successfully! Please check your email to verify your account before signing in.'
