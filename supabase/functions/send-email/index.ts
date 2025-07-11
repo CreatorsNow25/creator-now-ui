@@ -121,7 +121,7 @@ const handler = async (req: Request): Promise<Response> => {
                   </p>
                   
                   <div style="text-align: center; margin: 32px 0;">
-                    <a href="https://creators-now.vercel.app/auth" style="background-color: #ffffff; color: #000000; border-radius: 6px; font-weight: bold; font-size: 16px; text-decoration: none; display: inline-block; padding: 12px 24px;">
+                    <a href="https://creators.now/auth" style="background-color: #ffffff; color: #000000; border-radius: 6px; font-weight: bold; font-size: 16px; text-decoration: none; display: inline-block; padding: 12px 24px;">
                       Get Started
                     </a>
                   </div>
@@ -194,7 +194,7 @@ const handler = async (req: Request): Promise<Response> => {
                   </p>
                   
                   <div style="text-align: center; margin: 32px 0;">
-                    <a href="https://creators-now.vercel.app/auth" style="background-color: #ffffff; color: #000000; border-radius: 6px; font-weight: bold; font-size: 16px; text-decoration: none; display: inline-block; padding: 12px 24px;">
+                    <a href="https://creators.now/auth" style="background-color: #ffffff; color: #000000; border-radius: 6px; font-weight: bold; font-size: 16px; text-decoration: none; display: inline-block; padding: 12px 24px;">
                       Get Started
                     </a>
                   </div>
