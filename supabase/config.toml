@@ -4,7 +4,7 @@ project_id = "qwvleuornxbjkudvsifr"
 [auth]
 enable_signup = true
 site_url = "https://creators-now.vercel.app"
-additional_redirect_urls = ["https://creators-now.vercel.app/verify"]
+additional_redirect_urls = ["https://creators-now.vercel.app/real-auth"]
 
 [auth.email]
 enable_signup = true
