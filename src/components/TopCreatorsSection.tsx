@@ -26,7 +26,7 @@ const TopCreatorsSection = () => {
       rating: 4.8,
       specialty: "Fantasy Adventures",
       thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop",
-      videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
+      videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
       type: 'demo' as const
     },
     {
@@ -35,7 +35,7 @@ const TopCreatorsSection = () => {
       rating: "New",
       specialty: "Sci-Fi Concepts",
       thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=200&h=120&fit=crop",
-      videoUrl: "https://file-examples.com/storage/fe68c009e7aecd45d0ad1ad/2017/10/file_example_MP4_1280_10MG.mp4",
+      videoUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4",
       type: 'demo' as const
     }
   ], []);
@@ -80,6 +80,12 @@ const TopCreatorsSection = () => {
                           controls
                           autoPlay
                           onEnded={() => setPlayingVideo(null)}
+                          onError={(e) => {
+                            console.error('Video failed to load:', creator.videoUrl, e);
+                            setPlayingVideo(null);
+                          }}
+                          onLoadStart={() => console.log('Video loading started:', creator.videoUrl)}
+                          onCanPlay={() => console.log('Video can play:', creator.videoUrl)}
                         />
                         <button
                           onClick={() => toggleVideo(index)}
