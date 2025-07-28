@@ -26,7 +26,7 @@ const TopCreatorsSection = () => {
       rating: 4.8,
       specialty: "Fantasy Adventures",
       thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop",
-      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+      videoUrl: "https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4",
       type: 'demo' as const
     },
     {
@@ -35,7 +35,7 @@ const TopCreatorsSection = () => {
       rating: "New",
       specialty: "Sci-Fi Concepts",
       thumbnail: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=200&h=120&fit=crop",
-      videoUrl: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4",
+      videoUrl: "https://file-examples.com/storage/fe68c009e7aecd45d0ad1ad/2017/10/file_example_MP4_1280_10MG.mp4",
       type: 'demo' as const
     }
   ], []);
