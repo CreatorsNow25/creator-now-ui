@@ -67,7 +67,7 @@ export const RealAuthForm = () => {
         throw new Error('Password must be at least 8 characters long');
       }
 
-      const redirectUrl = `https://creators-now.vercel.app/verify`;
+      const redirectUrl = `${window.location.origin}/verify`;
       
       // Sign up user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -107,6 +107,7 @@ export const RealAuthForm = () => {
         }
 
         // Create user profile
+        const displayName = `${firstName} ${lastName.charAt(0)}.`;
         const { error: profileError } = await supabase
           .from('real_user_profiles')
           .insert({
@@ -118,7 +119,8 @@ export const RealAuthForm = () => {
             role: selectedRole,
             avatar_url: avatarUrl,
             email_confirmed: false,
-            onboarding_completed: false
+            onboarding_completed: false,
+            display_name: displayName
           });
 
         if (profileError) {

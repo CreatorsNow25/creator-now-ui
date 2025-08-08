@@ -1,9 +1,9 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import StorytellerHeader from '@/components/StorytellerHeader';
 import ActiveViewRenderer from '@/components/storyteller-dashboard/ActiveViewRenderer';
 import DashboardModals from '@/components/storyteller-dashboard/DashboardModals';
 import { useStorytellerDashboard } from '@/hooks/useStorytellerDashboard';
+import { supabase } from '@/integrations/supabase/client';
 
 const StorytellerDashboard = () => {
   const {
@@ -34,6 +34,26 @@ const StorytellerDashboard = () => {
     handleDashboardClick,
     handleProjectsClick,
   } = useStorytellerDashboard();
+
+  const [showEmpty, setShowEmpty] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        if (!authUser) return;
+        const { count, error } = await supabase
+          .from('real_user_projects')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', authUser.id);
+        if (!error && (count ?? 0) === 0) {
+          setShowEmpty(true);
+        }
+      } catch (e) {
+        console.error('Error checking storyteller projects count', e);
+      }
+    })();
+  }, []);
 
   // Show loading while authentication is being resolved
   if (loading) {
@@ -74,6 +94,11 @@ const StorytellerDashboard = () => {
         onProjectsClick={handleProjectsClick}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {showEmpty && (
+          <div className="mb-4 rounded border border-gray-200 bg-white p-4 text-gray-700">
+            No projects yet. Upload one to get started.
+          </div>
+        )}
         <ActiveViewRenderer
           activeView={activeView}
           selectedProject={selectedProject}

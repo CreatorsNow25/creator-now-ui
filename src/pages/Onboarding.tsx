@@ -126,7 +126,19 @@ const Onboarding = () => {
 
     try {
       const formData = new FormData(e.currentTarget);
-      const bio = formData.get('bio') as string;
+      const bio = (formData.get('bio') as string) || '';
+
+      // Enforce required fields
+      if (!bio.trim()) {
+        setError('Please enter a short bio.');
+        setIsLoading(false);
+        return;
+      }
+      if (!profileImagePreview && !profileImage) {
+        setError('Please upload a profile photo.');
+        setIsLoading(false);
+        return;
+      }
 
       let avatarUrl = userProfile.avatar_url;
 
@@ -138,13 +150,22 @@ const Onboarding = () => {
         }
       }
 
+      // Compute display_name if missing
+      let displayNameUpdate: string | undefined = undefined;
+      if (!userProfile.display_name && userProfile.first_name && userProfile.last_name) {
+        displayNameUpdate = `${userProfile.first_name} ${userProfile.last_name.charAt(0)}.`;
+      }
+
       // Update profile with basic info
+      const updatePayload: any = {
+        bio: bio,
+        avatar_url: avatarUrl,
+      };
+      if (displayNameUpdate) updatePayload.display_name = displayNameUpdate;
+
       const { error } = await supabase
         .from('real_user_profiles')
-        .update({
-          bio: bio || null,
-          avatar_url: avatarUrl
-        })
+        .update(updatePayload)
         .eq('user_id', userProfile.user_id);
 
       if (error) throw error;

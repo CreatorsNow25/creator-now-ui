@@ -47,12 +47,42 @@ export const useEmailVerification = () => {
           
           if (data?.user) {
             console.log('EmailVerify: Verification successful for user:', data.user.id);
+
+            // Mark email as confirmed and set display_name if missing
+            try {
+              const userId = data.user.id;
+              const { data: profile, error: profileFetchError } = await supabase
+                .from('real_user_profiles')
+                .select('first_name, last_name, display_name')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+              if (profileFetchError) {
+                console.error('EmailVerify: Failed to fetch profile for update:', profileFetchError);
+              }
+
+              const updates: any = { email_confirmed: true };
+              if (profile && !profile.display_name && profile.first_name && profile.last_name) {
+                updates.display_name = `${profile.first_name} ${profile.last_name.charAt(0)}.`;
+              }
+
+              const { error: updateError } = await supabase
+                .from('real_user_profiles')
+                .update(updates)
+                .eq('user_id', userId);
+              if (updateError) {
+                console.error('EmailVerify: Failed to update profile after verification:', updateError);
+              }
+            } catch (e) {
+              console.error('EmailVerify: Error updating profile after verification:', e);
+            }
+
             setStatus('success');
             setMessage('Your email has been verified successfully! You can now sign in to your account.');
             
             // Wait a moment then redirect to sign in
             setTimeout(() => {
-              navigate('/auth', { 
+              navigate('/real-auth', { 
                 state: { 
                   message: 'Email verified! You can now sign in.',
                   verified: true 
@@ -83,12 +113,42 @@ export const useEmailVerification = () => {
           
           if (data?.user) {
             console.log('EmailVerify: Verification successful for user:', data.user.id);
+
+            // Mark email as confirmed and set display_name if missing
+            try {
+              const userId = data.user.id;
+              const { data: profile, error: profileFetchError } = await supabase
+                .from('real_user_profiles')
+                .select('first_name, last_name, display_name')
+                .eq('user_id', userId)
+                .maybeSingle();
+
+              if (profileFetchError) {
+                console.error('EmailVerify: Failed to fetch profile for update:', profileFetchError);
+              }
+
+              const updates: any = { email_confirmed: true };
+              if (profile && !profile.display_name && profile.first_name && profile.last_name) {
+                updates.display_name = `${profile.first_name} ${profile.last_name.charAt(0)}.`;
+              }
+
+              const { error: updateError } = await supabase
+                .from('real_user_profiles')
+                .update(updates)
+                .eq('user_id', userId);
+              if (updateError) {
+                console.error('EmailVerify: Failed to update profile after verification:', updateError);
+              }
+            } catch (e) {
+              console.error('EmailVerify: Error updating profile after verification:', e);
+            }
+
             setStatus('success');
             setMessage('Your email has been verified successfully! You can now sign in to your account.');
             
             // Wait a moment then redirect to sign in
             setTimeout(() => {
-              navigate('/auth', { 
+              navigate('/real-auth', { 
                 state: { 
                   message: 'Email verified! You can now sign in.',
                   verified: true 

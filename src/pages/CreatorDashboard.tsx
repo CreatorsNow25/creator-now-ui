@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CreatorHeader from '@/components/CreatorHeader';
 import ProfileWizard from '@/components/ProfileWizard';
@@ -16,6 +15,7 @@ import ProjectsView from '@/components/creator-dashboard/ProjectsView';
 import PortfolioView from '@/components/creator-dashboard/PortfolioView';
 import EarningsView from '@/components/creator-dashboard/EarningsView';
 import { useCreatorDashboard } from '@/hooks/useCreatorDashboard';
+import { supabase } from '@/integrations/supabase/client';
 
 const CreatorDashboard = () => {
   const navigate = useNavigate();
@@ -33,6 +33,26 @@ const CreatorDashboard = () => {
     handleProjectSelect,
     handleProposalSubmit,
   } = useCreatorDashboard();
+
+  const [showEmpty, setShowEmpty] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { count, error } = await supabase
+          .from('real_user_videos')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        if (!error && (count ?? 0) === 0) {
+          setShowEmpty(true);
+        }
+      } catch (e) {
+        console.error('Error checking creator videos count', e);
+      }
+    })();
+  }, []);
 
   const renderActiveView = () => {
     switch (activeView) {
@@ -103,6 +123,11 @@ const CreatorDashboard = () => {
         onLogout={() => navigate('/')}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {activeView === 'dashboard' && showEmpty && (
+          <div className="mb-4 rounded border border-gray-200 bg-white p-4 text-gray-700">
+            Your portfolio is empty. Add work samples to get discovered.
+          </div>
+        )}
         {renderActiveView()}
       </div>
       <HelpCenter isOpen={showHelpCenter} onClose={() => setShowHelpCenter(false)} />

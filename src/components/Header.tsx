@@ -8,6 +8,7 @@ import { useUser } from '@/contexts/UserContext';
 const Header = () => {
   const navigate = useNavigate();
   const { user, signOut } = useUser();
+  const hasAccess = typeof window !== 'undefined' && sessionStorage.getItem('creators-access') === 'true';
 
   const handleSignOut = async () => {
     await signOut();
@@ -56,9 +57,11 @@ const Header = () => {
               </>
             ) : (
               <>
-                <Button variant="ghost" onClick={() => navigate('/auth')} className="text-white hover:text-black hover:bg-white">
-                  Demo
-                </Button>
+                {!hasAccess && (
+                  <Button variant="ghost" onClick={() => navigate('/auth')} className="text-white hover:text-black hover:bg-white">
+                    Demo
+                  </Button>
+                )}
                 <Button variant="ghost" onClick={() => navigate('/real-auth')} className="text-white hover:text-black hover:bg-white">
                   Sign In
                 </Button>

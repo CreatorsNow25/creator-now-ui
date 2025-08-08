@@ -14,7 +14,7 @@ const VerificationActions = ({ status }: VerificationActionsProps) => {
     return (
       <div className="space-y-3">
         <Button 
-          onClick={() => navigate('/auth')}
+          onClick={() => navigate('/real-auth')}
           className="w-full bg-white text-black hover:bg-white/90"
         >
           Go to Sign In
@@ -37,7 +37,7 @@ const VerificationActions = ({ status }: VerificationActionsProps) => {
           Redirecting you to sign in...
         </p>
         <Button 
-          onClick={() => navigate('/auth')}
+          onClick={() => navigate('/real-auth')}
           className="w-full bg-white text-black hover:bg-white/90"
         >
           Continue to Sign In
