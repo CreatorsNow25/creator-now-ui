@@ -127,10 +127,16 @@ const Onboarding = () => {
     try {
       const formData = new FormData(e.currentTarget);
       const bio = (formData.get('bio') as string) || '';
+      const location = (formData.get('location') as string) || '';
 
       // Enforce required fields
       if (!bio.trim()) {
         setError('Please enter a short bio.');
+        setIsLoading(false);
+        return;
+      }
+      if (!location.trim()) {
+        setError('Please enter your city and state/region.');
         setIsLoading(false);
         return;
       }
@@ -158,8 +164,9 @@ const Onboarding = () => {
 
       // Update profile with basic info
       const updatePayload: any = {
-        bio: bio,
+        bio,
         avatar_url: avatarUrl,
+        city_state_country: location,
       };
       if (displayNameUpdate) updatePayload.display_name = displayNameUpdate;
 
@@ -361,22 +368,29 @@ const Onboarding = () => {
                   </div>
                 </div>
 
-                {/* Location Display */}
+                {/* Location (Required) */}
                 <div className="space-y-2">
-                  <Label className="text-white">Location</Label>
-                  <div className="text-gray-300 bg-gray-800 p-3 rounded border border-gray-700">
-                    {userProfile.city_state_country}
-                  </div>
+                  <Label htmlFor="location" className="text-white">Location</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    type="text"
+                    defaultValue={userProfile.city_state_country || ''}
+                    placeholder="City, State (or City, Region, Country)"
+                    className="bg-gray-800 border-gray-700 text-white"
+                    required
+                  />
                 </div>
 
                 {/* Bio */}
                 <div className="space-y-2">
-                  <Label htmlFor="bio" className="text-white">Bio (Optional)</Label>
+                  <Label htmlFor="bio" className="text-white">Bio</Label>
                   <Textarea
                     id="bio"
                     name="bio"
                     placeholder="Tell us a bit about yourself..."
                     className="bg-gray-800 border-gray-700 text-white min-h-[100px]"
+                    required
                   />
                 </div>
 
