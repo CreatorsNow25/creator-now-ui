@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Play, Star, Pause } from 'lucide-react';
@@ -9,6 +9,8 @@ import { useRealUsers } from '@/hooks/useRealUsers';
 const TopCreatorsSection = () => {
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
   const { realCreators, loading } = useRealUsers();
+  const [playNonce, setPlayNonce] = useState(0);
+  const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
 
   const demoCreators = useMemo(() => [
     {
@@ -56,11 +58,30 @@ const TopCreatorsSection = () => {
 
   const toggleVideo = (index: number) => {
     if (playingVideo === index) {
+      const vid = videoRefs.current[index];
+      if (vid) {
+        try { vid.pause(); vid.currentTime = 0; } catch {}
+      }
       setPlayingVideo(null);
     } else {
+      setPlayNonce((n) => n + 1);
       setPlayingVideo(index);
     }
   };
+  useEffect(() => {
+    if (playingVideo !== null) {
+      const vid = videoRefs.current[playingVideo];
+      if (vid) {
+        try {
+          vid.currentTime = 0;
+          const playPromise = vid.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {});
+          }
+        } catch {}
+      }
+    }
+  }, [playingVideo, playNonce]);
 
   return (
     <section className="py-20 bg-black-section">
@@ -75,10 +96,13 @@ const TopCreatorsSection = () => {
                     {playingVideo === index ? (
                       <div className="relative w-full h-full">
                         <video 
-                          src={creator.videoUrl}
+                          key={`video-${index}-${playNonce}`}
+                          ref={(el) => { videoRefs.current[index] = el; }}
+                          src={`${creator.videoUrl}${creator.videoUrl.includes('?') ? '&' : '?'}cb=${playNonce}`}
                           className="w-full h-full object-cover"
                           controls
-                          autoPlay
+                          playsInline
+                          preload="metadata"
                           onEnded={() => setPlayingVideo(null)}
                           onError={(e) => {
                             console.error('Video failed to load:', creator.videoUrl, e);
