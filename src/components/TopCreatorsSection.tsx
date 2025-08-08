@@ -101,6 +101,7 @@ const TopCreatorsSection = () => {
                           ref={(el) => { videoRefs.current[index] = el; }}
                           src={`${creator.videoUrl}${creator.videoUrl.includes('?') ? '&' : '?'}cb=${playNonce}`}
                           className="w-full h-full object-cover"
+                          poster={`${creator.thumbnail}${creator.thumbnail?.includes('?') ? '&' : '?'}cb=${playNonce}`}
                           controls
                           playsInline
                           preload="metadata"
@@ -121,12 +122,13 @@ const TopCreatorsSection = () => {
                       </div>
                     ) : (
                       <div className="relative w-full h-full">
-                        <img 
-                          src={creator.thumbnail}
-                          alt={creator.specialty}
+                        <video
+                          key={`poster-${index}-${playNonce}`}
                           className="w-full h-full object-cover"
-                          loading="lazy"
-                          onError={(e) => { e.currentTarget.src = '/og-image.jpg'; }}
+                          poster={`${creator.thumbnail}${creator.thumbnail?.includes('?') ? '&' : '?'}cb=${playNonce}`}
+                          preload="metadata"
+                          playsInline
+                          muted
                         />
                         <button
                           onClick={() => toggleVideo(index)}
