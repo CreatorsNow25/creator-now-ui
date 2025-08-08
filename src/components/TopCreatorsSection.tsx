@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Play, Star, Pause } from 'lucide-react';
 import { getDisplayName } from '@/hooks/useCreatorDashboard';
 import { useRealUsers } from '@/hooks/useRealUsers';
+import emmaAvatar from '@/assets/avatars/emma.jpg';
 
 const TopCreatorsSection = () => {
   const [playingVideo, setPlayingVideo] = useState<number | null>(null);
@@ -24,7 +25,7 @@ const TopCreatorsSection = () => {
     },
     {
       name: "Emma Collins",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=80&h=80&fit=crop&crop=face",
+      avatar: emmaAvatar,
       rating: 4.8,
       specialty: "Fantasy Adventures",
       thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=120&fit=crop",
@@ -124,6 +125,8 @@ const TopCreatorsSection = () => {
                           src={creator.thumbnail}
                           alt={creator.specialty}
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.src = '/og-image.jpg'; }}
                         />
                         <button
                           onClick={() => toggleVideo(index)}
@@ -140,6 +143,8 @@ const TopCreatorsSection = () => {
                     src={creator.avatar}
                     alt={creator.displayName}
                     className="w-12 h-12 rounded-full object-cover"
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }}
                   />
                   <div>
                     <h3 className="font-bold text-white">{creator.displayName}</h3>
