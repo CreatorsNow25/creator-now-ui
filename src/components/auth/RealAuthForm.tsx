@@ -308,7 +308,7 @@ export const RealAuthForm = () => {
                   minLength={8}
                   className="bg-gray-800 border-gray-700 text-white"
                 />
-                <p className="text-sm text-gray-400">Must be at least 8 characters long</p>
+                <p className="text-sm text-gray-400">At least 8 characters, with lowercase, uppercase, and a number.</p>
               </div>
 
 
