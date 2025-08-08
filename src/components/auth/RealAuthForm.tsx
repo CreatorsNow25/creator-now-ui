@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Upload, AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,30 +17,10 @@ export const RealAuthForm = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [selectedRole, setSelectedRole] = useState<'storyteller' | 'creator'>('storyteller');
-  const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
+  
+  
   const { toast } = useToast();
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        setError('Profile image must be less than 5MB');
-        return;
-      }
-      if (!file.type.startsWith('image/')) {
-        setError('Please select a valid image file');
-        return;
-      }
-      setProfileImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-      setError(null);
-    }
-  };
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,7 +39,7 @@ export const RealAuthForm = () => {
     const lastName = formData.get('lastName') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    const cityStateCountry = formData.get('cityStateCountry') as string;
+    
 
     try {
       // Validate password strength
@@ -89,23 +69,6 @@ export const RealAuthForm = () => {
       if (authData.user) {
         let avatarUrl = null;
 
-        // Upload profile image if provided
-        if (profileImage) {
-          const fileExt = profileImage.name.split('.').pop();
-          const fileName = `${authData.user.id}/avatar.${fileExt}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from('user-uploads')
-            .upload(fileName, profileImage);
-
-          if (!uploadError) {
-            const { data: urlData } = supabase.storage
-              .from('user-uploads')
-              .getPublicUrl(fileName);
-            avatarUrl = urlData.publicUrl;
-          }
-        }
-
         // Create user profile
         const displayName = `${firstName} ${lastName.charAt(0)}.`;
         const { error: profileError } = await supabase
@@ -115,7 +78,7 @@ export const RealAuthForm = () => {
             first_name: firstName,
             last_name: lastName,
             email: email,
-            city_state_country: cityStateCountry,
+            city_state_country: '',
             role: selectedRole,
             avatar_url: avatarUrl,
             email_confirmed: false,
@@ -297,38 +260,6 @@ export const RealAuthForm = () => {
                 </RadioGroup>
               </div>
 
-              {/* Profile Image Upload */}
-              <div className="space-y-2">
-                <Label htmlFor="profileImage" className="text-white">Profile Photo</Label>
-                <div className="flex items-center space-x-4">
-                  {profileImagePreview ? (
-                    <img 
-                      src={profileImagePreview} 
-                      alt="Profile preview" 
-                      className="w-16 h-16 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center">
-                      <Upload className="w-6 h-6 text-gray-400" />
-                    </div>
-                  )}
-                  <input
-                    type="file"
-                    id="profileImage"
-                    accept="image/*"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById('profileImage')?.click()}
-                    className="text-white border-gray-600 hover:bg-gray-700"
-                  >
-                    Choose Photo
-                  </Button>
-                </div>
-              </div>
 
               {/* Name Fields */}
               <div className="grid grid-cols-2 gap-4">
@@ -380,18 +311,6 @@ export const RealAuthForm = () => {
                 <p className="text-sm text-gray-400">Must be at least 8 characters long</p>
               </div>
 
-              {/* Location */}
-              <div className="space-y-2">
-                <Label htmlFor="cityStateCountry" className="text-white">Location</Label>
-                <Input
-                  id="cityStateCountry"
-                  name="cityStateCountry"
-                  type="text"
-                  placeholder="City, State or Country"
-                  required
-                  className="bg-gray-800 border-gray-700 text-white"
-                />
-              </div>
 
               {/* Terms and Conditions */}
               <div className="flex items-start space-x-3">
