@@ -12,6 +12,7 @@ const TopCreatorsSection = () => {
   const { realCreators, loading } = useRealUsers();
   const [playNonce, setPlayNonce] = useState(0);
   const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
+  const thumbRefs = useRef<Record<number, HTMLVideoElement | null>>({});
 
   const demoCreators = useMemo(() => [
     {
@@ -124,11 +125,31 @@ const TopCreatorsSection = () => {
                       <div className="relative w-full h-full">
                         <video
                           key={`poster-${index}-${playNonce}`}
+                          ref={(el) => {
+                            const isTarget = creator.type === 'demo' && (creator.name === 'Emma Collins' || creator.name === 'Jordan Kim');
+                            if (isTarget) thumbRefs.current[index] = el;
+                          }}
                           className="w-full h-full object-cover"
                           poster={`${creator.thumbnail}${creator.thumbnail?.includes('?') ? '&' : '?'}cb=${playNonce}`}
+                          src={(() => {
+                            const isTarget = creator.type === 'demo' && (creator.name === 'Emma Collins' || creator.name === 'Jordan Kim');
+                            return isTarget ? `${creator.videoUrl}${creator.videoUrl.includes('?') ? '&' : '?'}cb=${playNonce}` : undefined;
+                          })()}
                           preload="metadata"
                           playsInline
                           muted
+                          onLoadedMetadata={(e) => {
+                            const isTarget = creator.type === 'demo' && (creator.name === 'Emma Collins' || creator.name === 'Jordan Kim');
+                            if (isTarget) {
+                              try { e.currentTarget.currentTime = 0.12; } catch {}
+                            }
+                          }}
+                          onSeeked={(e) => {
+                            const isTarget = creator.type === 'demo' && (creator.name === 'Emma Collins' || creator.name === 'Jordan Kim');
+                            if (isTarget) {
+                              try { e.currentTarget.pause(); } catch {}
+                            }
+                          }}
                         />
                         <button
                           onClick={() => toggleVideo(index)}
