@@ -322,13 +322,27 @@ export const RealAuthForm = () => {
                 />
                 <Label htmlFor="terms" className="text-sm text-white leading-relaxed cursor-pointer">
                   By signing up, I agree to the{' '}
-                  <a href="/terms" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-blue-400 hover:underline">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open('/terms', '_blank', 'noopener,noreferrer');
+                    }}
+                    className="text-blue-400 hover:underline"
+                  >
                     Terms and Conditions
-                  </a>{' '}
+                  </button>{' '}
                   and{' '}
-                  <a href="/privacy" target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-blue-400 hover:underline">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open('/privacy', '_blank', 'noopener,noreferrer');
+                    }}
+                    className="text-blue-400 hover:underline"
+                  >
                     Privacy Policy
-                  </a>
+                  </button>
                 </Label>
               </div>
 
