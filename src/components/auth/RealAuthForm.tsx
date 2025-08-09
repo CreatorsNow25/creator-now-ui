@@ -162,7 +162,13 @@ export const RealAuthForm = () => {
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
-      setError(error.message || 'An unexpected error occurred during sign in.');
+      if (error.message.includes('Invalid login credentials')) {
+        setError('Invalid email or password. Please check your credentials and try again.');
+      } else if (error.message.includes('Email not confirmed')) {
+        setError('Please verify your email address before signing in. Check your inbox for a verification link.');
+      } else {
+        setError(error.message || 'An unexpected error occurred during sign in.');
+      }
     } finally {
       setIsLoading(false);
     }

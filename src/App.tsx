@@ -9,6 +9,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import RealAuth from "./pages/RealAuth";
+import ResetPassword from "./pages/ResetPassword";
 import EmailVerify from "./pages/EmailVerify";
 import StorytellerDashboard from "./pages/StorytellerDashboard";
 import CreatorDashboard from "./pages/CreatorDashboard";
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/real-auth" element={<RealAuth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/email-verify" element={<EmailVerify />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/terms" element={<Terms />} />
