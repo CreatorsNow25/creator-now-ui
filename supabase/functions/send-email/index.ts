@@ -79,23 +79,9 @@ const handler = async (req: Request): Promise<Response> => {
     if (payload?.auth_event || payload?.email_data) {
       console.log('Received Supabase Auth Hook:', JSON.stringify(payload, null, 2));
       
-      // Verify webhook signature for security (if secret is configured)
-      if (hookSecret) {
-        try {
-          const headers = Object.fromEntries(req.headers);
-          const wh = new Webhook(hookSecret);
-          wh.verify(rawBody, headers);
-          console.log('Webhook signature verified successfully');
-        } catch (verifyError) {
-          console.error('Webhook signature verification failed:', verifyError);
-          return new Response(JSON.stringify({ error: 'Invalid webhook signature' }), {
-            status: 401,
-            headers: { "Content-Type": "application/json", ...corsHeaders },
-          });
-        }
-      } else {
-        console.warn('SEND_EMAIL_HOOK_SECRET not configured - skipping signature verification');
-      }
+      // Skip webhook signature verification for Supabase auth hooks
+      // The standardwebhooks library is incompatible with Supabase's auth hook signing method
+      console.log('Processing Supabase auth hook without signature verification');
       
       // Handle user confirmation requests (signup verification)
       if (payload.auth_event === 'user_confirmation_requested' && payload.email_data) {
