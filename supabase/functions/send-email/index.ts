@@ -58,6 +58,16 @@ const handler = async (req: Request): Promise<Response> => {
     };
     const appBaseUrl = resolveBaseUrl(emailRequest.redirect_to);
 
+    // Gracefully handle Supabase Auth Hooks (user_confirmation_requested, etc.)
+    // These hooks may POST a payload without our expected "email_type" shape.
+    // We acknowledge and no-op so signup isn't blocked.
+    if (!emailRequest.email_type && (payload?.auth_event || payload?.email_data)) {
+      return new Response(JSON.stringify({ success: true, ignored: 'auth_hook' }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     switch (emailRequest.email_type) {
       case 'admin_notification':
         // New admin notification for form submissions
