@@ -46,6 +46,18 @@ const handler = async (req: Request): Promise<Response> => {
     let subject = '';
     let toEmail = '';
 
+    // Resolve base app URL from redirect_to (e.g., https://domain/verify -> https://domain)
+    const resolveBaseUrl = (redirect?: string) => {
+      try {
+        if (!redirect) throw new Error('no redirect');
+        const url = new URL(redirect);
+        return `${url.protocol}//${url.host}`;
+      } catch {
+        return 'https://creators-now.vercel.app';
+      }
+    };
+    const appBaseUrl = resolveBaseUrl(emailRequest.redirect_to);
+
     switch (emailRequest.email_type) {
       case 'admin_notification':
         // New admin notification for form submissions
@@ -121,7 +133,7 @@ const handler = async (req: Request): Promise<Response> => {
                   </p>
                   
                   <div style="text-align: center; margin: 32px 0;">
-                    <a href="https://creators-now.vercel.app/auth" style="background-color: #ffffff; color: #000000; border-radius: 6px; font-weight: bold; font-size: 16px; text-decoration: none; display: inline-block; padding: 12px 24px;">
+                    <a href="${appBaseUrl}/real-auth" style="background-color: #ffffff; color: #000000; border-radius: 6px; font-weight: bold; font-size: 16px; text-decoration: none; display: inline-block; padding: 12px 24px;">
                       Get Started
                     </a>
                   </div>
@@ -194,7 +206,7 @@ const handler = async (req: Request): Promise<Response> => {
                   </p>
                   
                   <div style="text-align: center; margin: 32px 0;">
-                    <a href="https://creators-now.vercel.app/auth" style="background-color: #ffffff; color: #000000; border-radius: 6px; font-weight: bold; font-size: 16px; text-decoration: none; display: inline-block; padding: 12px 24px;">
+                    <a href="${appBaseUrl}/real-auth" style="background-color: #ffffff; color: #000000; border-radius: 6px; font-weight: bold; font-size: 16px; text-decoration: none; display: inline-block; padding: 12px 24px;">
                       Get Started
                     </a>
                   </div>
