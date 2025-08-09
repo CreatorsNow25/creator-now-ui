@@ -36,10 +36,12 @@ export const useAuth = () => {
   }, []);
 
   const signUp = async (email: string, password: string, userData?: { full_name?: string; role?: 'storyteller' | 'creator' }) => {
+    const redirectUrl = `${window.location.origin}/verify`;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: userData
       }
     });
