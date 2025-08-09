@@ -1,7 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import React from 'npm:react@18.3.1';
+import { renderAsync } from 'npm:@react-email/components@0.0.22';
+import { VerificationEmail } from './_templates/verification-email.tsx';
+import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0';
 
 const resendApiKey = Deno.env.get("RESEND_API_KEY");
+const hookSecret = Deno.env.get("SEND_EMAIL_HOOK_SECRET");
 const resend = new Resend(resendApiKey);
 
 const corsHeaders = {
@@ -40,7 +45,19 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const payload = await req.json();
+    const rawBody = await req.text();
+    let payload;
+    
+    try {
+      payload = JSON.parse(rawBody);
+    } catch (parseError) {
+      console.error('Failed to parse JSON payload:', parseError);
+      return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
+        status: 400,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    
     const emailRequest = payload as EmailRequest;
     let emailHtml = '';
     let subject = '';
@@ -58,11 +75,92 @@ const handler = async (req: Request): Promise<Response> => {
     };
     const appBaseUrl = resolveBaseUrl(emailRequest.redirect_to);
 
-    // Gracefully handle Supabase Auth Hooks (user_confirmation_requested, etc.)
-    // These hooks may POST a payload without our expected "email_type" shape.
-    // We acknowledge and no-op so signup isn't blocked.
-    if (!emailRequest.email_type && (payload?.auth_event || payload?.email_data)) {
-      return new Response(JSON.stringify({ success: true, ignored: 'auth_hook' }), {
+    // Handle Supabase Auth Hooks (user_confirmation_requested, password_recovery, etc.)
+    if (payload?.auth_event || payload?.email_data) {
+      console.log('Received Supabase Auth Hook:', JSON.stringify(payload, null, 2));
+      
+      // Verify webhook signature for security (if secret is configured)
+      if (hookSecret) {
+        try {
+          const headers = Object.fromEntries(req.headers);
+          const wh = new Webhook(hookSecret);
+          wh.verify(rawBody, headers);
+          console.log('Webhook signature verified successfully');
+        } catch (verifyError) {
+          console.error('Webhook signature verification failed:', verifyError);
+          return new Response(JSON.stringify({ error: 'Invalid webhook signature' }), {
+            status: 401,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+        }
+      } else {
+        console.warn('SEND_EMAIL_HOOK_SECRET not configured - skipping signature verification');
+      }
+      
+      // Handle user confirmation requests (signup verification)
+      if (payload.auth_event === 'user_confirmation_requested' && payload.email_data) {
+        const { 
+          token_hash, 
+          token, 
+          redirect_to, 
+          email_action_type,
+          site_url 
+        } = payload.email_data;
+        
+        const { email, id: user_id } = payload.user || {};
+        const user_name = payload.user?.user_metadata?.full_name || payload.user?.email?.split('@')[0];
+        
+        console.log(`Sending verification email to ${email} with token_hash: ${token_hash}`);
+        
+        try {
+          const emailHtml = await renderAsync(
+            React.createElement(VerificationEmail, {
+              supabase_url: site_url || 'https://qwvleuornxbjkudvsifr.supabase.co',
+              email_action_type: email_action_type || 'signup',
+              redirect_to: redirect_to || `${appBaseUrl}/verify`,
+              token_hash,
+              token,
+              user_name
+            })
+          );
+          
+          const emailResponse = await resend.emails.send({
+            from: "Creators Now <info@creators.now>",
+            to: [email],
+            subject: user_name ? `Welcome to Creators Now, ${user_name}!` : 'Welcome to Creators Now!',
+            html: emailHtml,
+          });
+          
+          console.log('Verification email sent successfully:', emailResponse);
+          
+          return new Response(JSON.stringify({ 
+            success: true, 
+            message: 'Verification email sent via Resend',
+            emailResponse 
+          }), {
+            status: 200,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+          
+        } catch (error) {
+          console.error('Error sending verification email:', error);
+          return new Response(JSON.stringify({ 
+            error: 'Failed to send verification email', 
+            details: error.message 
+          }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+        }
+      }
+      
+      // Handle other auth events (password recovery, etc.) - acknowledge but don't process
+      console.log(`Auth hook received but not handled: ${payload.auth_event}`);
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'Auth hook acknowledged but not processed',
+        auth_event: payload.auth_event
+      }), {
         status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
