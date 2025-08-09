@@ -8,13 +8,17 @@ additional_redirect_urls = [
   "https://creator-now-ui.vercel.app/verify",
   "https://creator-now-ui.vercel.app/email-verify",
   "https://creators-now.vercel.app/verify",
-  "https://creators-now.vercel.app/email-verify"
+  "https://creators-now.vercel.app/email-verify",
+  "http://localhost:3000/verify",
+  "http://localhost:3000/email-verify",
+  "http://localhost:5173/verify",
+  "http://localhost:5173/email-verify"
 ]
 
 [auth.email]
 enable_signup = true
 double_confirm_changes = true
-enable_confirmations = true
+enable_confirmations = false
 
 [functions.send-email]
 verify_jwt = false
