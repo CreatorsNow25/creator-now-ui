@@ -84,7 +84,7 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('Processing Supabase auth hook without signature verification');
       
       // Handle user confirmation requests (signup verification)
-      if (payload.auth_event === 'user_confirmation_requested' && payload.email_data) {
+      if (payload.auth_event?.action === 'user_confirmation_requested' && payload.email_data) {
         const { 
           token_hash, 
           token, 
@@ -141,7 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
       
       // Handle other auth events (password recovery, etc.) - acknowledge but don't process
-      console.log(`Auth hook received but not handled: ${payload.auth_event}`);
+      console.log(`Auth hook received but not handled: ${payload.auth_event?.action ?? payload.auth_event}`);
       return new Response(JSON.stringify({ 
         success: true, 
         message: 'Auth hook acknowledged but not processed',
