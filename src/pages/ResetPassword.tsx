@@ -22,14 +22,22 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Check for reset token on component mount
+  // Validate recovery session on mount instead of relying solely on URL params
   useEffect(() => {
-    const token = searchParams.get('token');
-    const type = searchParams.get('type');
-    
-    if (!token || type !== 'recovery') {
-      setError('Invalid reset link. Please request a new password reset.');
-    }
+    const validateRecoverySession = async () => {
+      try {
+        const type = searchParams.get('type');
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session || (type && type !== 'recovery')) {
+          setError('Invalid or expired reset link. Please request a new password reset.');
+        } else {
+          setError(null);
+        }
+      } catch (e) {
+        setError('Invalid or expired reset link. Please request a new password reset.');
+      }
+    };
+    validateRecoverySession();
   }, [searchParams]);
 
   const validatePassword = (password: string) => {

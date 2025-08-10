@@ -3,6 +3,7 @@ import { Resend } from "npm:resend@2.0.0";
 import React from 'npm:react@18.3.1';
 import { renderAsync } from 'npm:@react-email/components@0.0.22';
 import { VerificationEmail } from './_templates/verification-email.tsx';
+import { PasswordResetEmail } from './_templates/password-reset-email.tsx';
 import { Webhook } from 'https://esm.sh/standardwebhooks@1.0.0';
 
 const resendApiKey = Deno.env.get("RESEND_API_KEY");
@@ -133,6 +134,63 @@ const handler = async (req: Request): Promise<Response> => {
           return new Response(JSON.stringify({ 
             error: 'Failed to send verification email', 
             details: error.message 
+          }), {
+            status: 500,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+        }
+      }
+      
+      // Handle password recovery requests (password reset)
+      if ((payload.auth_event?.action === 'password_recovery_requested' || payload.email_data?.email_action_type === 'recovery') && payload.email_data) {
+        const { 
+          token_hash, 
+          token, 
+          redirect_to, 
+          email_action_type,
+          site_url 
+        } = payload.email_data;
+        
+        const { email } = payload.user || {};
+        const user_name = payload.user?.user_metadata?.full_name || payload.user?.email?.split('@')[0];
+        
+        console.log(`Sending password reset email to ${email} with token_hash: ${token_hash}`);
+        
+        try {
+          const emailHtml = await renderAsync(
+            React.createElement(PasswordResetEmail, {
+              supabase_url: site_url || 'https://qwvleuornxbjkudvsifr.supabase.co',
+              email_action_type: email_action_type || 'recovery',
+              redirect_to: redirect_to || `${appBaseUrl}/reset-password`,
+              token_hash,
+              token,
+              user_name
+            })
+          );
+          
+          const emailResponse = await resend.emails.send({
+            from: "Creators Now <info@creators.now>",
+            to: [email],
+            subject: 'Reset your Creators Now password',
+            html: emailHtml,
+          });
+          
+          console.log('Password reset email sent successfully:', emailResponse);
+          
+          return new Response(JSON.stringify({ 
+            success: true, 
+            message: 'Password reset email sent via Resend',
+            emailResponse 
+          }), {
+            status: 200,
+            headers: { "Content-Type": "application/json", ...corsHeaders },
+          });
+          
+        } catch (error) {
+          console.error('Error sending password reset email:', error);
+          return new Response(JSON.stringify({ 
+            error: 'Failed to send password reset email', 
+            details: (error as any).message 
           }), {
             status: 500,
             headers: { "Content-Type": "application/json", ...corsHeaders },
