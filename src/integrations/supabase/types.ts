@@ -411,6 +411,10 @@ export type Database = {
         Args: { curlopt: string; value: string }
         Returns: boolean
       }
+      is_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
       text_to_bytea: {
         Args: { data: string }
         Returns: string
