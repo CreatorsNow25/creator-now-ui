@@ -34,7 +34,6 @@ const PasswordAccessForm = ({ onAuthenticated }: PasswordAccessFormProps) => {
       <CardHeader>
         <BrandHeader 
           title="Creators Now" 
-          subtitle="Private Beta Access" 
         />
       </CardHeader>
       <CardContent>

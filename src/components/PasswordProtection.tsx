@@ -4,7 +4,6 @@ import { Facebook, Instagram } from 'lucide-react';
 import PasswordAccessForm from './password-protection/PasswordAccessForm';
 import WaitlistForm from './password-protection/WaitlistForm';
 import SuccessMessage from './password-protection/SuccessMessage';
-import WaitlistOptions from './password-protection/WaitlistOptions';
 
 interface PasswordProtectionProps {
   onAuthenticated: () => void;
@@ -15,16 +14,6 @@ type ViewState = 'password' | 'waitlist' | 'success';
 const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
   const [currentView, setCurrentView] = useState<ViewState>('password');
   const [requestType, setRequestType] = useState<'waitlist' | 'demo' | null>(null);
-
-  const handleWaitlistClick = () => {
-    setRequestType('waitlist');
-    setCurrentView('waitlist');
-  };
-
-  const handleDemoClick = () => {
-    setRequestType('demo');
-    setCurrentView('waitlist');
-  };
 
   const handleWaitlistSuccess = () => {
     setCurrentView('success');
@@ -56,10 +45,6 @@ const PasswordProtection = ({ onAuthenticated }: PasswordProtectionProps) => {
         return (
           <div className="w-full max-w-md space-y-6">
             <PasswordAccessForm onAuthenticated={onAuthenticated} />
-            <WaitlistOptions 
-              onWaitlistClick={handleWaitlistClick}
-              onDemoClick={handleDemoClick}
-            />
             <p className="text-center text-white/60 text-sm">
               Connecting Storytellers with experienced AI Creators to bring stories to life
             </p>
