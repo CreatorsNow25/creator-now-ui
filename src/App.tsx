@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { UserProvider } from "@/contexts/UserContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AccessGate from "@/components/AccessGate";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import RealAuth from "./pages/RealAuth";
@@ -28,6 +29,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route element={<AccessGate />}>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/real-auth" element={<RealAuth />} />
@@ -54,6 +56,7 @@ const App = () => (
               } 
             />
             <Route path="*" element={<NotFound />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
